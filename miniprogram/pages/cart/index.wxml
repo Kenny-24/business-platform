@@ -1,0 +1,53 @@
+<view class="safe-page cart-page">
+  <app-nav title="购物车"></app-nav>
+  <view wx:if="{{cart.length}}" class="cart-list">
+    <view class="cart-list-head">
+      <text>共{{cart.length}}件商品</text>
+      <text class="cart-edit">编辑</text>
+    </view>
+
+    <view wx:for="{{cart}}" wx:key="id" class="cart-item">
+      <button class="select-dot {{item.selected ? 'select-dot--active' : ''}}" data-item="{{item}}" bindtap="toggleItem">{{item.selected ? '✓' : ''}}</button>
+      <image class="cart-image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="cart-info">
+        <view class="cart-top">
+          <text class="cart-name">{{item.name}}</text>
+          <button class="remove" data-id="{{item.id}}" bindtap="remove">删除</button>
+        </view>
+        <text class="cart-meta">¥{{item.price}} × {{item.quantity}}{{item.unit}}</text>
+        <view class="cart-bottom">
+          <text class="cart-price">¥{{item.price * item.quantity}}</text>
+          <view class="stepper">
+            <button data-item="{{item}}" data-delta="-1" bindtap="changeQty">−</button>
+            <text>{{item.quantity}}</text>
+            <button data-item="{{item}}" data-delta="1" bindtap="changeQty">＋</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="package-row">
+      <text>包装</text>
+      <view><text class="muted">奶油色雾面纸</text><text class="package-price">¥12 ›</text></view>
+    </view>
+    <view class="points-row">
+      <text>积分抵扣</text>
+      <text class="muted">支付页可用 320 积分 ›</text>
+    </view>
+  </view>
+
+  <view wx:else class="empty">
+    <image class="empty-icon" src="/images/icons/cart.png"></image>
+    <text>购物车还是空的</text>
+    <button bindtap="checkout">去选花</button>
+  </view>
+
+  <view wx:if="{{cart.length}}" class="checkout-bar">
+    <button class="select-all" bindtap="toggleAll">
+      <text class="select-dot {{allSelected ? 'select-dot--active' : ''}}">{{allSelected ? '✓' : ''}}</text>
+      全选
+    </button>
+    <text class="checkout-total">合计：<text>¥{{total + 12}}</text></text>
+    <button class="checkout-button" bindtap="checkout">去结算</button>
+  </view>
+</view>

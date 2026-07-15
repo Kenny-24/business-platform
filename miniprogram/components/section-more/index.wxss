@@ -1,0 +1,31 @@
+.section-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 318rpx;
+  height: 82rpx;
+  min-width: 0;
+  margin: 34rpx auto 6rpx;
+  padding: 0 32rpx;
+  border: 0;
+  border-radius: 41rpx;
+  background: #111111;
+  color: #ffffff;
+  font-size: 25rpx;
+  font-weight: 500;
+  letter-spacing: 3rpx;
+  line-height: 1;
+  box-shadow: 0 9rpx 24rpx rgba(0, 0, 0, 0.08);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.section-more::after {
+  border: 0;
+}
+
+.section-more--pressed {
+  opacity: 0.82;
+  transform: scale(0.98);
+}

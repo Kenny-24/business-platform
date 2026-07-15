@@ -1,0 +1,25 @@
+<view class="product {{compact ? 'product--compact' : ''}}" bindtap="open">
+  <image
+    wx:if="{{item.image}}"
+    class="product__image"
+    src="{{item.image}}"
+    mode="aspectFill"
+    lazy-load
+  ></image>
+
+  <view
+    wx:else
+    class="product__image product__image--placeholder"
+  >
+    <text class="product__placeholder-text">花予</text>
+  </view>
+
+  <view class="product__body">
+    <text class="product__name">{{item.name}}</text>
+    <text class="product__subtitle">{{item.subtitle}}</text>
+    <view class="product__footer">
+      <text class="product__price">¥{{item.price}}<text class="product__unit">/{{item.unit}}</text></text>
+      <button wx:if="{{showAdd}}" class="product__add" catchtap="add" hover-class="product__add--pressed">＋</button>
+    </view>
+  </view>
+</view>

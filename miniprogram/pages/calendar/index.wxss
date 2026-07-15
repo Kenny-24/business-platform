@@ -1,0 +1,264 @@
+.calendar-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0 28rpx 54rpx;
+  background: #ffffff;
+}
+
+.calendar-card {
+  width: 100%;
+  padding: 18rpx 0 14rpx;
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 66rpx;
+  padding: 0 48rpx;
+}
+
+button.month-button {
+  display: flex;
+  flex: 0 0 54rpx;
+  align-items: center;
+  justify-content: center;
+  width: 54rpx;
+  min-width: 54rpx;
+  height: 54rpx;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #8d8982;
+  font-family: serif;
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+button.month-button::after {
+  border: 0;
+}
+
+.month-title {
+  flex: 1 1 auto;
+  color: #262520;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 28rpx;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.week-row,
+.days-grid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.week-row {
+  border-bottom: 1rpx solid rgba(234, 231, 224, 0.45);
+}
+
+.week-cell,
+.day-cell {
+  flex: 0 0 14.285714%;
+  width: 14.285714%;
+  min-width: 0;
+  text-align: center;
+}
+
+.week-cell {
+  padding: 18rpx 0 16rpx;
+  color: #77736c;
+  font-size: 21rpx;
+  line-height: 1.2;
+}
+
+.day-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+}
+
+button.day-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50rpx;
+  min-width: 50rpx;
+  max-width: 50rpx;
+  height: 50rpx;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #34332e;
+  font-size: 22rpx;
+  line-height: 50rpx;
+  text-align: center;
+}
+
+button.day-button::after {
+  border: 0;
+}
+
+button.day-button--muted {
+  color: #c7c3bb;
+}
+
+button.day-button--selected {
+  background: #db7278;
+  color: #ffffff;
+}
+
+.date-summary {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  margin: 28rpx 0 20rpx;
+}
+
+.summary-date {
+  color: #24231f;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 34rpx;
+}
+
+.summary-name {
+  margin-left: 18rpx;
+  color: #918c83;
+  font-size: 23rpx;
+}
+
+.festival-card {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: #fff0ee;
+}
+
+.festival-card image {
+  flex: 0 0 152rpx;
+  width: 152rpx;
+  height: 188rpx;
+  border-radius: 12rpx;
+}
+
+.festival-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3rpx 0 0 22rpx;
+}
+
+.festival-label,
+.festival-name,
+.festival-language {
+  display: block;
+  max-width: 100%;
+}
+
+.festival-label {
+  color: #db7278;
+  font-size: 21rpx;
+}
+
+.festival-name {
+  margin-top: 10rpx;
+  overflow: hidden;
+  color: #2b2a25;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 25rpx;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.festival-language {
+  margin-top: 10rpx;
+  color: #827d74;
+  font-size: 20rpx;
+  line-height: 1.5;
+}
+
+button.festival-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  height: 54rpx;
+  margin: 18rpx 0 0;
+  padding: 0 20rpx;
+  border: 0;
+  border-radius: 28rpx;
+  background: #68764b;
+  color: #ffffff;
+  font-size: 20rpx;
+  line-height: 1.2;
+}
+
+button.festival-button::after {
+  border: 0;
+}
+
+button.add-date {
+  display: flex;
+  align-items: center;
+  width: 72%;
+  min-width: 0;
+  margin: 26rpx auto 0;
+  padding: 24rpx 22rpx;
+  border: 1rpx dashed #d8d3ca;
+  border-radius: 16rpx;
+  background: #ffffff;
+  text-align: left;
+}
+
+button.add-date::after {
+  border: 0;
+}
+
+.add-icon {
+  display: flex;
+  flex: 0 0 58rpx;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  border: 1rpx solid #aba499;
+  border-radius: 50%;
+  color: #817b71;
+  font-size: 34rpx;
+}
+
+.add-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.add-title,
+.add-sub {
+  display: block;
+  max-width: 100%;
+}
+
+.add-title {
+  color: #24231f;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 25rpx;
+  line-height: 1.28;
+}
+
+.add-sub {
+  margin-top: 6rpx;
+  color: #99948b;
+  font-size: 19rpx;
+  line-height: 1.3;
+}

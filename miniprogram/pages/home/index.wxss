@@ -1,0 +1,448 @@
+.home-page {
+  background: #fbfaf7;
+}
+
+/* =========================
+   沉浸式首屏轮播
+   ========================= */
+
+.hero-shell {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #1d1c19;
+}
+
+.hero {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1d1c19;
+}
+
+.hero-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1d1c19;
+}
+
+.hero-image,
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-image {
+  background: #ddd7cc;
+  transform: scale(1.002);
+}
+
+.hero-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(19, 18, 16, 0.26) 0%,
+      rgba(19, 18, 16, 0.04) 28%,
+      rgba(19, 18, 16, 0.02) 48%,
+      rgba(19, 18, 16, 0.74) 100%
+    );
+}
+
+.hero-copy {
+  position: absolute;
+  right: 54rpx;
+  bottom: 92rpx;
+  left: 54rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-eyebrow,
+.hero-title,
+.hero-subtitle {
+  display: block;
+  max-width: 100%;
+  color: #ffffff;
+  text-shadow: 0 2rpx 14rpx rgba(0, 0, 0, 0.28);
+}
+
+.hero-eyebrow {
+  font-size: 22rpx;
+  font-weight: 500;
+  letter-spacing: 7rpx;
+  line-height: 1.4;
+}
+
+.hero-title {
+  margin-top: 16rpx;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 48rpx;
+  font-weight: 500;
+  letter-spacing: 4rpx;
+  line-height: 1.25;
+}
+
+.hero-subtitle {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  font-weight: 400;
+  letter-spacing: 1rpx;
+  line-height: 1.55;
+}
+
+.hero-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 300rpx;
+  height: 76rpx;
+  min-width: 0;
+  margin: 32rpx auto 0;
+  padding: 0 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  border-radius: 4rpx;
+  background: rgba(255, 255, 255, 0.96);
+  color: #22211e;
+  font-size: 25rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.12);
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.hero-button::after {
+  border: 0;
+}
+
+.hero-button--pressed {
+  opacity: 0.90;
+  transform: scale(0.98);
+}
+
+/*
+ * 进度条属于 hero-shell，不属于任何 swiper-item。
+ * 图片切换时只改变激活段，不发生左右位移。
+ */
+.hero-progress {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: 30rpx;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-progress__track {
+  width: 58rpx;
+  height: 4rpx;
+  margin: 0 5rpx;
+  overflow: hidden;
+  border-radius: 2rpx;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.hero-progress__fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+  transition: width 260ms ease;
+}
+
+.hero-progress__fill--active {
+  width: 100%;
+}
+
+/* =========================
+   首页内容区
+   ========================= */
+
+.home-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 0 24rpx 52rpx;
+  background: #fbfaf7;
+}
+
+.home-section {
+  width: 100%;
+  margin-top: 26rpx;
+  padding: 30rpx 22rpx 28rpx;
+  border: 1rpx solid rgba(80, 73, 62, 0.055);
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 8rpx 28rpx rgba(59, 53, 43, 0.035);
+}
+
+.home-product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  margin-right: -7rpx;
+  margin-left: -7rpx;
+}
+
+.home-product-cell {
+  flex: 0 0 33.333333%;
+  width: 33.333333%;
+  min-width: 0;
+  padding: 0 7rpx;
+}
+
+.horizontal-list {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.horizontal-inner {
+  padding-right: 18rpx;
+  white-space: nowrap;
+}
+
+.bouquet-item {
+  display: inline-block;
+  width: 400rpx;
+  margin-right: 16rpx;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.bouquet-item:last-child {
+  margin-right: 0;
+}
+
+/* =========================
+   节日提醒
+   ========================= */
+
+.festival {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 142rpx;
+  margin-top: 0;
+  overflow: hidden;
+  padding: 22rpx 20rpx;
+  border-radius: 18rpx;
+  background:
+    linear-gradient(
+      90deg,
+      #fff5f1 0%,
+      #fff9f5 70%,
+      #ffffff 100%
+    );
+}
+
+.festival-date {
+  display: flex;
+  flex: 0 0 118rpx;
+  align-items: center;
+  justify-content: center;
+  width: 118rpx;
+  height: 100%;
+  border-right: 1rpx solid rgba(219, 114, 120, 0.16);
+}
+
+.festival-month {
+  color: #2a2924;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 26rpx;
+  white-space: nowrap;
+}
+
+.festival-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 22rpx;
+}
+
+.festival-title,
+.festival-sub,
+.festival-link {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.festival-title {
+  color: #2b2a25;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 28rpx;
+}
+
+.festival-sub {
+  margin-top: 7rpx;
+  color: #8b857b;
+  font-size: 20rpx;
+}
+
+.festival-link {
+  margin-top: 8rpx;
+  color: #d96f76;
+  font-size: 19rpx;
+}
+
+.festival-flower {
+  flex: 0 0 94rpx;
+  width: 94rpx;
+  height: 110rpx;
+  margin-left: 16rpx;
+  border-radius: 48rpx 48rpx 12rpx 12rpx;
+}
+
+/* =========================
+   花予图鉴
+   ========================= */
+
+.atlas-grid {
+  display: flex;
+  width: auto;
+  margin: 2rpx -6rpx 0;
+}
+
+.atlas-card {
+  position: relative;
+  flex: 0 0 33.333333%;
+  width: 33.333333%;
+  height: 310rpx;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 6rpx;
+  border-radius: 8rpx;
+}
+
+.atlas-card__image,
+.atlas-card__shade {
+  position: absolute;
+  top: 0;
+  right: 6rpx;
+  bottom: 0;
+  left: 6rpx;
+  width: auto;
+  height: 100%;
+  border-radius: 8rpx;
+}
+
+.atlas-card__image {
+  background: #eeeae2;
+}
+
+.atlas-card__shade {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20, 18, 16, 0.02) 32%,
+      rgba(20, 18, 16, 0.72) 100%
+    );
+}
+
+.atlas-card__copy {
+  position: absolute;
+  z-index: 2;
+  right: 22rpx;
+  bottom: 20rpx;
+  left: 22rpx;
+}
+
+.atlas-card__name,
+.atlas-card__latin,
+.atlas-card__meaning {
+  display: block;
+  overflow: hidden;
+  color: #ffffff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-card__name {
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 27rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+}
+
+.atlas-card__latin {
+  margin-top: 5rpx;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 16rpx;
+  letter-spacing: 1rpx;
+}
+
+.atlas-card__meaning {
+  margin-top: 12rpx;
+  font-size: 18rpx;
+  letter-spacing: 1rpx;
+}
+
+/* 小屏手机收紧文案和按钮。 */
+@media (max-width: 360px) {
+  .hero-copy {
+    right: 40rpx;
+    bottom: 86rpx;
+    left: 40rpx;
+  }
+
+  .hero-title {
+    font-size: 43rpx;
+  }
+
+  .hero-subtitle {
+    font-size: 20rpx;
+  }
+
+  .hero-button {
+    width: 276rpx;
+    height: 70rpx;
+  }
+
+  .atlas-card {
+    height: 284rpx;
+  }
+}
+
+
+.section-empty {
+  display: flex;
+  min-height: 176rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14rpx;
+  background: #f7f5ef;
+  color: #9a958b;
+  font-size: 22rpx;
+}
+
+.cloud-notice {
+  display: flex;
+  min-height: 76rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24rpx;
+  border: 1rpx solid rgba(217, 111, 118, 0.15);
+  border-radius: 16rpx;
+  background: #fff5f2;
+  color: #b55e64;
+  font-size: 21rpx;
+}

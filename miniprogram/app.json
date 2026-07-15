@@ -1,16 +1,62 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/example/index"
+    "pages/home/index",
+    "pages/category/index",
+    "pages/calendar/index",
+    "pages/cart/index",
+    "pages/profile/index"
   ],
   "window": {
-    "backgroundColor": "#F6F6F6",
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F6F6F6",
-    "navigationBarTitleText": "云开发 QuickStart",
-    "navigationBarTextStyle": "black"
+    "navigationStyle": "custom",
+    "backgroundColor": "#FBFAF7",
+    "backgroundTextStyle": "dark"
   },
-  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "color": "#8A8982",
+    "selectedColor": "#68764B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/category/index",
+        "text": "分类",
+        "iconPath": "images/icons/category.png",
+        "selectedIconPath": "images/icons/category-active.png"
+      },
+      {
+        "pagePath": "pages/calendar/index",
+        "text": "日历",
+        "iconPath": "images/icons/calendar.png",
+        "selectedIconPath": "images/icons/calendar-active.png"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "text": "购物车",
+        "iconPath": "images/icons/cart.png",
+        "selectedIconPath": "images/icons/cart-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/icons/profile.png",
+        "selectedIconPath": "images/icons/profile-active.png"
+      }
+    ]
+  },
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents"
+  "sitemapLocation": "sitemap.json",
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于选择鲜花配送位置及展示对应服务范围"
+    }
+  }
 }

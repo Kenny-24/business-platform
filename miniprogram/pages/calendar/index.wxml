@@ -1,0 +1,46 @@
+<view class="safe-page calendar-page">
+  <app-nav title="日历"></app-nav>
+
+  <view class="calendar-card">
+    <view class="calendar-head">
+      <button class="month-button" bindtap="previousMonth">‹</button>
+      <text class="month-title">{{year}}年{{month + 1}}月</text>
+      <button class="month-button" bindtap="nextMonth">›</button>
+    </view>
+
+    <view class="week-row">
+      <view class="week-cell" wx:for="{{week}}" wx:key="*this"><text>{{item}}</text></view>
+    </view>
+
+    <view class="days-grid">
+      <view class="day-cell" wx:for="{{days}}" wx:key="key">
+        <button
+          data-day="{{item.day}}"
+          data-current="{{item.current}}"
+          bindtap="selectDay"
+          class="day-button {{item.current ? '' : 'day-button--muted'}} {{item.current && item.day === selectedDay ? 'day-button--selected' : ''}}"
+        >{{item.day}}</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="date-summary">
+    <text class="summary-date">{{month + 1}}月{{selectedDay}}日</text>
+    <text class="summary-name">重要日子</text>
+  </view>
+
+  <view class="festival-card">
+    <image src="/images/flowers/carnation.jpg" mode="aspectFill"></image>
+    <view class="festival-info">
+      <text class="festival-label">推荐花材</text>
+      <text class="festival-name">康乃馨、玫瑰、洋桔梗</text>
+      <text class="festival-language">花语：爱与温暖，感谢有你</text>
+      <button class="festival-button">去选花 ›</button>
+    </view>
+  </view>
+
+  <button class="add-date" bindtap="addDate">
+    <text class="add-icon">＋</text>
+    <view class="add-copy"><text class="add-title">添加生日 / 纪念日</text><text class="add-sub">提前记住每一个重要时刻</text></view>
+  </button>
+</view>
