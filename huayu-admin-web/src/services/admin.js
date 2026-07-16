@@ -6,7 +6,9 @@ export const adminApi = {
   },
 
   listProducts(filters = {}) {
-    return callAdmin('listProducts', { filters })
+    return callAdmin('listProducts', {
+      filters
+    })
   },
 
   getProduct(id) {
@@ -14,7 +16,9 @@ export const adminApi = {
   },
 
   saveProduct(product) {
-    return callAdmin('saveProduct', { product })
+    return callAdmin('saveProduct', {
+      product
+    })
   },
 
   deleteProduct(id) {
@@ -22,7 +26,10 @@ export const adminApi = {
   },
 
   updateStock(id, stock) {
-    return callAdmin('updateStock', { id, stock })
+    return callAdmin('updateStock', {
+      id,
+      stock
+    })
   },
 
   toggleProduct(id, field, value) {
@@ -38,7 +45,9 @@ export const adminApi = {
   },
 
   saveBanner(banner) {
-    return callAdmin('saveBanner', { banner })
+    return callAdmin('saveBanner', {
+      banner
+    })
   },
 
   deleteBanner(id) {

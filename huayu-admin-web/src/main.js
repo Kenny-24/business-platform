@@ -9,7 +9,12 @@ import router from './router'
 import './styles/index.css'
 
 const app = createApp(App)
+
 app.use(createPinia())
 app.use(router)
-app.use(ElementPlus, { locale: zhCn })
+app.use(ElementPlus, {
+  locale: zhCn,
+  size: 'default'
+})
+
 app.mount('#app')

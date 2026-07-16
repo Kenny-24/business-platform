@@ -1,46 +1,47 @@
 <template>
   <div class="admin-shell">
     <aside class="admin-sidebar">
-      <div class="brand">
-        <span class="brand__mark">花予</span>
-        <span class="brand__caption">HUAYU FLORAL</span>
+      <div class="sidebar-brand">
+        <strong>花予</strong>
+        <span>商户管理</span>
       </div>
 
-      <nav class="admin-nav">
+      <nav class="sidebar-nav">
         <RouterLink
           v-for="item in menu"
           :key="item.path"
           :to="item.path"
-          class="admin-nav__item"
+          class="sidebar-nav__item"
         >
-          <span class="admin-nav__icon">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
+          {{ item.label }}
         </RouterLink>
       </nav>
 
-      <div class="admin-sidebar__footer">
-        <div class="admin-user">
-          <div class="admin-user__avatar">花</div>
-          <div>
-            <strong>{{ authStore.displayName }}</strong>
-            <span>商户管理员</span>
-          </div>
+      <div class="sidebar-account">
+        <div class="sidebar-account__name">
+          {{ authStore.displayName }}
+        </div>
+        <div class="sidebar-account__role">
+          管理员
         </div>
       </div>
     </aside>
 
     <main class="admin-main">
       <header class="admin-topbar">
-        <div>
-          <span class="admin-topbar__context">花予商户后台</span>
-          <strong>{{ route.meta.title || '管理后台' }}</strong>
+        <div class="admin-topbar__title">
+          {{ route.meta.title || '管理后台' }}
         </div>
 
-        <div class="admin-topbar__actions">
-          <el-tag effect="plain" type="success">
-            云开发已连接
-          </el-tag>
-          <el-button plain @click="handleLogout">
+        <div class="admin-topbar__right">
+          <StatusDot
+            text="云服务已连接"
+            type="success"
+          />
+          <el-button
+            text
+            @click="handleLogout"
+          >
             退出登录
           </el-button>
         </div>
@@ -54,34 +55,66 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
+import StatusDot from '../components/StatusDot.vue'
+import { feedback } from '../utils/feedback'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
 const menu = [
-  { path: '/dashboard', label: '经营概览', icon: '◫' },
-  { path: '/products', label: '商品管理', icon: '✿' },
-  { path: '/inventory', label: '库存管理', icon: '⌁' },
-  { path: '/banners', label: '首页轮播', icon: '▣' },
-  { path: '/atlas', label: '花予图鉴', icon: '❀' }
+  {
+    path: '/dashboard',
+    label: '经营概览'
+  },
+  {
+    path: '/products',
+    label: '商品管理'
+  },
+  {
+    path: '/inventory',
+    label: '库存管理'
+  },
+  {
+    path: '/banners',
+    label: '首页轮播'
+  },
+  {
+    path: '/atlas',
+    label: '花予图鉴'
+  }
 ]
 
 async function handleLogout() {
-  await ElMessageBox.confirm(
-    '确定退出花予商户后台吗？',
-    '退出登录',
-    {
-      confirmButtonText: '退出',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  )
+  try {
+    await ElMessageBox.confirm(
+      '确定退出当前管理员账号吗？',
+      '退出登录',
+      {
+        confirmButtonText: '退出',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
 
-  await authStore.signOut()
-  router.replace('/login')
+    await authStore.signOut()
+    router.replace('/login')
+  } catch (error) {
+    if (
+      error !== 'cancel' &&
+      error !== 'close'
+    ) {
+      feedback.error(
+        error,
+        '退出登录失败'
+      )
+    }
+  }
 }
 </script>

@@ -1,4 +1,7 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHashHistory
+} from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -6,13 +9,19 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue'),
-    meta: { public: true }
+    meta: {
+      public: true,
+      title: '登录'
+    }
   },
   {
     path: '/',
     component: () => import('../layouts/AdminLayout.vue'),
     children: [
-      { path: '', redirect: '/dashboard' },
+      {
+        path: '',
+        redirect: '/dashboard'
+      },
       {
         path: 'dashboard',
         name: 'dashboard',
@@ -57,7 +66,10 @@ const routes = [
       }
     ]
   },
-  { path: '/:pathMatch(.*)*', redirect: '/dashboard' }
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/dashboard'
+  }
 ]
 
 const router = createRouter({
@@ -66,9 +78,14 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  if (to.meta.public) return true
+  document.title = `${to.meta.title || '管理后台'} · 花予`
+
+  if (to.meta.public) {
+    return true
+  }
 
   const authStore = useAuthStore()
+
   if (!authStore.initialized) {
     await authStore.restore()
   }
@@ -76,7 +93,9 @@ router.beforeEach(async (to) => {
   if (!authStore.isAuthenticated) {
     return {
       name: 'login',
-      query: { redirect: to.fullPath }
+      query: {
+        redirect: to.fullPath
+      }
     }
   }
 

@@ -1,11 +1,8 @@
 <template>
-  <div class="page-header">
-    <div>
-      <p v-if="eyebrow" class="page-header__eyebrow">
-        {{ eyebrow }}
-      </p>
+  <header class="page-header">
+    <div class="page-header__text">
       <h1>{{ title }}</h1>
-      <p v-if="description" class="page-header__description">
+      <p v-if="description">
         {{ description }}
       </p>
     </div>
@@ -13,7 +10,7 @@
     <div class="page-header__actions">
       <slot />
     </div>
-  </div>
+  </header>
 </template>
 
 <script setup>
@@ -25,10 +22,6 @@ defineProps({
   description: {
     type: String,
     default: ''
-  },
-  eyebrow: {
-    type: String,
-    default: 'HUAYU ADMIN'
   }
 })
 </script>

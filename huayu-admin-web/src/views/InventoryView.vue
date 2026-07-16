@@ -2,24 +2,35 @@
   <div>
     <PageHeader
       title="库存管理"
-      description="适合每天快速更新当日实际可售库存。"
+      description="快速调整实际可售库存。"
     >
-      <el-button :loading="loading" @click="loadProducts">
-        刷新库存
+      <el-button
+        :loading="loading"
+        @click="loadProducts"
+      >
+        刷新
       </el-button>
     </PageHeader>
 
-    <el-card shadow="never" class="panel-card">
+    <el-card
+      shadow="never"
+      class="panel-card"
+    >
       <div class="inventory-toolbar">
         <el-input
           v-model="keyword"
           clearable
           placeholder="搜索商品"
         />
-        <span>库存为 0 时会显示售罄，但不会自动下架。</span>
+        <span>
+          修改后自动保存
+        </span>
       </div>
 
-      <div v-loading="loading" class="inventory-list">
+      <div
+        v-loading="loading"
+        class="inventory-list"
+      >
         <div
           v-for="item in filteredProducts"
           :key="item._id"
@@ -27,23 +38,40 @@
         >
           <div class="product-cell">
             <el-image
-              class="product-cell__image"
+              class="table-thumb"
               :src="item.imageUrl"
               fit="cover"
             >
               <template #error>
-                <div class="image-fallback">花予</div>
+                <div class="table-thumb__empty">
+                  无图
+                </div>
               </template>
             </el-image>
-            <div>
+
+            <div class="product-cell__text">
               <strong>{{ item.name }}</strong>
-              <span>{{ item.typeLabel }} · ¥{{ formatYuan(item.priceFen) }}/{{ item.unit }}</span>
+              <span>
+                {{ item.typeLabel }}
+                · ¥{{ formatYuan(item.priceFen) }}
+                / {{ item.unit }}
+              </span>
             </div>
           </div>
 
-          <div class="inventory-actions">
-            <el-button @click="adjust(item, -10)">-10</el-button>
-            <el-button @click="adjust(item, -1)">-1</el-button>
+          <div class="inventory-controls">
+            <el-button
+              size="small"
+              @click="adjust(item, -10)"
+            >
+              -10
+            </el-button>
+            <el-button
+              size="small"
+              @click="adjust(item, -1)"
+            >
+              -1
+            </el-button>
 
             <el-input-number
               v-model="item.stock"
@@ -53,20 +81,40 @@
               @change="queueSave(item)"
             />
 
-            <el-button @click="adjust(item, 1)">+1</el-button>
-            <el-button @click="adjust(item, 10)">+10</el-button>
-
-            <el-tag
-              :type="item.stock === 0 ? 'danger' : item.stock <= 5 ? 'warning' : 'success'"
-              effect="plain"
+            <el-button
+              size="small"
+              @click="adjust(item, 1)"
             >
-              {{ item.stock === 0 ? '售罄' : `${item.stock}${item.unit}` }}
-            </el-tag>
+              +1
+            </el-button>
+            <el-button
+              size="small"
+              @click="adjust(item, 10)"
+            >
+              +10
+            </el-button>
+
+            <span
+              :class="[
+                'stock-text',
+                item.stock === 0
+                  ? 'is-empty'
+                  : item.stock <= 5
+                    ? 'is-low'
+                    : ''
+              ]"
+            >
+              {{ item.stock }}{{ item.unit }}
+            </span>
           </div>
         </div>
 
         <el-empty
-          v-if="!loading && !filteredProducts.length"
+          v-if="
+            !loading &&
+            !filteredProducts.length
+          "
+          :image-size="64"
           description="没有商品"
         />
       </div>
@@ -75,11 +123,15 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref
+} from 'vue'
 import PageHeader from '../components/PageHeader.vue'
 import { adminApi } from '../services/admin'
+import { feedback } from '../utils/feedback'
 
 const loading = ref(false)
 const products = ref([])
@@ -87,25 +139,41 @@ const keyword = ref('')
 const timers = new Map()
 
 const filteredProducts = computed(() => {
-  const key = keyword.value.trim().toLowerCase()
-  if (!key) return products.value
-  return products.value.filter((item) =>
-    item.name.toLowerCase().includes(key)
+  const key = keyword.value
+    .trim()
+    .toLowerCase()
+
+  if (!key) {
+    return products.value
+  }
+
+  return products.value.filter(
+    (item) =>
+      item.name
+        .toLowerCase()
+        .includes(key)
   )
 })
 
 function formatYuan(priceFen) {
-  return (Number(priceFen || 0) / 100).toFixed(2)
+  return (
+    Number(priceFen || 0) / 100
+  ).toFixed(2)
 }
 
 async function loadProducts() {
   loading.value = true
 
   try {
-    const result = await adminApi.listProducts()
+    const result =
+      await adminApi.listProducts()
+
     products.value = result.items || []
   } catch (error) {
-    ElMessage.error(error.message || '库存数据加载失败')
+    feedback.error(
+      error,
+      '库存数据加载失败'
+    )
   } finally {
     loading.value = false
   }
@@ -116,31 +184,38 @@ function adjust(item, delta) {
     0,
     Number(item.stock || 0) + delta
   )
+
   queueSave(item)
 }
 
 function queueSave(item) {
   if (timers.has(item._id)) {
-    clearTimeout(timers.get(item._id))
+    clearTimeout(
+      timers.get(item._id)
+    )
   }
 
-  timers.set(
-    item._id,
-    setTimeout(async () => {
+  const timer = setTimeout(
+    async () => {
       try {
         await adminApi.updateStock(
           item._id,
           Number(item.stock || 0)
         )
-        ElMessage.success(`${item.name}库存已更新`)
       } catch (error) {
-        ElMessage.error(error.message || '库存更新失败')
+        feedback.error(
+          error,
+          '库存更新失败'
+        )
         loadProducts()
       } finally {
         timers.delete(item._id)
       }
-    }, 450)
+    },
+    450
   )
+
+  timers.set(item._id, timer)
 }
 
 onMounted(loadProducts)

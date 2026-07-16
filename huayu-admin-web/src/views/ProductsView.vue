@@ -2,14 +2,20 @@
   <div>
     <PageHeader
       title="商品管理"
-      description="维护鲜花、成品花束、多肉、绿植、花器与礼品。"
+      description="维护商品信息、价格、库存和销售状态。"
     >
-      <el-button type="primary" @click="createProduct">
+      <el-button
+        type="primary"
+        @click="router.push('/products/new')"
+      >
         新增商品
       </el-button>
     </PageHeader>
 
-    <el-card shadow="never" class="panel-card">
+    <el-card
+      shadow="never"
+      class="panel-card"
+    >
       <div class="filter-bar">
         <el-input
           v-model="filters.keyword"
@@ -39,12 +45,24 @@
           placeholder="全部状态"
           @change="loadProducts"
         >
-          <el-option label="正在销售" value="onSale" />
-          <el-option label="已经下架" value="offSale" />
-          <el-option label="已经售罄" value="soldOut" />
+          <el-option
+            label="正在销售"
+            value="onSale"
+          />
+          <el-option
+            label="已经下架"
+            value="offSale"
+          />
+          <el-option
+            label="已经售罄"
+            value="soldOut"
+          />
         </el-select>
 
-        <el-button :loading="loading" @click="loadProducts">
+        <el-button
+          :loading="loading"
+          @click="loadProducts"
+        >
           查询
         </el-button>
       </div>
@@ -53,23 +71,31 @@
         v-loading="loading"
         :data="products"
         row-key="_id"
+        class="clean-table"
       >
-        <el-table-column label="商品" min-width="260">
+        <el-table-column
+          label="商品"
+          min-width="280"
+        >
           <template #default="{ row }">
             <div class="product-cell">
               <el-image
-                class="product-cell__image"
+                class="table-thumb"
                 :src="row.imageUrl"
                 fit="cover"
               >
                 <template #error>
-                  <div class="image-fallback">花予</div>
+                  <div class="table-thumb__empty">
+                    无图
+                  </div>
                 </template>
               </el-image>
 
-              <div>
+              <div class="product-cell__text">
                 <strong>{{ row.name }}</strong>
-                <span>{{ row.subtitle || '—' }}</span>
+                <span>
+                  {{ row.subtitle || '暂无副标题' }}
+                </span>
               </div>
             </div>
           </template>
@@ -81,49 +107,105 @@
           width="110"
         />
 
-        <el-table-column label="价格" width="130">
+        <el-table-column
+          label="价格"
+          width="130"
+        >
           <template #default="{ row }">
-            ¥{{ formatYuan(row.priceFen) }} / {{ row.unit }}
+            ¥{{ formatYuan(row.priceFen) }}
+            / {{ row.unit }}
           </template>
         </el-table-column>
 
-        <el-table-column label="库存" width="100">
+        <el-table-column
+          label="库存"
+          width="100"
+          align="right"
+        >
           <template #default="{ row }">
-            <el-tag
-              :type="row.stock === 0 ? 'danger' : row.stock <= 5 ? 'warning' : 'success'"
-              effect="plain"
+            <span
+              :class="[
+                'stock-text',
+                row.stock === 0
+                  ? 'is-empty'
+                  : row.stock <= 5
+                    ? 'is-low'
+                    : ''
+              ]"
             >
               {{ row.stock }}{{ row.unit }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
 
-        <el-table-column label="上架" width="90">
+        <el-table-column
+          label="上架"
+          width="90"
+          align="center"
+        >
           <template #default="{ row }">
             <el-switch
               v-model="row.onSale"
-              @change="toggle(row, 'onSale', row.onSale)"
+              @change="
+                toggle(
+                  row,
+                  'onSale',
+                  row.onSale
+                )
+              "
             />
           </template>
         </el-table-column>
 
-        <el-table-column label="首页推荐" width="110">
+        <el-table-column
+          label="推荐"
+          width="90"
+          align="center"
+        >
           <template #default="{ row }">
             <el-switch
               v-model="row.featured"
-              @change="toggle(row, 'featured', row.featured)"
+              @change="
+                toggle(
+                  row,
+                  'featured',
+                  row.featured
+                )
+              "
             />
           </template>
         </el-table-column>
 
-        <el-table-column prop="sort" label="排序" width="80" />
+        <el-table-column
+          prop="sort"
+          label="排序"
+          width="80"
+          align="right"
+        />
 
-        <el-table-column label="操作" width="170" fixed="right">
+        <el-table-column
+          label="操作"
+          width="140"
+          fixed="right"
+          align="right"
+        >
           <template #default="{ row }">
-            <el-button link type="primary" @click="editProduct(row)">
+            <el-button
+              link
+              type="primary"
+              @click="
+                router.push(
+                  `/products/${row._id}`
+                )
+              "
+            >
               编辑
             </el-button>
-            <el-button link type="danger" @click="removeProduct(row)">
+            <el-button
+              link
+              type="danger"
+              @click="removeProduct(row)"
+            >
               删除
             </el-button>
           </template>
@@ -132,6 +214,7 @@
 
       <el-empty
         v-if="!loading && !products.length"
+        :image-size="64"
         description="没有匹配的商品"
       />
     </el-card>
@@ -139,12 +222,16 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import {
+  onMounted,
+  reactive,
+  ref
+} from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { ElMessageBox } from 'element-plus'
 import PageHeader from '../components/PageHeader.vue'
 import { adminApi } from '../services/admin'
+import { feedback } from '../utils/feedback'
 
 const router = useRouter()
 const loading = ref(false)
@@ -157,66 +244,107 @@ const filters = reactive({
 })
 
 const typeOptions = [
-  { label: '鲜切花材', value: 'flower' },
-  { label: '成品花束', value: 'bouquet' },
-  { label: '多肉植物', value: 'succulent' },
-  { label: '绿植', value: 'greenPlant' },
-  { label: '花器', value: 'vase' },
-  { label: '礼品', value: 'gift' }
+  {
+    label: '鲜切花材',
+    value: 'flower'
+  },
+  {
+    label: '成品花束',
+    value: 'bouquet'
+  },
+  {
+    label: '多肉植物',
+    value: 'succulent'
+  },
+  {
+    label: '绿植',
+    value: 'greenPlant'
+  },
+  {
+    label: '花器',
+    value: 'vase'
+  },
+  {
+    label: '礼品',
+    value: 'gift'
+  }
 ]
 
 function formatYuan(priceFen) {
-  return (Number(priceFen || 0) / 100).toFixed(2)
+  return (
+    Number(priceFen || 0) / 100
+  ).toFixed(2)
 }
 
 async function loadProducts() {
   loading.value = true
 
   try {
-    const result = await adminApi.listProducts(filters)
+    const result =
+      await adminApi.listProducts(
+        filters
+      )
+
     products.value = result.items || []
   } catch (error) {
-    ElMessage.error(error.message || '商品列表加载失败')
+    feedback.error(
+      error,
+      '商品列表加载失败'
+    )
   } finally {
     loading.value = false
   }
 }
 
-function createProduct() {
-  router.push('/products/new')
-}
-
-function editProduct(row) {
-  router.push(`/products/${row._id}`)
-}
-
-async function toggle(row, field, value) {
+async function toggle(
+  row,
+  field,
+  value
+) {
   try {
-    await adminApi.toggleProduct(row._id, field, value)
-    ElMessage.success('状态已更新')
+    await adminApi.toggleProduct(
+      row._id,
+      field,
+      value
+    )
   } catch (error) {
     row[field] = !value
-    ElMessage.error(error.message || '状态更新失败')
+
+    feedback.error(
+      error,
+      '状态更新失败'
+    )
   }
 }
 
 async function removeProduct(row) {
-  await ElMessageBox.confirm(
-    `确定删除“${row.name}”吗？删除后无法恢复。`,
-    '删除商品',
-    {
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  )
-
   try {
-    await adminApi.deleteProduct(row._id)
-    ElMessage.success('商品已删除')
+    await ElMessageBox.confirm(
+      `确定删除“${row.name}”吗？`,
+      '删除商品',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    await adminApi.deleteProduct(
+      row._id
+    )
+
+    feedback.success('商品已删除')
     loadProducts()
   } catch (error) {
-    ElMessage.error(error.message || '删除失败')
+    if (
+      error !== 'cancel' &&
+      error !== 'close'
+    ) {
+      feedback.error(
+        error,
+        '删除商品失败'
+      )
+    }
   }
 }
 

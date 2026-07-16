@@ -1,18 +1,20 @@
 <template>
   <div>
     <PageHeader
-      :title="isEdit ? '编辑商品' : '新增商品'"
-      description="顾客端所需字段会由后台自动转换并写入数据库。"
+      :title="
+        isEdit ? '编辑商品' : '新增商品'
+      "
+      description="填写商品基本信息和销售设置。"
     >
       <el-button @click="router.back()">
-        返回列表
+        返回
       </el-button>
       <el-button
         type="primary"
         :loading="saving"
         @click="save"
       >
-        保存商品
+        保存
       </el-button>
     </PageHeader>
 
@@ -21,169 +23,221 @@
       :model="form"
       :rules="rules"
       label-position="top"
-      class="editor-grid"
+      class="editor-layout"
     >
-      <el-card shadow="never" class="panel-card editor-main">
-        <h2 class="form-section-title">基本信息</h2>
+      <div class="editor-layout__main">
+        <el-card
+          shadow="never"
+          class="panel-card"
+        >
+          <div class="section-title">
+            基本信息
+          </div>
 
-        <div class="two-column">
-          <el-form-item label="商品名称" prop="name">
+          <div class="form-grid form-grid--two">
+            <el-form-item
+              label="商品名称"
+              prop="name"
+            >
+              <el-input
+                v-model="form.name"
+                placeholder="例如 香槟玫瑰"
+              />
+            </el-form-item>
+
+            <el-form-item
+              label="商品类型"
+              prop="type"
+            >
+              <el-select v-model="form.type">
+                <el-option
+                  v-for="option in typeOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </el-select>
+            </el-form-item>
+          </div>
+
+          <el-form-item label="商品副标题">
             <el-input
-              v-model="form.name"
-              placeholder="例如 香槟玫瑰"
+              v-model="form.subtitle"
+              placeholder="例如 温柔优雅"
             />
           </el-form-item>
 
-          <el-form-item label="商品类型" prop="type">
-            <el-select v-model="form.type">
-              <el-option
-                v-for="option in typeOptions"
-                :key="option.value"
-                :label="option.label"
-                :value="option.value"
+          <div class="form-grid form-grid--three">
+            <el-form-item
+              label="价格（元）"
+              prop="priceYuan"
+            >
+              <el-input-number
+                v-model="form.priceYuan"
+                :min="0"
+                :precision="2"
+                :step="1"
+                controls-position="right"
               />
-            </el-select>
-          </el-form-item>
-        </div>
+            </el-form-item>
 
-        <el-form-item label="商品副标题">
-          <el-input
-            v-model="form.subtitle"
-            placeholder="例如 温柔优雅"
-          />
-        </el-form-item>
+            <el-form-item
+              label="销售单位"
+              prop="unit"
+            >
+              <el-input
+                v-model="form.unit"
+                placeholder="枝 / 束 / 盆"
+              />
+            </el-form-item>
 
-        <div class="three-column">
-          <el-form-item label="价格（元）" prop="priceYuan">
+            <el-form-item
+              label="库存"
+              prop="stock"
+            >
+              <el-input-number
+                v-model="form.stock"
+                :min="0"
+                :step="1"
+                controls-position="right"
+              />
+            </el-form-item>
+          </div>
+
+          <div class="form-grid form-grid--two">
+            <el-form-item label="使用场景">
+              <el-select
+                v-model="form.sceneTags"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="选择或输入场景"
+              >
+                <el-option
+                  v-for="tag in sceneOptions"
+                  :key="tag"
+                  :label="tag"
+                  :value="tag"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="颜色标签">
+              <el-select
+                v-model="form.colorTags"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="选择或输入颜色"
+              >
+                <el-option
+                  v-for="tag in colorOptions"
+                  :key="tag"
+                  :label="tag"
+                  :value="tag"
+                />
+              </el-select>
+            </el-form-item>
+          </div>
+        </el-card>
+
+        <el-card
+          shadow="never"
+          class="panel-card"
+        >
+          <div class="section-title">
+            销售设置
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <strong>商品上架</strong>
+              <span>
+                开启后顾客端可以看到商品
+              </span>
+            </div>
+            <el-switch v-model="form.onSale" />
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <strong>首页推荐</strong>
+              <span>
+                开启后优先展示在推荐区域
+              </span>
+            </div>
+            <el-switch
+              v-model="form.featured"
+            />
+          </div>
+
+          <el-form-item
+            label="排序值"
+            class="sort-field"
+          >
             <el-input-number
-              v-model="form.priceYuan"
+              v-model="form.sort"
               :min="0"
-              :precision="2"
-              :step="1"
+              :max="9999"
               controls-position="right"
             />
+            <div class="form-tip">
+              数字越大，排序越靠前。
+            </div>
           </el-form-item>
+        </el-card>
+      </div>
 
-          <el-form-item label="销售单位" prop="unit">
-            <el-input
-              v-model="form.unit"
-              placeholder="枝 / 束 / 盆"
-            />
-          </el-form-item>
-
-          <el-form-item label="库存" prop="stock">
-            <el-input-number
-              v-model="form.stock"
-              :min="0"
-              :step="1"
-              controls-position="right"
-            />
-          </el-form-item>
-        </div>
-
-        <div class="two-column">
-          <el-form-item label="使用场景">
-            <el-select
-              v-model="form.sceneTags"
-              multiple
-              filterable
-              allow-create
-              default-first-option
-              placeholder="选择或输入场景"
-            >
-              <el-option
-                v-for="tag in sceneOptions"
-                :key="tag"
-                :label="tag"
-                :value="tag"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="颜色标签">
-            <el-select
-              v-model="form.colorTags"
-              multiple
-              filterable
-              allow-create
-              default-first-option
-              placeholder="选择或输入颜色"
-            >
-              <el-option
-                v-for="tag in colorOptions"
-                :key="tag"
-                :label="tag"
-                :value="tag"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-
-        <h2 class="form-section-title form-section-title--spaced">
-          销售设置
-        </h2>
-
-        <div class="settings-row">
-          <div>
-            <strong>商品上架</strong>
-            <span>开启后顾客端可以看到并购买</span>
+      <aside class="editor-layout__side">
+        <el-card
+          shadow="never"
+          class="panel-card"
+        >
+          <div class="section-title">
+            商品图片
           </div>
-          <el-switch v-model="form.onSale" />
-        </div>
 
-        <div class="settings-row">
-          <div>
-            <strong>首页推荐</strong>
-            <span>在“今日有花”或推荐内容中优先展示</span>
-          </div>
-          <el-switch v-model="form.featured" />
-        </div>
-
-        <el-form-item label="排序值">
-          <el-input-number
-            v-model="form.sort"
-            :min="0"
-            :max="9999"
-            controls-position="right"
+          <ImageUploader
+            v-model="form.coverFileId"
+            v-model:preview-url="form.imageUrl"
+            folder="products"
           />
-          <p class="field-hint">数字越大，排序越靠前。</p>
-        </el-form-item>
-      </el-card>
 
-      <el-card shadow="never" class="panel-card editor-side">
-        <h2 class="form-section-title">商品图片</h2>
-
-        <ImageUploader
-          v-model="form.coverFileId"
-          v-model:preview-url="form.imageUrl"
-          folder="products"
-        />
-
-        <div class="image-guidance">
-          <strong>图片建议</strong>
-          <p>推荐比例 1:1 或 4:5，主体居中、背景干净。</p>
-          <p>图片上传后会保存永久 File ID，顾客端通过云函数获取临时地址。</p>
-        </div>
-      </el-card>
+          <div class="form-tip image-tip">
+            建议使用 1:1 或 4:5 图片，主体清晰、背景简洁。
+          </div>
+        </el-card>
+      </aside>
     </el-form>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref
+} from 'vue'
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
 import PageHeader from '../components/PageHeader.vue'
 import ImageUploader from '../components/ImageUploader.vue'
 import { adminApi } from '../services/admin'
+import { feedback } from '../utils/feedback'
 
 const route = useRoute()
 const router = useRouter()
 const formRef = ref()
 const saving = ref(false)
 
-const isEdit = computed(() => Boolean(route.params.id))
+const isEdit = computed(
+  () => Boolean(route.params.id)
+)
 
 const form = reactive({
   _id: '',
@@ -203,12 +257,30 @@ const form = reactive({
 })
 
 const typeOptions = [
-  { label: '鲜切花材', value: 'flower' },
-  { label: '成品花束', value: 'bouquet' },
-  { label: '多肉植物', value: 'succulent' },
-  { label: '绿植', value: 'greenPlant' },
-  { label: '花器', value: 'vase' },
-  { label: '礼品', value: 'gift' }
+  {
+    label: '鲜切花材',
+    value: 'flower'
+  },
+  {
+    label: '成品花束',
+    value: 'bouquet'
+  },
+  {
+    label: '多肉植物',
+    value: 'succulent'
+  },
+  {
+    label: '绿植',
+    value: 'greenPlant'
+  },
+  {
+    label: '花器',
+    value: 'vase'
+  },
+  {
+    label: '礼品',
+    value: 'gift'
+  }
 ]
 
 const sceneOptions = [
@@ -266,7 +338,9 @@ const rules = {
 }
 
 async function loadProduct() {
-  if (!isEdit.value) return
+  if (!isEdit.value) {
+    return
+  }
 
   try {
     const item = await adminApi.getProduct(
@@ -275,31 +349,52 @@ async function loadProduct() {
 
     Object.assign(form, {
       ...item,
-      priceYuan: Number(item.priceFen || 0) / 100,
-      sceneTags: item.sceneTags || [],
-      colorTags: item.colorTags || []
+      priceYuan:
+        Number(item.priceFen || 0) /
+        100,
+      sceneTags:
+        item.sceneTags || [],
+      colorTags:
+        item.colorTags || []
     })
   } catch (error) {
-    ElMessage.error(error.message || '商品数据加载失败')
+    feedback.error(
+      error,
+      '商品数据加载失败'
+    )
   }
 }
 
 async function save() {
-  await formRef.value?.validate()
+  try {
+    await formRef.value?.validate()
+  } catch {
+    return
+  }
+
   saving.value = true
 
   try {
-    const saved = await adminApi.saveProduct({
-      ...form,
-      priceFen: Math.round(
-        Number(form.priceYuan || 0) * 100
-      )
-    })
+    const saved =
+      await adminApi.saveProduct({
+        ...form,
+        priceFen: Math.round(
+          Number(
+            form.priceYuan || 0
+          ) * 100
+        )
+      })
 
-    ElMessage.success('商品已保存')
-    router.replace(`/products/${saved._id}`)
+    feedback.success('商品已保存')
+
+    router.replace(
+      `/products/${saved._id}`
+    )
   } catch (error) {
-    ElMessage.error(error.message || '保存商品失败')
+    feedback.error(
+      error,
+      '保存商品失败'
+    )
   } finally {
     saving.value = false
   }

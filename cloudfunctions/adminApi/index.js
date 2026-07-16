@@ -114,12 +114,29 @@ async function safeGetAll(collectionName, limit = 1000) {
   }
 }
 
+// @cloudbase/node-sdk 的 doc(id).get() 即使只查一条，
+// 返回值仍是 { data: [document] }，不是 { data: document }。
+function firstDocument(result) {
+  const data = result?.data
+
+  if (Array.isArray(data)) {
+    return data[0] || null
+  }
+
+  if (data && typeof data === 'object') {
+    return data
+  }
+
+  return null
+}
+
 async function getAdminByUid(uid) {
   try {
     const result = await db.collection(COLLECTIONS.admins).doc(uid).get()
-    return result?.data || null
+    return firstDocument(result)
   } catch (error) {
     if (isMissingCollectionError(error)) return null
+    console.error('[adminApi] 查询管理员失败：', error)
     return null
   }
 }
@@ -170,8 +187,9 @@ async function bootstrapAdmin(event) {
     console.warn('[adminApi] 无法读取完整用户资料：', error.message)
   }
 
-  const admin = {
-    _id: identity.uid,
+  // _id 是 CloudBase 文档的保留字段。
+  // 使用 doc(identity.uid) 已经指定了文档 ID，写入内容中不能再次包含 _id。
+  const adminDocument = {
     uid: identity.uid,
     username: text(profile?.username) || identity.uid,
     name:
@@ -187,9 +205,12 @@ async function bootstrapAdmin(event) {
   await db
     .collection(COLLECTIONS.admins)
     .doc(identity.uid)
-    .set(admin)
+    .set(adminDocument)
 
-  return admin
+  return {
+    _id: identity.uid,
+    ...adminDocument
+  }
 }
 
 async function resolveFileUrls(items, fields) {
@@ -301,7 +322,7 @@ async function getProduct(event) {
     .doc(id)
     .get()
 
-  const item = result?.data
+  const item = firstDocument(result)
 
   if (!item) {
     throw new BusinessError('商品不存在', 'NOT_FOUND')
@@ -348,9 +369,9 @@ async function saveProduct(event, adminContext) {
 
   let existing = null
   try {
-    existing = (
+    existing = firstDocument(
       await db.collection(COLLECTIONS.products).doc(id).get()
-    )?.data
+    )
   } catch (error) {
     existing = null
   }
@@ -452,9 +473,9 @@ async function saveBanner(event, adminContext) {
 
   let existing = null
   try {
-    existing = (
+    existing = firstDocument(
       await db.collection(COLLECTIONS.banners).doc(id).get()
-    )?.data
+    )
   } catch (error) {
     existing = null
   }
@@ -518,9 +539,9 @@ async function saveAtlas(event, adminContext) {
 
   let existing = null
   try {
-    existing = (
+    existing = firstDocument(
       await db.collection(COLLECTIONS.atlas).doc(id).get()
-    )?.data
+    )
   } catch (error) {
     existing = null
   }

@@ -25,7 +25,8 @@ const INVALID_ACCESS_KEY_VALUES = new Set([
 
 export const cloudConfig = {
   envId: ENV_ID,
-  accessKeyConfigured: !INVALID_ACCESS_KEY_VALUES.has(ACCESS_KEY),
+  accessKeyConfigured:
+    !INVALID_ACCESS_KEY_VALUES.has(ACCESS_KEY),
   adminFunctionName: ADMIN_FUNCTION_NAME
 }
 
@@ -40,66 +41,160 @@ if (cloudConfig.accessKeyConfigured) {
 export const cloudbaseApp = cloudbase.init(initOptions)
 export const cloudbaseAuth = cloudbaseApp.auth
 
+let pendingEmailSignUp = null
+
 function requireWebConfig() {
   if (!cloudConfig.accessKeyConfigured) {
     throw new Error(
-      '尚未配置 Publishable Key。请打开 huayu-admin-web/public/huayu-config.js 填写 accessKey。'
+      '尚未配置 Publishable Key。请打开 public/huayu-config.js 填写 accessKey。'
     )
   }
 }
 
+function createSdkError(error, fallbackMessage) {
+  const sdkError = new Error(
+    error?.message || fallbackMessage
+  )
+
+  sdkError.code =
+    error?.code || 'CLOUDBASE_AUTH_ERROR'
+  sdkError.category = error?.category || ''
+
+  return sdkError
+}
+
 function assertNoSdkError(error, fallbackMessage) {
   if (error) {
-    const sdkError = new Error(error.message || fallbackMessage)
-    sdkError.code = error.code || 'CLOUDBASE_AUTH_ERROR'
-    throw sdkError
+    throw createSdkError(error, fallbackMessage)
   }
+}
+
+function normalizeEmail(email) {
+  return String(email || '')
+    .trim()
+    .toLowerCase()
 }
 
 export async function getSession() {
   requireWebConfig()
-  const { data, error } = await cloudbaseAuth.getSession()
+
+  const { data, error } =
+    await cloudbaseAuth.getSession()
+
   assertNoSdkError(error, '检查登录状态失败')
+
   return data?.session || null
 }
 
-export async function loginWithPassword(username, password) {
+export async function loginWithPassword(
+  email,
+  password
+) {
   requireWebConfig()
 
-  const params = {
-    username: String(username || '').trim(),
-    password
-  }
+  const { data, error } =
+    await cloudbaseAuth.signInWithPassword({
+      email: normalizeEmail(email),
+      password
+    })
 
-  const response =
-    typeof cloudbaseAuth.signInWithPassword === 'function'
-      ? await cloudbaseAuth.signInWithPassword(params)
-      : await cloudbaseAuth.signIn(params)
+  assertNoSdkError(error, '登录失败')
 
-  assertNoSdkError(response.error, '登录失败')
-
-  return (
-    response.data?.session ||
-    (await getSession())
-  )
+  return data?.session || (await getSession())
 }
 
-export async function signUpWithPassword({
-  username,
-  password,
-  nickname
+export async function beginEmailSignUp({
+  email,
+  password
 }) {
   requireWebConfig()
 
-  const { data, error } = await cloudbaseAuth.signUp({
-    username: String(username || '').trim(),
-    password,
-    nickname
-  })
+  const normalizedEmail = normalizeEmail(email)
+  pendingEmailSignUp = null
 
-  assertNoSdkError(error, '管理员账号创建失败')
+  const { data, error } =
+    await cloudbaseAuth.signUp({
+      email: normalizedEmail,
+      password
+    })
 
-  return data?.session || (await getSession())
+  assertNoSdkError(error, '验证码发送失败')
+
+  if (
+    !data ||
+    typeof data.verifyOtp !== 'function'
+  ) {
+    throw new Error(
+      'CloudBase 没有返回邮箱验证码验证方法，请检查邮箱验证码与账号密码登录是否已启用。'
+    )
+  }
+
+  pendingEmailSignUp = data
+
+  return {
+    email: normalizedEmail
+  }
+}
+
+export async function completeEmailSignUp({
+  verificationCode,
+  email,
+  password
+}) {
+  requireWebConfig()
+
+  const token = String(
+    verificationCode || ''
+  ).trim()
+
+  if (!token) {
+    throw new Error('请输入邮箱验证码')
+  }
+
+  if (pendingEmailSignUp) {
+    const verification = pendingEmailSignUp
+
+    const { data, error } =
+      await verification.verifyOtp({
+        token
+      })
+
+    assertNoSdkError(
+      error,
+      '邮箱验证码验证失败'
+    )
+
+    pendingEmailSignUp = null
+
+    return data?.session || (await getSession())
+  }
+
+  const existingSession =
+    await getSession().catch(() => null)
+
+  if (existingSession) {
+    return existingSession
+  }
+
+  try {
+    return await loginWithPassword(
+      email,
+      password
+    )
+  } catch (loginError) {
+    const recoveryError = new Error(
+      '验证码会话已失效。请重新发送验证码，并在收到验证码后不要刷新页面。'
+    )
+
+    recoveryError.code = 'OTP_CONTEXT_LOST'
+    recoveryError.cause = loginError
+
+    throw recoveryError
+  }
+}
+
+export function resetPendingEmailSignUp() {
+  pendingEmailSignUp = null
 }
 
 export async function logout() {
@@ -107,24 +202,32 @@ export async function logout() {
   assertNoSdkError(error, '退出登录失败')
 }
 
-export async function callAdmin(action, payload = {}) {
+export async function callAdmin(
+  action,
+  payload = {}
+) {
   requireWebConfig()
 
-  const response = await cloudbaseApp.callFunction({
-    name: ADMIN_FUNCTION_NAME,
-    data: {
-      action,
-      ...payload
-    }
-  })
+  const response =
+    await cloudbaseApp.callFunction({
+      name: ADMIN_FUNCTION_NAME,
+      data: {
+        action,
+        ...payload
+      }
+    })
 
   const result = response?.result
 
   if (!result || result.ok !== true) {
     const error = new Error(
-      result?.message || `管理员操作失败：${action}`
+      result?.message ||
+        `管理员操作失败：${action}`
     )
-    error.code = result?.code || 'ADMIN_API_ERROR'
+
+    error.code =
+      result?.code || 'ADMIN_API_ERROR'
+
     throw error
   }
 
@@ -153,7 +256,10 @@ function safeFileName(name) {
     .slice(-80)
 }
 
-export async function uploadImage(file, folder = 'products') {
+export async function uploadImage(
+  file,
+  folder = 'products'
+) {
   requireWebConfig()
 
   if (!(file instanceof File)) {
@@ -187,5 +293,3 @@ export async function uploadImage(file, folder = 'products') {
 
   return result.fileID
 }
-
-export { ENV_ID }
