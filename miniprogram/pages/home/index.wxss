@@ -446,3 +446,50 @@
   color: #b55e64;
   font-size: 21rpx;
 }
+
+
+.hero-image--placeholder {
+  background: linear-gradient(145deg, #7d8a68 0%, #4f5c3d 56%, #2f3728 100%);
+}
+
+.festival-date {
+  flex-direction: column;
+}
+
+.festival-countdown {
+  margin-top: 7rpx;
+  color: #9a7467;
+  font-size: 16rpx;
+}
+
+.festival-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.festival-region {
+  flex: 0 0 auto;
+  margin-left: 9rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 999rpx;
+  background: #f3e9e5;
+  color: #9b6658;
+  font-size: 13rpx;
+}
+
+.festival--international .festival-region {
+  background: #e8eef4;
+  color: #58718b;
+}
+
+.atlas-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #879674 0%, #5d6d49 100%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+  font-weight: 700;
+  letter-spacing: 5rpx;
+}

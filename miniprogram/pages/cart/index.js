@@ -14,21 +14,25 @@ const {
   DELIVERY_OPTIONS
 } = require('../../data/cart-options')
 
-const PACKAGING_KEY = 'huayu_cart_packaging_v1'
-const DELIVERY_KEY = 'huayu_cart_delivery_v1'
+const PACKAGING_KEY =
+  'huayu_cart_packaging_v1'
+const DELIVERY_KEY =
+  'huayu_cart_delivery_v1'
 
-function number(value, fallback = 0) {
+function toNumber(value, fallback = 0) {
   const parsed = Number(value)
+
   return Number.isFinite(parsed)
     ? parsed
     : fallback
 }
 
-function moneyFromFen(value) {
-  const yuan = Math.max(
-    0,
-    Math.round(number(value))
-  ) / 100
+function formatFen(value) {
+  const yuan =
+    Math.max(
+      0,
+      Math.round(toNumber(value))
+    ) / 100
 
   if (Number.isInteger(yuan)) {
     return String(yuan)
@@ -40,18 +44,37 @@ function moneyFromFen(value) {
     .replace(/\.$/, '')
 }
 
-function moneyFromYuan(value) {
-  return moneyFromFen(
+function formatYuan(value) {
+  return formatFen(
     Math.round(
-      number(value) * 100
+      toNumber(value) * 100
     )
   )
 }
 
-function productId(item) {
+function getProductId(item) {
   return String(
     item && (item.id || item._id) || ''
   )
+}
+
+function readStorage(key, fallback) {
+  try {
+    return wx.getStorageSync(key) || fallback
+  } catch (error) {
+    return fallback
+  }
+}
+
+function saveStorage(key, value) {
+  try {
+    wx.setStorageSync(key, value)
+  } catch (error) {
+    console.warn(
+      '购物车配置保存失败：',
+      error
+    )
+  }
 }
 
 function enabledOptions(options) {
@@ -59,11 +82,12 @@ function enabledOptions(options) {
     .filter((item) => item.enabled !== false)
     .sort(
       (a, b) =>
-        number(b.sort) - number(a.sort)
+        toNumber(b.sort) -
+        toNumber(a.sort)
     )
 }
 
-function optionById(
+function findOption(
   options,
   id,
   fallbackId
@@ -76,32 +100,18 @@ function optionById(
       (item) => item.id === fallbackId
     ) ||
     options[0] ||
-    null
+    {
+      id: '',
+      name: '',
+      description: '',
+      feeFen: 0
+    }
   )
-}
-
-function getStoredValue(key, fallback) {
-  try {
-    return wx.getStorageSync(key) || fallback
-  } catch (error) {
-    return fallback
-  }
-}
-
-function setStoredValue(key, value) {
-  try {
-    wx.setStorageSync(key, value)
-  } catch (error) {
-    console.warn(
-      '购物车选项保存失败：',
-      error
-    )
-  }
 }
 
 function buildLayout() {
   const metrics = getLayoutMetrics()
-  const windowWidth = number(
+  const width = toNumber(
     metrics.windowWidth,
     375
   )
@@ -110,48 +120,52 @@ function buildLayout() {
     contentHeight:
       metrics.contentHeight,
     horizontalPadding:
-      windowWidth <= 350
+      width <= 350
         ? 14
-        : windowWidth >= 768
+        : width >= 768
           ? 28
           : 18,
     productImageSize:
-      windowWidth <= 350
-        ? 82
-        : windowWidth >= 768
-          ? 118
-          : 96,
+      width <= 350
+        ? 78
+        : width >= 768
+          ? 108
+          : 88,
     wideLayout:
-      windowWidth >= 720,
+      width >= 720,
     compactLayout:
-      windowWidth <= 350
+      width <= 350
   }
 }
 
 function normalizeCloudProduct(item) {
+  const price = Math.max(
+    0,
+    toNumber(item.price)
+  )
+
   return {
-    id: productId(item),
-    _id: productId(item),
+    id: getProductId(item),
+    _id: getProductId(item),
     type: String(item.type || ''),
     name: String(item.name || ''),
     image: String(item.image || ''),
-    price: Math.max(
-      0,
-      number(item.price)
-    ),
+    price,
     priceFen: Math.max(
       0,
       Math.round(
-        number(
+        toNumber(
           item.priceFen,
-          number(item.price) * 100
+          price * 100
         )
       )
     ),
     unit: String(item.unit || '件'),
     stock: Math.max(
       0,
-      Math.round(number(item.stock))
+      Math.round(
+        toNumber(item.stock)
+      )
     ),
     onSale: item.onSale !== false
   }
@@ -160,31 +174,40 @@ function normalizeCloudProduct(item) {
 Page({
   data: {
     cart: [],
+    refresherTriggered: false,
     editing: false,
     syncing: false,
     syncText: '',
+    cartTitle: '0件商品',
     allSelected: false,
     selectedCount: 0,
-    validCount: 0,
+    selectedItemCount: 0,
     goodsTotalFen: 0,
     packagingFeeFen: 0,
-    deliveryFeeFen: 0,
     totalFen: 0,
     goodsTotalText: '0',
-    packagingFeeText: '0',
-    deliveryFeeText: '待确认',
+    packagingFeeText: '免费',
+    deliveryFeeText: '结算页确认',
     totalText: '0',
-    points: 0,
+    checkoutButtonText: '去结算',
+    checkoutHint: '配送费在结算页确认',
     pointsText: '暂无可用积分',
     packagingOptions: [],
     selectedPackagingId: 'basic',
-    selectedPackaging: null,
+    selectedPackaging: {
+      name: '基础包装',
+      description: '简约环保包装',
+      feeFen: 0
+    },
     deliveryOptions: [],
     selectedDeliveryId: 'delivery',
-    selectedDelivery: null,
+    selectedDelivery: {
+      name: '配送到家',
+      description: '地址与配送时段在结算页确认'
+    },
     contentHeight: 520,
     horizontalPadding: 18,
-    productImageSize: 96,
+    productImageSize: 88,
     wideLayout: false,
     compactLayout: false
   },
@@ -203,9 +226,31 @@ Page({
     this.updateLayout()
   },
 
-  async onPullDownRefresh() {
-    await this.syncWithBackend(true)
-    wx.stopPullDownRefresh()
+  async onCartRefresh() {
+    if (this.data.refresherTriggered) return
+
+    this.setData({ refresherTriggered: true })
+
+    try {
+      await this.syncWithBackend(true)
+    } catch (error) {
+      console.error('购物车刷新失败：', error)
+      wx.showToast({ title: '刷新失败，请稍后重试', icon: 'none' })
+    } finally {
+      this.setData({ refresherTriggered: false })
+    }
+  },
+
+  onCartRefreshRestore() {
+    if (this.data.refresherTriggered) {
+      this.setData({ refresherTriggered: false })
+    }
+  },
+
+  onCartRefreshAbort() {
+    if (this.data.refresherTriggered) {
+      this.setData({ refresherTriggered: false })
+    }
   },
 
   updateLayout() {
@@ -219,12 +264,12 @@ Page({
       DELIVERY_OPTIONS.slice()
 
     const selectedPackagingId =
-      getStoredValue(
+      readStorage(
         PACKAGING_KEY,
         'basic'
       )
     const selectedDeliveryId =
-      getStoredValue(
+      readStorage(
         DELIVERY_KEY,
         'delivery'
       )
@@ -234,14 +279,14 @@ Page({
       deliveryOptions,
       selectedPackagingId,
       selectedPackaging:
-        optionById(
+        findOption(
           packagingOptions,
           selectedPackagingId,
           'basic'
         ),
       selectedDeliveryId,
       selectedDelivery:
-        optionById(
+        findOption(
           deliveryOptions,
           selectedDeliveryId,
           'delivery'
@@ -251,32 +296,35 @@ Page({
     this.refreshFromStorage()
   },
 
-  prepareCart(cart) {
-    return cart.map((item) => {
+  prepareCart(source) {
+    return source.map((item) => {
       const price = Math.max(
         0,
-        number(item.price)
+        toNumber(item.price)
       )
       const quantity = Math.max(
         1,
         Math.round(
-          number(item.quantity, 1)
+          toNumber(item.quantity, 1)
         )
       )
       const stock = Math.max(
         0,
         Math.round(
-          number(item.stock)
+          toNumber(item.stock)
         )
       )
       const invalid =
         item.invalid === true ||
         item.onSale === false ||
         stock <= 0
+      const subtotalFen =
+        Math.round(price * 100) *
+        quantity
 
       return {
         ...item,
-        id: productId(item),
+        id: getProductId(item),
         quantity,
         stock,
         invalid,
@@ -285,18 +333,10 @@ Page({
             ? false
             : item.selected !== false,
         price,
-        priceText:
-          moneyFromYuan(price),
-        subtotalFen:
-          Math.round(
-            price * 100
-          ) * quantity,
+        priceText: formatYuan(price),
+        subtotalFen,
         subtotalText:
-          moneyFromFen(
-            Math.round(
-              price * 100
-            ) * quantity
-          ),
+          formatFen(subtotalFen),
         invalidReason:
           item.invalidReason ||
           (invalid
@@ -314,62 +354,61 @@ Page({
     const cart = this.prepareCart(
       getCart()
     )
-
     const selectedItems =
       cart.filter(
         (item) =>
           item.selected &&
           !item.invalid
       )
-
+    const validItems =
+      cart.filter(
+        (item) => !item.invalid
+      )
     const goodsTotalFen =
       selectedItems.reduce(
         (sum, item) =>
           sum + item.subtotalFen,
         0
       )
-
     const selectedPackaging =
-      optionById(
+      findOption(
         this.data.packagingOptions,
         this.data.selectedPackagingId,
         'basic'
       )
-
     const packagingFeeFen =
       selectedItems.length > 0
         ? Math.max(
             0,
             Math.round(
-              number(
-                selectedPackaging &&
+              toNumber(
                 selectedPackaging.feeFen
               )
             )
           )
         : 0
-
-    const deliveryFeeFen = 0
     const totalFen =
       goodsTotalFen +
-      packagingFeeFen +
-      deliveryFeeFen
-
-    const validItems = cart.filter(
-      (item) => !item.invalid
+      packagingFeeFen
+    const selectedCount =
+      selectedItems.reduce(
+        (sum, item) =>
+          sum + item.quantity,
+        0
+      )
+    const selectedItemCount =
+      selectedItems.length
+    const points = Math.max(
+      0,
+      Number(getPoints() || 0)
     )
-
-    const points = getPoints()
 
     this.setData({
       cart,
-      validCount: validItems.length,
-      selectedCount:
-        selectedItems.reduce(
-          (sum, item) =>
-            sum + item.quantity,
-          0
-        ),
+      cartTitle:
+        `${cart.length}件商品`,
+      selectedCount,
+      selectedItemCount,
       allSelected:
         validItems.length > 0 &&
         validItems.every(
@@ -377,29 +416,39 @@ Page({
         ),
       goodsTotalFen,
       packagingFeeFen,
-      deliveryFeeFen,
       totalFen,
       goodsTotalText:
-        moneyFromFen(goodsTotalFen),
+        formatFen(goodsTotalFen),
       packagingFeeText:
         packagingFeeFen > 0
-          ? `+¥${moneyFromFen(packagingFeeFen)}`
+          ? `¥${formatFen(packagingFeeFen)}`
           : '免费',
       deliveryFeeText:
         this.data.selectedDeliveryId ===
         'pickup'
-          ? '免配送费'
-          : '结算页确认',
+          ? '免费'
+          : '待确认',
       totalText:
-        moneyFromFen(totalFen),
-      points,
+        formatFen(totalFen),
+      checkoutButtonText:
+        this.data.editing
+          ? selectedItemCount > 0
+            ? `删除 ${selectedItemCount} 件`
+            : '删除'
+          : selectedCount > 0
+            ? `去结算 ${selectedCount} 件`
+            : '去结算',
+      checkoutHint:
+        this.data.editing
+          ? '选择需要删除的商品'
+          : '配送费在结算页确认',
       pointsText:
         points > 0
-          ? `可用 ${points} 积分`
+          ? `${points}积分`
           : '暂无可用积分',
       selectedPackaging,
       selectedDelivery:
-        optionById(
+        findOption(
           this.data.deliveryOptions,
           this.data.selectedDeliveryId,
           'delivery'
@@ -412,19 +461,16 @@ Page({
   ) {
     const localCart = getCart()
 
-    if (!localCart.length) {
-      this.setData({
-        syncing: false,
-        syncText: ''
-      })
+    if (
+      !localCart.length ||
+      this.data.syncing
+    ) {
       return
     }
 
-    if (this.data.syncing) return
-
     this.setData({
       syncing: true,
-      syncText: '正在校验价格与库存'
+      syncText: '正在更新'
     })
 
     try {
@@ -432,29 +478,28 @@ Page({
         await fetchHomeData({
           forceRefresh
         })
-
-      const cloudProducts = (
-        result.products || []
-      ).map(normalizeCloudProduct)
-
-      const productMap = new Map(
-        cloudProducts.map(
-          (item) => [item.id, item]
+      const cloudProducts =
+        (result.products || [])
+          .map(normalizeCloudProduct)
+      const productMap =
+        new Map(
+          cloudProducts.map(
+            (item) => [item.id, item]
+          )
         )
-      )
 
-      let hasAdjustment = false
+      let adjusted = false
       let priceChanged = false
 
       const nextCart =
         localCart.map((storedItem) => {
           const id =
-            productId(storedItem)
+            getProductId(storedItem)
           const latest =
             productMap.get(id)
 
           if (!latest) {
-            hasAdjustment = true
+            adjusted = true
 
             return {
               ...storedItem,
@@ -462,28 +507,31 @@ Page({
               selected: false,
               invalid: true,
               invalidReason:
-                '商品已下架或售罄',
+                '已下架或售罄',
               onSale: false,
               stock: 0
             }
           }
 
           const oldPrice =
-            number(storedItem.price)
+            toNumber(storedItem.price)
           const oldQuantity =
             Math.max(
               1,
               Math.round(
-                number(
+                toNumber(
                   storedItem.quantity,
                   1
                 )
               )
             )
-          const nextQuantity =
-            Math.min(
-              oldQuantity,
-              latest.stock
+          const quantity =
+            Math.max(
+              1,
+              Math.min(
+                oldQuantity,
+                latest.stock
+              )
             )
           const didPriceChange =
             Math.abs(
@@ -492,9 +540,9 @@ Page({
 
           if (
             didPriceChange ||
-            nextQuantity !== oldQuantity
+            quantity !== oldQuantity
           ) {
-            hasAdjustment = true
+            adjusted = true
           }
 
           if (didPriceChange) {
@@ -505,21 +553,13 @@ Page({
             ...storedItem,
             ...latest,
             id,
-            quantity:
-              Math.max(
-                1,
-                nextQuantity
-              ),
+            quantity,
             selected:
               storedItem.selected !== false,
             invalid: false,
             invalidReason: '',
             priceChanged:
-              didPriceChange,
-            previousPrice:
               didPriceChange
-                ? oldPrice
-                : storedItem.previousPrice
           }
         })
 
@@ -528,27 +568,25 @@ Page({
 
       this.setData({
         syncText:
-          hasAdjustment
-            ? '已按后台最新价格与库存更新'
-            : '价格与库存已是最新'
+          adjusted
+            ? '已按最新库存更新'
+            : '价格与库存已更新'
       })
 
       if (priceChanged) {
         wx.showToast({
-          title:
-            '部分商品价格已更新',
+          title: '部分商品价格已更新',
           icon: 'none'
         })
       }
     } catch (error) {
       console.error(
-        '购物车后台校验失败：',
+        '购物车数据更新失败：',
         error
       )
 
       this.setData({
-        syncText:
-          '暂未完成后台校验'
+        syncText: '暂未完成更新'
       })
     } finally {
       this.setData({
@@ -561,28 +599,30 @@ Page({
     this.setData({
       editing: !this.data.editing
     })
+
+    this.refreshFromStorage()
   },
 
   toggleItem(event) {
     const id = String(
       event.currentTarget.dataset.id || ''
     )
-
     const cart = getCart()
-    const index = cart.findIndex(
-      (item) =>
-        productId(item) === id
-    )
+    const index =
+      cart.findIndex(
+        (item) =>
+          getProductId(item) === id
+      )
 
     if (index < 0) return
 
-    const prepared =
+    const current =
       this.prepareCart([cart[index]])[0]
 
-    if (prepared.invalid) {
+    if (current.invalid) {
       wx.showToast({
         title:
-          prepared.invalidReason ||
+          current.invalidReason ||
           '该商品暂不可购买',
         icon: 'none'
       })
@@ -602,21 +642,19 @@ Page({
   toggleAll() {
     const target =
       !this.data.allSelected
-
-    const cart = getCart().map(
-      (item) => {
-        const prepared =
+    const cart =
+      getCart().map((item) => {
+        const current =
           this.prepareCart([item])[0]
 
         return {
           ...item,
           selected:
-            prepared.invalid
+            current.invalid
               ? false
               : target
         }
-      }
-    )
+      })
 
     setCart(cart)
     this.refreshFromStorage()
@@ -626,41 +664,41 @@ Page({
     const id = String(
       event.currentTarget.dataset.id || ''
     )
-    const delta = number(
+    const delta = toNumber(
       event.currentTarget.dataset.delta
     )
-
     const cart = getCart()
-    const index = cart.findIndex(
-      (item) =>
-        productId(item) === id
-    )
+    const index =
+      cart.findIndex(
+        (item) =>
+          getProductId(item) === id
+      )
 
     if (index < 0) return
 
-    const prepared =
+    const current =
       this.prepareCart([cart[index]])[0]
 
-    if (prepared.invalid) {
+    if (current.invalid) {
       wx.showToast({
         title:
-          prepared.invalidReason ||
+          current.invalidReason ||
           '该商品暂不可购买',
         icon: 'none'
       })
       return
     }
 
-    const requested =
-      prepared.quantity + delta
+    const next =
+      current.quantity + delta
 
     if (
       delta > 0 &&
-      requested > prepared.stock
+      next > current.stock
     ) {
       wx.showToast({
         title:
-          `库存仅剩${prepared.stock}${prepared.unit}`,
+          `库存仅剩${current.stock}${current.unit}`,
         icon: 'none'
       })
       return
@@ -672,8 +710,8 @@ Page({
         Math.max(
           1,
           Math.min(
-            prepared.stock,
-            requested
+            current.stock,
+            next
           )
         )
     }
@@ -692,14 +730,14 @@ Page({
       content:
         '确定从购物车中删除这件商品吗？',
       confirmText: '删除',
-      confirmColor: '#68764b',
+      confirmColor: '#6f8050',
       success: (result) => {
         if (!result.confirm) return
 
         setCart(
           getCart().filter(
             (item) =>
-              productId(item) !== id
+              getProductId(item) !== id
           )
         )
 
@@ -709,36 +747,37 @@ Page({
   },
 
   removeSelected() {
-    const selectedIds = new Set(
-      this.data.cart
-        .filter(
-          (item) => item.selected
-        )
-        .map((item) => item.id)
-    )
+    const ids =
+      new Set(
+        this.data.cart
+          .filter(
+            (item) => item.selected
+          )
+          .map((item) => item.id)
+      )
 
-    if (!selectedIds.size) {
+    if (!ids.size) {
       wx.showToast({
-        title: '请选择要删除的商品',
+        title: '请选择商品',
         icon: 'none'
       })
       return
     }
 
     wx.showModal({
-      title: '批量删除',
+      title: '删除商品',
       content:
-        `确定删除已选中的 ${selectedIds.size} 件商品吗？`,
+        `确定删除已选择的${ids.size}件商品吗？`,
       confirmText: '删除',
-      confirmColor: '#68764b',
+      confirmColor: '#6f8050',
       success: (result) => {
         if (!result.confirm) return
 
         setCart(
           getCart().filter(
             (item) =>
-              !selectedIds.has(
-                productId(item)
+              !ids.has(
+                getProductId(item)
               )
           )
         )
@@ -756,23 +795,22 @@ Page({
       this.data.packagingOptions
 
     wx.showActionSheet({
-      itemList: options.map(
-        (item) => {
-          const feeText =
+      itemList:
+        options.map((item) => {
+          const fee =
             item.feeFen > 0
-              ? ` +¥${moneyFromFen(item.feeFen)}`
+              ? ` ¥${formatFen(item.feeFen)}`
               : ' 免费'
 
-          return `${item.name}${feeText}`
-        }
-      ),
+          return `${item.name}${fee}`
+        }),
       success: (result) => {
         const selected =
           options[result.tapIndex]
 
         if (!selected) return
 
-        setStoredValue(
+        saveStorage(
           PACKAGING_KEY,
           selected.id
         )
@@ -794,16 +832,17 @@ Page({
       this.data.deliveryOptions
 
     wx.showActionSheet({
-      itemList: options.map(
-        (item) => item.name
-      ),
+      itemList:
+        options.map(
+          (item) => item.name
+        ),
       success: (result) => {
         const selected =
           options[result.tapIndex]
 
         if (!selected) return
 
-        setStoredValue(
+        saveStorage(
           DELIVERY_KEY,
           selected.id
         )
@@ -821,17 +860,12 @@ Page({
   },
 
   openPoints() {
-    if (this.data.points <= 0) {
-      wx.showToast({
-        title: '当前暂无可用积分',
-        icon: 'none'
-      })
-      return
-    }
-
     wx.showToast({
       title:
-        '积分将在结算页按规则抵扣',
+        this.data.pointsText ===
+        '暂无可用积分'
+          ? '当前暂无可用积分'
+          : '积分将在结算页抵扣',
       icon: 'none'
     })
   },
@@ -852,7 +886,7 @@ Page({
       this.data.selectedCount <= 0
     ) {
       wx.showToast({
-        title: '请选择可结算商品',
+        title: '请选择商品',
         icon: 'none'
       })
       return
@@ -860,7 +894,7 @@ Page({
 
     wx.showToast({
       title:
-        '订单结算将在下一阶段接入',
+        '结算功能将在订单阶段接入',
       icon: 'none'
     })
   }

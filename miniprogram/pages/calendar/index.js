@@ -145,6 +145,22 @@ Page({
 
   onShow() {
     if (!this.data.year) return
+
+    const intentDateKey = wx.getStorageSync('huayuCalendarIntentDate')
+    const intentDate = parseDateKey(intentDateKey)
+    if (intentDate) {
+      wx.removeStorageSync('huayuCalendarIntentDate')
+      this.setData({
+        year: intentDate.getFullYear(),
+        month: intentDate.getMonth(),
+        selectedDateKey: dateKey(
+          intentDate.getFullYear(),
+          intentDate.getMonth() + 1,
+          intentDate.getDate()
+        )
+      })
+    }
+
     const personalDates = getImportantDates()
     this.setData({ personalDates })
     this.rebuildMonth()

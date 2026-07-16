@@ -751,3 +751,24 @@ a {
       270px;
   }
 }
+
+
+.atlas-filter-bar .el-input {
+  width: 300px;
+}
+
+.atlas-filter-count {
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.form-grid--three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.atlas-image-field {
+  margin-top: 18px;
+}

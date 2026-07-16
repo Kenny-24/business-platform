@@ -1,62 +1,20 @@
-<view
-  wx:if="{{!overlay}}"
-  class="nav-spacer"
-  style="height: {{totalHeight}}px;"
-></view>
+<view wx:if="{{!overlay}}" class="nav-spacer" style="height: {{totalHeight}}px;"></view>
 
-<view
-  class="
-    nav
-    {{transparent ? 'nav--transparent' : ''}}
-    {{overlay ? 'nav--overlay' : ''}}
-    {{light ? 'nav--light' : ''}}
-    {{solid ? 'nav--solid' : ''}}
-    {{brand ? 'nav--brand' : ''}}
-  "
-  style="
-    height: {{totalHeight}}px;
-    padding-top: {{statusBarHeight}}px;
-  "
->
-  <view
-    class="nav__inner"
-    style="height: {{navBarHeight}}px;"
-  >
-    <button
-      wx:if="{{showLocation}}"
-      class="nav__location"
-      hover-class="nav__location--pressed"
-      bindtap="onLocationTap"
-    >
-      <image
-        class="nav__location-icon"
-        src="{{light && !solid ? '/images/brand/location-white.png' : '/images/brand/location-green.png'}}"
-        mode="aspectFit"
-      ></image>
+<view class="nav {{transparent ? 'nav--transparent' : ''}} {{overlay ? 'nav--overlay' : ''}} {{light ? 'nav--light' : ''}} {{solid ? 'nav--solid' : ''}} {{brand ? 'nav--brand' : ''}}" style="height: {{totalHeight}}px; padding-top: {{statusBarHeight}}px;">
+  <view class="nav__inner" style="height: {{navBarHeight}}px;">
+    <view wx:if="{{showBack}}" class="nav__back" hover-class="nav__back--pressed" hover-stay-time="80" bindtap="onBackTap" role="button" aria-label="返回">
+      <view class="nav__back-icon"></view>
+    </view>
+
+    <button wx:if="{{showLocation}}" class="nav__location" hover-class="nav__location--pressed" bindtap="onLocationTap">
+      <image class="nav__location-icon" src="{{light && !solid ? '/images/brand/location-white.png' : '/images/brand/location-green.png'}}" mode="aspectFit"></image>
       <text class="nav__location-text">{{locationText}}</text>
     </button>
 
     <view class="nav__center">
-      <image
-        wx:if="{{brand}}"
-        class="nav__brand-image"
-        src="{{light && !solid ? '/images/brand/huayu-white.png' : '/images/brand/huayu-green.png'}}"
-        mode="aspectFit"
-      ></image>
-
-      <text
-        wx:else
-        class="nav__title"
-      >
-        {{title}}
-      </text>
-
-      <text
-        wx:if="{{brand && subtitle}}"
-        class="nav__subtitle"
-      >
-        {{subtitle}}
-      </text>
+      <image wx:if="{{brand}}" class="nav__brand-image" src="{{light && !solid ? '/images/brand/huayu-white.png' : '/images/brand/huayu-green.png'}}" mode="aspectFit"></image>
+      <text wx:else class="nav__title">{{title}}</text>
+      <text wx:if="{{brand && subtitle}}" class="nav__subtitle">{{subtitle}}</text>
     </view>
   </view>
 </view>

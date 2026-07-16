@@ -1,0 +1,383 @@
+.atlas-detail-page {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 0;
+  background: #fafbf8;
+}
+
+.atlas-detail-scroll {
+  width: 100%;
+  overflow: hidden;
+}
+
+.atlas-detail-content {
+  width: 100%;
+  min-height: 100%;
+  padding-top: 17rpx;
+}
+
+.atlas-detail-hero {
+  width: 100%;
+  overflow: hidden;
+  border: 1rpx solid #e3e7df;
+  border-radius: 20rpx;
+  background: #eef1eb;
+}
+
+.atlas-detail-hero__image {
+  display: block;
+  width: 100%;
+}
+
+.atlas-detail-hero__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #687850;
+  font-size: 34rpx;
+  font-weight: 700;
+  letter-spacing: 7rpx;
+}
+
+.atlas-detail-heading {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20rpx 3rpx 14rpx;
+}
+
+.atlas-detail-heading__main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.atlas-detail-heading__name-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.atlas-detail-heading__name {
+  min-width: 0;
+  overflow: hidden;
+  color: #292f27;
+  font-size: 32rpx;
+  font-weight: 650;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-detail-heading__owned {
+  flex: 0 0 auto;
+  margin-left: 10rpx;
+  padding: 5rpx 10rpx;
+  border-radius: 999rpx;
+  background: #eaf1e4;
+  color: #5c6c45;
+  font-size: 14rpx;
+}
+
+.atlas-detail-heading__latin {
+  display: block;
+  margin-top: 5rpx;
+  color: #9ba098;
+  font-size: 17rpx;
+}
+
+.atlas-detail-heading__category {
+  flex: 0 0 auto;
+  margin: 4rpx 0 0 15rpx;
+  padding: 6rpx 11rpx;
+  border-radius: 999rpx;
+  background: #f0f3ec;
+  color: #697850;
+  font-size: 15rpx;
+}
+
+.atlas-detail-layout {
+  width: 100%;
+}
+
+.atlas-detail-layout__main,
+.atlas-detail-layout__side {
+  width: 100%;
+  min-width: 0;
+}
+
+.detail-card {
+  width: 100%;
+  margin-top: 15rpx;
+  padding: 21rpx;
+  border: 1rpx solid #e5e9e2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.meaning-card {
+  background: #eef3e9;
+  border-color: #e0e7d9;
+}
+
+.detail-card__eyebrow,
+.detail-card__title,
+.detail-card__paragraph,
+.meaning-card__text {
+  display: block;
+}
+
+.detail-card__eyebrow {
+  color: #758467;
+  font-size: 16rpx;
+  letter-spacing: 3rpx;
+}
+
+.meaning-card__text {
+  margin-top: 8rpx;
+  color: #384032;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.detail-card__title {
+  color: #30342e;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.detail-card__paragraph {
+  margin-top: 12rpx;
+  color: #686e65;
+  font-size: 18rpx;
+  line-height: 1.75;
+}
+
+.care-list {
+  margin-top: 13rpx;
+}
+
+.care-step {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #eef0eb;
+}
+
+.care-step:last-child {
+  border-bottom: 0;
+}
+
+.care-step__number {
+  display: flex;
+  width: 35rpx;
+  height: 35rpx;
+  flex: 0 0 35rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf2e8;
+  color: #617148;
+  font-size: 15rpx;
+  font-weight: 600;
+}
+
+.care-step__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 12rpx;
+  color: #656b62;
+  font-size: 18rpx;
+  line-height: 1.6;
+}
+
+.info-row {
+  display: flex;
+  min-height: 53rpx;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #eef0eb;
+}
+
+.info-row:last-child {
+  border-bottom: 0;
+}
+
+.info-row__label {
+  flex: 0 0 auto;
+  padding: 13rpx 0;
+  color: #92988f;
+  font-size: 17rpx;
+}
+
+.info-row__value {
+  max-width: 68%;
+  padding: 13rpx 0;
+  color: #4f554d;
+  font-size: 17rpx;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+  gap: 8rpx;
+}
+
+.detail-tag {
+  padding: 7rpx 11rpx;
+  border-radius: 999rpx;
+  background: #f1f4ee;
+  color: #687650;
+  font-size: 15rpx;
+}
+
+.related-section {
+  margin-top: 22rpx;
+}
+
+.related-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.related-section__title {
+  color: #30342e;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.related-section__hint {
+  color: #999f96;
+  font-size: 15rpx;
+}
+
+.related-grid {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.related-card {
+  display: flex;
+  width: calc((100% - 12rpx) / 2);
+  min-width: 0;
+  overflow: hidden;
+  border: 1rpx solid #e5e9e2;
+  border-radius: 15rpx;
+  background: #ffffff;
+}
+
+.related-card__image {
+  display: block;
+  width: 92rpx;
+  height: 92rpx;
+  flex: 0 0 92rpx;
+  background: #eef1eb;
+}
+
+.related-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7b53;
+  font-size: 17rpx;
+  font-weight: 600;
+}
+
+.related-card__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 13rpx 11rpx;
+}
+
+.related-card__name,
+.related-card__price {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.related-card__name {
+  color: #30342e;
+  font-size: 18rpx;
+  font-weight: 600;
+}
+
+.related-card__price {
+  margin-top: 8rpx;
+  color: #5b6b44;
+  font-size: 16rpx;
+}
+
+.atlas-detail-action {
+  display: flex;
+  width: 100%;
+  height: 66rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 23rpx;
+  border-radius: 33rpx;
+  background: #6f8050;
+  color: #ffffff;
+  font-size: 21rpx;
+  font-weight: 600;
+}
+
+.atlas-detail-bottom-space {
+  height: calc(46rpx + env(safe-area-inset-bottom));
+}
+
+.atlas-detail-state {
+  display: flex;
+  min-height: 520rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8e948b;
+  font-size: 19rpx;
+}
+
+.atlas-detail-state__title {
+  color: #656b62;
+  font-size: 21rpx;
+}
+
+.atlas-detail-state__button {
+  margin-top: 18rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 999rpx;
+  background: #edf2e8;
+  color: #607047;
+}
+
+.atlas-detail-page--wide .atlas-detail-content {
+  max-width: 1120rpx;
+  margin: 0 auto;
+}
+
+.atlas-detail-page--wide .atlas-detail-layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.atlas-detail-page--wide .atlas-detail-layout__main {
+  width: 64%;
+  flex: 0 0 64%;
+  padding-right: 12rpx;
+}
+
+.atlas-detail-page--wide .atlas-detail-layout__side {
+  width: 36%;
+  flex: 0 0 36%;
+  padding-left: 12rpx;
+}

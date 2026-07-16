@@ -297,6 +297,7 @@ function sanitizeProduct(input) {
     sceneTags: stringArray(input.sceneTags),
     colorTags: stringArray(input.colorTags),
     searchKeywords: stringArray(input.searchKeywords),
+    atlasIds: stringArray(input.atlasIds),
     coverFileId: text(input.coverFileId),
     sort: integer(input.sort, 100)
   }
@@ -425,8 +426,12 @@ function sanitizeAtlas(input) {
     meaning: text(input.meaning),
     description: text(input.description),
     careGuide: text(input.careGuide),
+    category: text(input.category, '鲜切花'),
     sceneTags: stringArray(input.sceneTags),
+    colorTags: stringArray(input.colorTags),
+    seasonTags: stringArray(input.seasonTags),
     imageFileId: text(input.imageFileId),
+    homeFeatured: boolean(input.homeFeatured),
     published: boolean(input.published),
     sort: integer(input.sort, 100)
   }

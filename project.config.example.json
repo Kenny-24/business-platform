@@ -1,15 +1,27 @@
 {
-  "description": "花予微信小程序",
-  "compileType": "miniprogram",
-  "miniprogramRoot": "miniprogram/",
-  "cloudfunctionRoot": "cloudfunctions/",
-  "projectname": "huayu-miniapp",
-  "appid": "请保留你现有项目中的正式AppID",
+  "description": "花予鲜花小程序",
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "huayu-admin-web" },
+      { "type": "folder", "value": "local-assets-backup" },
+      { "type": "folder", "value": "docs" }
+    ]
+  },
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": true,
+    "enhance": true,
     "postcss": true,
     "minified": true,
-    "enhance": true
-  }
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "ignoreUploadUnusedFiles": true,
+    "compileHotReLoad": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.7.0",
+  "appid": "touristappid",
+  "projectname": "huayu-miniapp",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/"
 }

@@ -1,6 +1,5 @@
 {
   "disableScroll": true,
-  "enablePullDownRefresh": true,
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "app-nav": "/components/app-nav/index"

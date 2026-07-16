@@ -1,5 +1,5 @@
-const CACHE_KEY = 'huayu_home_data_cache_v4'
-const CACHE_DURATION = 3 * 60 * 1000
+const CACHE_KEY = 'huayu_home_data_cache_v6'
+const CACHE_DURATION = 60 * 1000
 
 let memoryCache = null
 
@@ -29,6 +29,7 @@ function normalizeProduct(item) {
     sceneTags: normalizeStringArray(item.sceneTags),
     colorTags: normalizeStringArray(item.colorTags),
     searchKeywords: normalizeStringArray(item.searchKeywords),
+    atlasIds: normalizeStringArray(item.atlasIds),
     color:
       Array.isArray(item.colorTags) && item.colorTags.length > 0
         ? normalizeString(item.colorTags[0])
@@ -49,10 +50,7 @@ function normalizeBanner(item, index) {
   if (actionType === 'builder') action = 'builder'
   if (actionType === 'category' && actionValue === 'flower') action = 'flowers'
   if (actionType === 'category' && actionValue === 'bouquet') action = 'bouquets'
-  if (
-    actionType === 'category' &&
-    ['succulent', 'greenPlant'].includes(actionValue)
-  ) {
+  if (actionType === 'category' && ['succulent', 'greenPlant'].includes(actionValue)) {
     action = 'homeDecor'
   }
 
@@ -73,12 +71,22 @@ function normalizeBanner(item, index) {
 function normalizeAtlas(item, index) {
   return {
     id: item._id || `cloud-atlas-${index}`,
+    _id: item._id || `cloud-atlas-${index}`,
     name: normalizeString(item.name),
     latin: normalizeString(item.latinName),
+    latinName: normalizeString(item.latinName),
     meaning: normalizeString(item.meaning),
     description: normalizeString(item.description),
     careGuide: normalizeString(item.careGuide),
-    image: normalizeString(item.imageUrl)
+    category: normalizeString(item.category) || '鲜切花',
+    sceneTags: normalizeStringArray(item.sceneTags),
+    colorTags: normalizeStringArray(item.colorTags),
+    seasonTags: normalizeStringArray(item.seasonTags),
+    imageFileId: normalizeString(item.imageFileId),
+    image: normalizeString(item.imageUrl),
+    homeFeatured: item.homeFeatured === true,
+    published: item.published !== false,
+    sort: Number(item.sort || 0)
   }
 }
 
@@ -115,6 +123,7 @@ function normalizePayload(payload) {
     categoryBanners: (payload.categoryBanners || []).map(normalizeBanner),
     atlas: (payload.atlas || []).map(normalizeAtlas),
     calendarEvents: (payload.calendarEvents || []).map(normalizeCalendarEvent),
+    serverTime: Number(payload.serverTime || Date.now()),
     fetchedAt: Date.now()
   }
 }
@@ -133,7 +142,7 @@ function readCache() {
       return cached
     }
   } catch (error) {
-    console.warn('读取首页缓存失败：', error)
+    console.warn('读取统一数据缓存失败：', error)
   }
 
   return null
@@ -141,11 +150,10 @@ function readCache() {
 
 function writeCache(data) {
   memoryCache = data
-
   try {
     wx.setStorageSync(CACHE_KEY, data)
   } catch (error) {
-    console.warn('写入首页缓存失败：', error)
+    console.warn('写入统一数据缓存失败：', error)
   }
 }
 
@@ -165,7 +173,6 @@ async function fetchHomeData(options = {}) {
     name: 'getHomeData',
     data: {}
   })
-
   const payload = response && response.result
 
   if (!payload || payload.ok !== true) {
@@ -183,11 +190,10 @@ async function fetchHomeData(options = {}) {
 
 function clearHomeDataCache() {
   memoryCache = null
-
   try {
     wx.removeStorageSync(CACHE_KEY)
   } catch (error) {
-    console.warn('清除首页缓存失败：', error)
+    console.warn('清除统一数据缓存失败：', error)
   }
 }
 

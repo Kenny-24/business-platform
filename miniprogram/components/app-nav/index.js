@@ -14,6 +14,7 @@ Component({
     light: { type: Boolean, value: false },
     solid: { type: Boolean, value: false },
     showLocation: { type: Boolean, value: false },
+    showBack: { type: Boolean, value: false },
     locationText: { type: String, value: '选择位置' }
   },
 
@@ -39,6 +40,15 @@ Component({
   },
 
   methods: {
+    onBackTap() {
+      const pages = getCurrentPages()
+      if (pages.length > 1) {
+        wx.navigateBack({ delta: 1 })
+        return
+      }
+      wx.switchTab({ url: '/pages/home/index' })
+    },
+
     onLocationTap() {
       this.triggerEvent('location')
     }

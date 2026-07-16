@@ -158,6 +158,26 @@
               </el-select>
             </el-form-item>
           </div>
+
+          <el-form-item label="购买后收录到“我的图鉴”">
+            <el-select
+              v-model="form.atlasIds"
+              multiple
+              filterable
+              clearable
+              placeholder="选择本商品包含的花材品种"
+            >
+              <el-option
+                v-for="item in atlasOptions"
+                :key="item._id"
+                :label="`${item.name} · ${item.category || '花材'}`"
+                :value="item._id"
+              />
+            </el-select>
+            <div class="form-tip">
+              一个花束可以关联多个品种。顾客的有效订单包含本商品后，对应品种会进入小程序图鉴的“我的”。
+            </div>
+          </el-form-item>
         </el-card>
 
         <el-card
@@ -251,6 +271,7 @@ const route = useRoute()
 const router = useRouter()
 const formRef = ref()
 const saving = ref(false)
+const atlasOptions = ref([])
 
 const isEdit = computed(
   () => Boolean(route.params.id)
@@ -269,6 +290,7 @@ const form = reactive({
   sceneTags: [],
   colorTags: [],
   searchKeywords: [],
+  atlasIds: [],
   coverFileId: '',
   imageUrl: '',
   sort: 100
@@ -355,6 +377,15 @@ const rules = {
   ]
 }
 
+async function loadAtlasOptions() {
+  try {
+    const result = await adminApi.listAtlas()
+    atlasOptions.value = (result.items || []).filter((item) => item.published !== false)
+  } catch (error) {
+    feedback.error(error, '图鉴选项加载失败')
+  }
+}
+
 async function loadProduct() {
   if (!isEdit.value) {
     return
@@ -375,7 +406,9 @@ async function loadProduct() {
       colorTags:
         item.colorTags || [],
       searchKeywords:
-        item.searchKeywords || []
+        item.searchKeywords || [],
+      atlasIds:
+        item.atlasIds || []
     })
   } catch (error) {
     feedback.error(
@@ -420,5 +453,10 @@ async function save() {
   }
 }
 
-onMounted(loadProduct)
+onMounted(async () => {
+  await Promise.all([
+    loadAtlasOptions(),
+    loadProduct()
+  ])
+})
 </script>

@@ -151,6 +151,7 @@ function publicProduct(item, urlMap) {
     sceneTags: array(item.sceneTags),
     colorTags: array(item.colorTags),
     searchKeywords: array(item.searchKeywords),
+    atlasIds: array(item.atlasIds),
     coverFileId,
     imageUrl: urlMap[coverFileId] || '',
     sort: number(item.sort)
@@ -185,7 +186,12 @@ function publicAtlas(item, urlMap) {
     meaning: text(item.meaning),
     description: text(item.description),
     careGuide: text(item.careGuide),
+    category: text(item.category, '鲜切花'),
     sceneTags: array(item.sceneTags),
+    colorTags: array(item.colorTags),
+    seasonTags: array(item.seasonTags),
+    homeFeatured: item.homeFeatured === true,
+    published: item.published !== false,
     imageFileId,
     imageUrl: urlMap[imageFileId] || '',
     sort: number(item.sort)
@@ -240,7 +246,7 @@ exports.main = async () => {
     const atlas = allAtlas
       .filter((item) => item.published === true)
       .sort((a, b) => number(b.sort) - number(a.sort))
-      .slice(0, 12)
+      .slice(0, 200)
 
     const calendarEvents = mergeCalendarEvents(calendarOverrides)
 

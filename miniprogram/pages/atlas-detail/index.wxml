@@ -1,0 +1,108 @@
+<view class="safe-page atlas-detail-page {{wideLayout ? 'atlas-detail-page--wide' : ''}}">
+  <app-nav title="图鉴详情" solid showBack></app-nav>
+
+  <scroll-view class="atlas-detail-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{item}}" class="atlas-detail-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view class="atlas-detail-hero">
+        <image wx:if="{{item.image}}" class="atlas-detail-hero__image" style="height: {{heroHeight}}px;" src="{{item.image}}" mode="aspectFill"></image>
+        <view wx:else class="atlas-detail-hero__image atlas-detail-hero__placeholder" style="height: {{heroHeight}}px;">花予</view>
+      </view>
+
+      <view class="atlas-detail-heading">
+        <view class="atlas-detail-heading__main">
+          <view class="atlas-detail-heading__name-row">
+            <text class="atlas-detail-heading__name">{{item.name}}</text>
+            <text wx:if="{{purchased}}" class="atlas-detail-heading__owned">已购收录</text>
+          </view>
+          <text class="atlas-detail-heading__latin">{{item.latin || 'Huayu Atlas'}}</text>
+        </view>
+        <text class="atlas-detail-heading__category">{{item.category}}</text>
+      </view>
+
+      <view class="atlas-detail-layout">
+        <view class="atlas-detail-layout__main">
+          <view class="detail-card meaning-card">
+            <text class="detail-card__eyebrow">花语</text>
+            <text class="meaning-card__text">{{item.meaning || '花语内容正在完善中'}}</text>
+          </view>
+
+          <view class="detail-card">
+            <text class="detail-card__title">花材介绍</text>
+            <text class="detail-card__paragraph">{{item.description || '这一品种的介绍正在由花予花艺师完善。'}}</text>
+          </view>
+
+          <view class="detail-card">
+            <text class="detail-card__title">养护方法</text>
+
+            <view wx:if="{{careSteps.length}}" class="care-list">
+              <view wx:for="{{careSteps}}" wx:key="index" class="care-step">
+                <text class="care-step__number">{{item.index}}</text>
+                <text class="care-step__text">{{item.label}}</text>
+              </view>
+            </view>
+
+            <text wx:else class="detail-card__paragraph">养护建议正在完善中。通常建议使用洁净花器、去除水线以下叶片，并定期换水与斜剪根部。</text>
+          </view>
+        </view>
+
+        <view class="atlas-detail-layout__side">
+          <view class="detail-card">
+            <text class="detail-card__title">品种信息</text>
+
+            <view class="info-row">
+              <text class="info-row__label">分类</text>
+              <text class="info-row__value">{{item.category}}</text>
+            </view>
+
+            <view class="info-row">
+              <text class="info-row__label">花期</text>
+              <text class="info-row__value">{{item.seasonText}}</text>
+            </view>
+
+            <view class="info-row">
+              <text class="info-row__label">颜色</text>
+              <text class="info-row__value">{{item.colorText}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{item.sceneTags.length}}" class="detail-card">
+            <text class="detail-card__title">适合场景</text>
+            <view class="tag-list">
+              <text wx:for="{{item.sceneTags}}" wx:key="*this" class="detail-tag">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{relatedProducts.length}}" class="related-section">
+        <view class="related-section__head">
+          <text class="related-section__title">相关在售商品</text>
+          <text class="related-section__hint">购买后会收录到“我的”</text>
+        </view>
+
+        <view class="related-grid">
+          <view wx:for="{{relatedProducts}}" wx:key="id" class="related-card" data-name="{{item.name}}" bindtap="openRelatedProduct" role="button">
+            <image wx:if="{{item.image}}" class="related-card__image" src="{{item.image}}" mode="aspectFill" lazy-load></image>
+            <view wx:else class="related-card__image related-card__placeholder">花予</view>
+            <view class="related-card__copy">
+              <text class="related-card__name">{{item.name}}</text>
+              <text class="related-card__price">¥{{item.priceText}} / {{item.unit}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="atlas-detail-action" bindtap="findRelatedFlowers" role="button">查看相关鲜花</view>
+      <view class="atlas-detail-bottom-space"></view>
+    </view>
+
+    <view wx:elif="{{loading}}" class="atlas-detail-state">
+      <text>正在加载图鉴详情…</text>
+    </view>
+
+    <view wx:else class="atlas-detail-state">
+      <text class="atlas-detail-state__title">图鉴详情加载失败</text>
+      <view class="atlas-detail-state__button" bindtap="retry" role="button">重新加载</view>
+    </view>
+  </scroll-view>
+</view>

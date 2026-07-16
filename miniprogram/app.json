@@ -1,11 +1,12 @@
 {
-  "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/home/index",
     "pages/category/index",
     "pages/calendar/index",
     "pages/cart/index",
-    "pages/profile/index"
+    "pages/profile/index",
+    "pages/atlas/index",
+    "pages/atlas-detail/index"
   ],
   "window": {
     "navigationStyle": "custom",
@@ -59,5 +60,6 @@
     "scope.userLocation": {
       "desc": "用于选择鲜花配送位置及展示对应服务范围"
     }
-  }
+  },
+  "lazyCodeLoading": "requiredComponents"
 }
