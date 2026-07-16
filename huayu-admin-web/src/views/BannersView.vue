@@ -1,8 +1,8 @@
 <template>
   <div>
     <PageHeader
-      title="首页轮播"
-      description="管理小程序首页轮播图片和文案。"
+      title="横幅管理"
+      description="统一管理首页轮播和分类页精选横幅。"
     >
       <el-button
         type="primary"
@@ -56,9 +56,22 @@
         </el-table-column>
 
         <el-table-column
+          label="展示位置"
+          width="130"
+        >
+          <template #default="{ row }">
+            {{
+              row.placement === 'categoryHero'
+                ? '分类页精选'
+                : '首页轮播'
+            }}
+          </template>
+        </el-table-column>
+
+        <el-table-column
           prop="scene"
           label="场景"
-          width="120"
+          width="110"
         />
 
         <el-table-column
@@ -137,6 +150,22 @@
       destroy-on-close
     >
       <el-form label-position="top">
+        <el-form-item label="展示位置">
+          <el-select v-model="form.placement">
+            <el-option
+              label="首页轮播"
+              value="home"
+            />
+            <el-option
+              label="分类页精选横幅"
+              value="categoryHero"
+            />
+          </el-select>
+          <div class="form-tip">
+            分类页只使用已启用且排序值最高的一条。
+          </div>
+        </el-form-item>
+
         <div class="form-grid form-grid--two">
           <el-form-item label="场景名称">
             <el-input
@@ -266,6 +295,7 @@ const emptyForm = () => ({
   imageUrl: '',
   actionType: 'category',
   actionValue: 'flower',
+  placement: 'home',
   enabled: true,
   sort: 100
 })
@@ -294,7 +324,11 @@ function resetForm(data = {}) {
   Object.assign(
     form,
     emptyForm(),
-    data
+    data,
+    {
+      placement:
+        data.placement || 'home'
+    }
   )
 }
 

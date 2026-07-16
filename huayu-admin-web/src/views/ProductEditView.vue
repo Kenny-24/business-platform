@@ -60,11 +60,28 @@
             </el-form-item>
           </div>
 
-          <el-form-item label="商品副标题">
+          <el-form-item label="商品副标题（首页等位置可用）">
             <el-input
               v-model="form.subtitle"
-              placeholder="例如 温柔优雅"
+              placeholder="可选；分类页商品卡不会显示该描述"
             />
+            <div class="form-tip">
+              分类页只展示商品名称、价格和单位，不展示副标题。
+            </div>
+          </el-form-item>
+
+          <el-form-item label="搜索关键词">
+            <el-select
+              v-model="form.searchKeywords"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              placeholder="输入关键词后回车，例如 玫瑰、香槟、送礼"
+            />
+            <div class="form-tip">
+              小程序分类页搜索会匹配商品名称、关键词、场景和颜色标签。
+            </div>
           </el-form-item>
 
           <div class="form-grid form-grid--three">
@@ -251,6 +268,7 @@ const form = reactive({
   featured: false,
   sceneTags: [],
   colorTags: [],
+  searchKeywords: [],
   coverFileId: '',
   imageUrl: '',
   sort: 100
@@ -355,7 +373,9 @@ async function loadProduct() {
       sceneTags:
         item.sceneTags || [],
       colorTags:
-        item.colorTags || []
+        item.colorTags || [],
+      searchKeywords:
+        item.searchKeywords || []
     })
   } catch (error) {
     feedback.error(

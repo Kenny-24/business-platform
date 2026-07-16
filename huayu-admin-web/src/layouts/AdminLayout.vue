@@ -38,10 +38,7 @@
             text="云服务已连接"
             type="success"
           />
-          <el-button
-            text
-            @click="handleLogout"
-          >
+          <el-button text @click="handleLogout">
             退出登录
           </el-button>
         </div>
@@ -55,10 +52,7 @@
 </template>
 
 <script setup>
-import {
-  useRoute,
-  useRouter
-} from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 import StatusDot from '../components/StatusDot.vue'
@@ -69,26 +63,12 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const menu = [
-  {
-    path: '/dashboard',
-    label: '经营概览'
-  },
-  {
-    path: '/products',
-    label: '商品管理'
-  },
-  {
-    path: '/inventory',
-    label: '库存管理'
-  },
-  {
-    path: '/banners',
-    label: '首页轮播'
-  },
-  {
-    path: '/atlas',
-    label: '花予图鉴'
-  }
+  { path: '/dashboard', label: '经营概览' },
+  { path: '/products', label: '商品管理' },
+  { path: '/inventory', label: '库存管理' },
+  { path: '/banners', label: '横幅管理' },
+  { path: '/calendar-events', label: '节日管理' },
+  { path: '/atlas', label: '花予图鉴' }
 ]
 
 async function handleLogout() {
@@ -106,14 +86,8 @@ async function handleLogout() {
     await authStore.signOut()
     router.replace('/login')
   } catch (error) {
-    if (
-      error !== 'cancel' &&
-      error !== 'close'
-    ) {
-      feedback.error(
-        error,
-        '退出登录失败'
-      )
+    if (error !== 'cancel' && error !== 'close') {
+      feedback.error(error, '退出登录失败')
     }
   }
 }

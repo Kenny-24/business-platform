@@ -1,7 +1,8 @@
 {
+  "disableScroll": true,
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
   "usingComponents": {
-    "app-nav": "/components/app-nav/index",
-    "section-title": "/components/section-title/index",
-    "product-card": "/components/product-card/index"
+    "app-nav": "/components/app-nav/index"
   }
 }

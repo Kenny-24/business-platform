@@ -1,53 +1,320 @@
-<view class="safe-page cart-page">
+<view class="safe-page cart-page {{wideLayout ? 'cart-page--wide' : ''}} {{compactLayout ? 'cart-page--compact' : ''}}">
   <app-nav title="购物车"></app-nav>
-  <view wx:if="{{cart.length}}" class="cart-list">
-    <view class="cart-list-head">
-      <text>共{{cart.length}}件商品</text>
-      <text class="cart-edit">编辑</text>
-    </view>
 
-    <view wx:for="{{cart}}" wx:key="id" class="cart-item">
-      <button class="select-dot {{item.selected ? 'select-dot--active' : ''}}" data-item="{{item}}" bindtap="toggleItem">{{item.selected ? '✓' : ''}}</button>
-      <image class="cart-image" src="{{item.image}}" mode="aspectFill"></image>
-      <view class="cart-info">
-        <view class="cart-top">
-          <text class="cart-name">{{item.name}}</text>
-          <button class="remove" data-id="{{item.id}}" bindtap="remove">删除</button>
-        </view>
-        <text class="cart-meta">¥{{item.price}} × {{item.quantity}}{{item.unit}}</text>
-        <view class="cart-bottom">
-          <text class="cart-price">¥{{item.price * item.quantity}}</text>
-          <view class="stepper">
-            <button data-item="{{item}}" data-delta="-1" bindtap="changeQty">−</button>
-            <text>{{item.quantity}}</text>
-            <button data-item="{{item}}" data-delta="1" bindtap="changeQty">＋</button>
+  <scroll-view
+    class="cart-scroll"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    bindrefresherrefresh="onPullDownRefresh"
+  >
+    <view
+      class="cart-content"
+      style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;"
+    >
+      <block wx:if="{{cart.length}}">
+        <view class="cart-toolbar">
+          <view>
+            <text class="cart-toolbar__title">
+              {{cart.length}} 件商品
+            </text>
+            <text
+              wx:if="{{syncText}}"
+              class="cart-toolbar__sync"
+            >
+              {{syncing ? '正在更新 · ' : ''}}{{syncText}}
+            </text>
           </view>
+
+          <view
+            class="cart-toolbar__edit"
+            bindtap="toggleEdit"
+            role="button"
+          >
+            {{editing ? '完成' : '编辑'}}
+          </view>
+        </view>
+
+        <view class="cart-main-layout">
+          <view class="cart-items-panel">
+            <view
+              wx:for="{{cart}}"
+              wx:key="id"
+              class="cart-item {{item.invalid ? 'cart-item--invalid' : ''}}"
+            >
+              <view
+                class="check-control {{item.selected ? 'check-control--active' : ''}} {{item.invalid ? 'check-control--disabled' : ''}}"
+                data-id="{{item.id}}"
+                bindtap="toggleItem"
+                role="button"
+                aria-label="选择商品"
+              >
+                <text wx:if="{{item.selected}}">✓</text>
+              </view>
+
+              <image
+                wx:if="{{item.image}}"
+                class="cart-item__image"
+                style="width: {{productImageSize}}px; height: {{productImageSize}}px;"
+                src="{{item.image}}"
+                mode="aspectFill"
+                lazy-load
+              ></image>
+
+              <view
+                wx:else
+                class="cart-item__image cart-item__placeholder"
+                style="width: {{productImageSize}}px; height: {{productImageSize}}px;"
+              >
+                花予
+              </view>
+
+              <view class="cart-item__content">
+                <view class="cart-item__top">
+                  <text class="cart-item__name">
+                    {{item.name}}
+                  </text>
+
+                  <view
+                    wx:if="{{editing}}"
+                    class="cart-item__remove"
+                    data-id="{{item.id}}"
+                    bindtap="removeOne"
+                    role="button"
+                  >
+                    删除
+                  </view>
+                </view>
+
+                <view class="cart-item__meta-row">
+                  <text class="cart-item__price">
+                    ¥{{item.priceText}} / {{item.unit}}
+                  </text>
+
+                  <text
+                    wx:if="{{item.priceChanged}}"
+                    class="cart-item__changed"
+                  >
+                    价格已更新
+                  </text>
+                </view>
+
+                <text
+                  wx:if="{{item.invalid}}"
+                  class="cart-item__status cart-item__status--invalid"
+                >
+                  {{item.invalidReason}}
+                </text>
+
+                <text
+                  wx:elif="{{item.lowStock}}"
+                  class="cart-item__status"
+                >
+                  仅剩 {{item.stock}}{{item.unit}}
+                </text>
+
+                <view class="cart-item__bottom">
+                  <view class="cart-item__subtotal">
+                    <text class="cart-item__subtotal-label">
+                      小计
+                    </text>
+                    <text class="cart-item__subtotal-value">
+                      ¥{{item.subtotalText}}
+                    </text>
+                  </view>
+
+                  <view class="quantity-stepper">
+                    <view
+                      class="quantity-stepper__button"
+                      data-id="{{item.id}}"
+                      data-delta="-1"
+                      bindtap="changeQty"
+                      role="button"
+                    >
+                      −
+                    </view>
+                    <text class="quantity-stepper__value">
+                      {{item.quantity}}
+                    </text>
+                    <view
+                      class="quantity-stepper__button"
+                      data-id="{{item.id}}"
+                      data-delta="1"
+                      bindtap="changeQty"
+                      role="button"
+                    >
+                      ＋
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="cart-options-panel">
+            <view class="option-card">
+              <view
+                class="option-row"
+                bindtap="chooseDelivery"
+                role="button"
+              >
+                <view class="option-row__copy">
+                  <text class="option-row__label">
+                    收货方式
+                  </text>
+                  <text class="option-row__description">
+                    {{selectedDelivery.description}}
+                  </text>
+                </view>
+
+                <view class="option-row__value">
+                  <text>{{selectedDelivery.name}}</text>
+                  <text class="option-row__arrow">›</text>
+                </view>
+              </view>
+
+              <view
+                class="option-row"
+                bindtap="choosePackaging"
+                role="button"
+              >
+                <view class="option-row__copy">
+                  <text class="option-row__label">
+                    包装方式
+                  </text>
+                  <text class="option-row__description">
+                    {{selectedPackaging.description}}
+                  </text>
+                </view>
+
+                <view class="option-row__value">
+                  <text>{{selectedPackaging.name}}</text>
+                  <text class="option-row__fee">
+                    {{packagingFeeText}}
+                  </text>
+                  <text class="option-row__arrow">›</text>
+                </view>
+              </view>
+
+              <view
+                class="option-row"
+                bindtap="openPoints"
+                role="button"
+              >
+                <view class="option-row__copy">
+                  <text class="option-row__label">
+                    积分抵扣
+                  </text>
+                  <text class="option-row__description">
+                    具体抵扣金额在结算页计算
+                  </text>
+                </view>
+
+                <view class="option-row__value">
+                  <text>{{pointsText}}</text>
+                  <text class="option-row__arrow">›</text>
+                </view>
+              </view>
+            </view>
+
+            <view class="summary-card">
+              <text class="summary-card__title">
+                费用明细
+              </text>
+
+              <view class="summary-row">
+                <text>商品金额</text>
+                <text>¥{{goodsTotalText}}</text>
+              </view>
+
+              <view class="summary-row">
+                <text>包装费用</text>
+                <text>{{packagingFeeText}}</text>
+              </view>
+
+              <view class="summary-row">
+                <text>配送费用</text>
+                <text>{{deliveryFeeText}}</text>
+              </view>
+
+              <view class="summary-divider"></view>
+
+              <view class="summary-row summary-row--total">
+                <text>当前合计</text>
+                <text>¥{{totalText}}</text>
+              </view>
+
+              <text class="summary-card__note">
+                最终金额以结算页的配送地址、时段和优惠规则为准
+              </text>
+            </view>
+          </view>
+        </view>
+
+        <view class="cart-content-bottom"></view>
+      </block>
+
+      <view wx:else class="cart-empty">
+        <view class="cart-empty__symbol">
+          <view class="cart-empty__basket"></view>
+        </view>
+        <text class="cart-empty__title">
+          购物车还是空的
+        </text>
+        <text class="cart-empty__description">
+          从当季鲜花中挑一份喜欢的
+        </text>
+        <view
+          class="cart-empty__button"
+          bindtap="goShopping"
+          role="button"
+        >
+          去选花
         </view>
       </view>
     </view>
+  </scroll-view>
 
-    <view class="package-row">
-      <text>包装</text>
-      <view><text class="muted">奶油色雾面纸</text><text class="package-price">¥12 ›</text></view>
+  <view
+    wx:if="{{cart.length}}"
+    class="checkout-bar"
+  >
+    <view
+      class="checkout-select-all"
+      bindtap="toggleAll"
+      role="button"
+    >
+      <view class="check-control {{allSelected ? 'check-control--active' : ''}}">
+        <text wx:if="{{allSelected}}">✓</text>
+      </view>
+      <text>全选</text>
     </view>
-    <view class="points-row">
-      <text>积分抵扣</text>
-      <text class="muted">支付页可用 320 积分 ›</text>
+
+    <view class="checkout-summary">
+      <view class="checkout-summary__price">
+        <text class="checkout-summary__label">
+          合计
+        </text>
+        <text class="checkout-summary__currency">
+          ¥
+        </text>
+        <text class="checkout-summary__amount">
+          {{totalText}}
+        </text>
+      </view>
+      <text class="checkout-summary__note">
+        {{editing ? '选择商品后批量删除' : '含包装，配送费待确认'}}
+      </text>
     </view>
-  </view>
 
-  <view wx:else class="empty">
-    <image class="empty-icon" src="/images/icons/cart.png"></image>
-    <text>购物车还是空的</text>
-    <button bindtap="checkout">去选花</button>
-  </view>
-
-  <view wx:if="{{cart.length}}" class="checkout-bar">
-    <button class="select-all" bindtap="toggleAll">
-      <text class="select-dot {{allSelected ? 'select-dot--active' : ''}}">{{allSelected ? '✓' : ''}}</text>
-      全选
-    </button>
-    <text class="checkout-total">合计：<text>¥{{total + 12}}</text></text>
-    <button class="checkout-button" bindtap="checkout">去结算</button>
+    <view
+      class="checkout-action {{selectedCount <= 0 ? 'checkout-action--disabled' : ''}} {{editing ? 'checkout-action--edit' : ''}}"
+      bindtap="checkout"
+      role="button"
+    >
+      {{editing ? '删除' : '去结算'}}{{!editing && selectedCount > 0 ? '（' + selectedCount + '）' : ''}}
+    </view>
   </view>
 </view>

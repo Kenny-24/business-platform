@@ -9,19 +9,13 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue'),
-    meta: {
-      public: true,
-      title: '登录'
-    }
+    meta: { public: true, title: '登录' }
   },
   {
     path: '/',
     component: () => import('../layouts/AdminLayout.vue'),
     children: [
-      {
-        path: '',
-        redirect: '/dashboard'
-      },
+      { path: '', redirect: '/dashboard' },
       {
         path: 'dashboard',
         name: 'dashboard',
@@ -56,7 +50,13 @@ const routes = [
         path: 'banners',
         name: 'banners',
         component: () => import('../views/BannersView.vue'),
-        meta: { title: '首页轮播' }
+        meta: { title: '横幅管理' }
+      },
+      {
+        path: 'calendar-events',
+        name: 'calendar-events',
+        component: () => import('../views/CalendarEventsView.vue'),
+        meta: { title: '节日管理' }
       },
       {
         path: 'atlas',
@@ -80,22 +80,15 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   document.title = `${to.meta.title || '管理后台'} · 花予`
 
-  if (to.meta.public) {
-    return true
-  }
+  if (to.meta.public) return true
 
   const authStore = useAuthStore()
-
-  if (!authStore.initialized) {
-    await authStore.restore()
-  }
+  if (!authStore.initialized) await authStore.restore()
 
   if (!authStore.isAuthenticated) {
     return {
       name: 'login',
-      query: {
-        redirect: to.fullPath
-      }
+      query: { redirect: to.fullPath }
     }
   }
 

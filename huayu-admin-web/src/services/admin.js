@@ -6,9 +6,7 @@ export const adminApi = {
   },
 
   listProducts(filters = {}) {
-    return callAdmin('listProducts', {
-      filters
-    })
+    return callAdmin('listProducts', { filters })
   },
 
   getProduct(id) {
@@ -16,9 +14,7 @@ export const adminApi = {
   },
 
   saveProduct(product) {
-    return callAdmin('saveProduct', {
-      product
-    })
+    return callAdmin('saveProduct', { product })
   },
 
   deleteProduct(id) {
@@ -26,18 +22,11 @@ export const adminApi = {
   },
 
   updateStock(id, stock) {
-    return callAdmin('updateStock', {
-      id,
-      stock
-    })
+    return callAdmin('updateStock', { id, stock })
   },
 
   toggleProduct(id, field, value) {
-    return callAdmin('toggleProduct', {
-      id,
-      field,
-      value
-    })
+    return callAdmin('toggleProduct', { id, field, value })
   },
 
   listBanners() {
@@ -45,9 +34,7 @@ export const adminApi = {
   },
 
   saveBanner(banner) {
-    return callAdmin('saveBanner', {
-      banner
-    })
+    return callAdmin('saveBanner', { banner })
   },
 
   deleteBanner(id) {
@@ -64,5 +51,17 @@ export const adminApi = {
 
   deleteAtlas(id) {
     return callAdmin('deleteAtlas', { id })
+  },
+
+  listCalendarEvents() {
+    return callAdmin('listCalendarEvents')
+  },
+
+  saveCalendarEvent(item) {
+    return callAdmin('saveCalendarEvent', { item })
+  },
+
+  deleteCalendarEvent(eventKey) {
+    return callAdmin('deleteCalendarEvent', { eventKey })
   }
 }

@@ -1,9 +1,9 @@
 const cloudbase = require('@cloudbase/node-sdk')
+const { cloneHolidayCatalog } = require('./holiday-catalog')
 
 const app = cloudbase.init({
   env: cloudbase.SYMBOL_CURRENT_ENV
 })
-
 const db = app.database()
 
 function text(value, fallback = '') {
@@ -19,6 +19,26 @@ function array(value) {
   return Array.isArray(value) ? value : []
 }
 
+function object(value) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value
+    : null
+}
+
+function bannerPlacement(value) {
+  const placement = text(value)
+  return placement === 'categoryHero' ? 'categoryHero' : 'home'
+}
+
+function isMissingCollection(error) {
+  const message = String(error && (error.message || error))
+  return (
+    message.includes('not exist') ||
+    message.includes('does not exist') ||
+    message.includes('不存在')
+  )
+}
+
 async function safeGetAll(collectionName, limit = 1000) {
   try {
     const result = await db
@@ -28,16 +48,7 @@ async function safeGetAll(collectionName, limit = 1000) {
 
     return Array.isArray(result.data) ? result.data : []
   } catch (error) {
-    const message = String(error.message || error)
-
-    if (
-      message.includes('not exist') ||
-      message.includes('does not exist') ||
-      message.includes('不存在')
-    ) {
-      return []
-    }
-
+    if (isMissingCollection(error)) return []
     throw error
   }
 }
@@ -67,6 +78,63 @@ async function createTempUrlMap(fileIds) {
   return urlMap
 }
 
+function mergeCalendarEvents(overrides) {
+  const builtIns = cloneHolidayCatalog()
+  const overrideMap = new Map(
+    overrides
+      .filter((item) => text(item.eventKey))
+      .map((item) => [text(item.eventKey), item])
+  )
+  const builtInKeys = new Set(builtIns.map((item) => item.eventKey))
+
+  const merged = builtIns.map((item) => {
+    const override = overrideMap.get(item.eventKey) || {}
+
+    return {
+      ...item,
+      ...override,
+      _id: override._id || item.eventKey,
+      eventKey: item.eventKey,
+      builtIn: true,
+      rule: {
+        ...item.rule,
+        ...(object(override.rule) || {})
+      },
+      searchKeywords:
+        Array.isArray(override.searchKeywords)
+          ? override.searchKeywords
+          : item.searchKeywords,
+      productIds: array(override.productIds),
+      enabled: override.enabled !== false,
+      recommendationEnabled:
+        override.recommendationEnabled === undefined
+          ? item.recommendationEnabled !== false
+          : override.recommendationEnabled !== false
+    }
+  })
+
+  const custom = overrides
+    .filter((item) => {
+      const key = text(item.eventKey)
+      return key && !builtInKeys.has(key)
+    })
+    .map((item) => ({
+      ...item,
+      _id: item._id || item.eventKey,
+      eventKey: text(item.eventKey),
+      builtIn: false,
+      rule: object(item.rule),
+      productIds: array(item.productIds),
+      searchKeywords: array(item.searchKeywords),
+      enabled: item.enabled !== false,
+      recommendationEnabled: item.recommendationEnabled !== false
+    }))
+
+  return [...merged, ...custom]
+    .filter((item) => item.enabled !== false && item.rule)
+    .sort((a, b) => number(b.sort) - number(a.sort))
+}
+
 function publicProduct(item, urlMap) {
   const coverFileId = text(item.coverFileId)
 
@@ -82,6 +150,7 @@ function publicProduct(item, urlMap) {
     onSale: item.onSale === true,
     sceneTags: array(item.sceneTags),
     colorTags: array(item.colorTags),
+    searchKeywords: array(item.searchKeywords),
     coverFileId,
     imageUrl: urlMap[coverFileId] || '',
     sort: number(item.sort)
@@ -99,6 +168,7 @@ function publicBanner(item, urlMap) {
     buttonText: text(item.buttonText, '立即查看'),
     actionType: text(item.actionType, 'category'),
     actionValue: text(item.actionValue, 'flower'),
+    placement: bannerPlacement(item.placement),
     imageFileId,
     imageUrl: urlMap[imageFileId] || '',
     sort: number(item.sort)
@@ -122,31 +192,62 @@ function publicAtlas(item, urlMap) {
   }
 }
 
+function publicCalendarEvent(item) {
+  return {
+    _id: item._id || item.eventKey,
+    eventKey: text(item.eventKey),
+    name: text(item.name),
+    region: text(item.region, 'domestic'),
+    rule: object(item.rule),
+    title: text(item.title) || text(item.name),
+    description: text(item.description),
+    categoryIntent: text(item.categoryIntent, '成品花束'),
+    searchKeywords: array(item.searchKeywords),
+    productIds: array(item.productIds),
+    recommendationEnabled: item.recommendationEnabled !== false,
+    enabled: item.enabled !== false,
+    builtIn: item.builtIn === true,
+    sort: number(item.sort)
+  }
+}
+
 exports.main = async () => {
   try {
-    const [allProducts, allBanners, allAtlas] = await Promise.all([
-      safeGetAll('products'),
-      safeGetAll('banners'),
-      safeGetAll('atlas')
-    ])
+    const [allProducts, allBanners, allAtlas, calendarOverrides] =
+      await Promise.all([
+        safeGetAll('products'),
+        safeGetAll('banners'),
+        safeGetAll('atlas'),
+        safeGetAll('calendarEvents')
+      ])
 
     const products = allProducts
       .filter((item) => item.onSale === true && number(item.stock) > 0)
       .sort((a, b) => number(b.sort) - number(a.sort))
 
-    const banners = allBanners
+    const enabledBanners = allBanners
       .filter((item) => item.enabled === true)
       .sort((a, b) => number(b.sort) - number(a.sort))
+
+    const banners = enabledBanners
+      .filter((item) => bannerPlacement(item.placement) === 'home')
       .slice(0, 6)
+
+    const categoryBanners = enabledBanners
+      .filter((item) => bannerPlacement(item.placement) === 'categoryHero')
+      .slice(0, 3)
 
     const atlas = allAtlas
       .filter((item) => item.published === true)
       .sort((a, b) => number(b.sort) - number(a.sort))
       .slice(0, 12)
 
+    const calendarEvents = mergeCalendarEvents(calendarOverrides)
+
     const fileIds = [
       ...products.map((item) => item.coverFileId),
       ...banners.map((item) => item.imageFileId),
+      ...categoryBanners.map((item) => item.imageFileId),
       ...atlas.map((item) => item.imageFileId)
     ]
 
@@ -156,7 +257,11 @@ exports.main = async () => {
       ok: true,
       products: products.map((item) => publicProduct(item, urlMap)),
       banners: banners.map((item) => publicBanner(item, urlMap)),
+      categoryBanners: categoryBanners.map((item) =>
+        publicBanner(item, urlMap)
+      ),
       atlas: atlas.map((item) => publicAtlas(item, urlMap)),
+      calendarEvents: calendarEvents.map(publicCalendarEvent),
       serverTime: Date.now()
     }
   } catch (error) {
@@ -168,7 +273,9 @@ exports.main = async () => {
       message: error.message || '首页数据加载失败',
       products: [],
       banners: [],
-      atlas: []
+      categoryBanners: [],
+      atlas: [],
+      calendarEvents: []
     }
   }
 }

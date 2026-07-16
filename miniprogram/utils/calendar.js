@@ -1,18 +1,41 @@
-function pad(num) { return String(num).padStart(2, '0') }
+function pad(num) {
+  return String(num).padStart(2, '0')
+}
 
-function createMonth(year, month) {
-  const first = new Date(year, month, 1)
-  const last = new Date(year, month + 1, 0)
-  const previousLast = new Date(year, month, 0).getDate()
+function createCell(year, monthIndex, day, current) {
+  const date = new Date(year, monthIndex, day)
+  const cellYear = date.getFullYear()
+  const cellMonth = date.getMonth()
+  const cellDay = date.getDate()
+
+  return {
+    year: cellYear,
+    month: cellMonth,
+    day: cellDay,
+    current,
+    key: `${cellYear}-${pad(cellMonth + 1)}-${pad(cellDay)}`
+  }
+}
+
+function createMonth(year, monthIndex) {
+  const first = new Date(year, monthIndex, 1)
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate()
   const cells = []
-  for (let i = first.getDay(); i > 0; i--) {
-    cells.push({ day: previousLast - i + 1, current: false, key: `p-${i}` })
+
+  for (let offset = first.getDay(); offset > 0; offset -= 1) {
+    cells.push(createCell(year, monthIndex, 1 - offset, false))
   }
-  for (let day = 1; day <= last.getDate(); day++) {
-    cells.push({ day, current: true, key: `${year}-${pad(month + 1)}-${pad(day)}` })
+
+  for (let day = 1; day <= lastDay; day += 1) {
+    cells.push(createCell(year, monthIndex, day, true))
   }
-  let next = 1
-  while (cells.length < 42) cells.push({ day: next, current: false, key: `n-${next++}` })
+
+  let nextDay = 1
+  while (cells.length < 42) {
+    cells.push(createCell(year, monthIndex + 1, nextDay, false))
+    nextDay += 1
+  }
+
   return cells
 }
 
