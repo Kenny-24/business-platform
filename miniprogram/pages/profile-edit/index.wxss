@@ -1,0 +1,196 @@
+.profile-edit-page {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 0;
+  background: #fafbf8;
+}
+
+.profile-edit-scroll,
+.profile-edit-content {
+  width: 100%;
+}
+
+.profile-edit-content {
+  min-height: 100%;
+  padding-top: 16rpx;
+}
+
+.profile-edit-loading {
+  padding: 120rpx 0;
+  color: #979d94;
+  font-size: 18rpx;
+  text-align: center;
+}
+
+.profile-edit-card {
+  overflow: hidden;
+  border: 1rpx solid #e5e9e2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.avatar-section {
+  display: flex;
+  min-height: 240rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1rpx solid #edf0ea;
+}
+
+/*
+ * 可见头像与原生 chooseAvatar 按钮分离。
+ * avatar-control / avatar-visual 负责显示正圆；
+ * avatar-picker 只是透明点击层。
+ */
+.avatar-control {
+  position: relative;
+  width: 124rpx;
+  min-width: 124rpx;
+  max-width: 124rpx;
+  height: 124rpx;
+  min-height: 124rpx;
+  max-height: 124rpx;
+  flex: 0 0 124rpx;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #edf2e8;
+}
+
+.avatar-visual,
+.avatar-image,
+.avatar-placeholder {
+  display: flex;
+  width: 124rpx;
+  min-width: 124rpx;
+  max-width: 124rpx;
+  height: 124rpx;
+  min-height: 124rpx;
+  max-height: 124rpx;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.avatar-visual {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: #edf2e8;
+  pointer-events: none;
+}
+
+.avatar-image {
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  background: #edf2e8;
+  color: #68784f;
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.avatar-picker {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 124rpx;
+  min-width: 124rpx;
+  max-width: 124rpx;
+  height: 124rpx;
+  min-height: 124rpx;
+  max-height: 124rpx;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  opacity: 0.001;
+}
+
+.avatar-picker::after {
+  display: none;
+  border: 0;
+}
+
+.avatar-hint {
+  margin-top: 13rpx;
+  color: #8f968c;
+  font-size: 16rpx;
+}
+
+.profile-form-row {
+  display: flex;
+  min-height: 86rpx;
+  align-items: center;
+  padding: 17rpx 21rpx;
+}
+
+.profile-form-row__label {
+  width: 120rpx;
+  flex: 0 0 120rpx;
+  color: #343832;
+  font-size: 19rpx;
+}
+
+.profile-form-row__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 50rpx;
+  color: #30342e;
+  font-size: 19rpx;
+  text-align: right;
+}
+
+.profile-form-note {
+  padding: 17rpx 21rpx;
+  border-top: 1rpx solid #edf0ea;
+  color: #9a9f97;
+  font-size: 15rpx;
+  line-height: 1.55;
+}
+
+.profile-edit-bottom-space {
+  height: calc(118rpx + env(safe-area-inset-bottom));
+}
+
+.profile-edit-fixed-bar {
+  position: fixed;
+  z-index: 80;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 14rpx 22rpx calc(14rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #e6e9e3;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.profile-edit-submit {
+  display: flex;
+  height: 66rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 33rpx;
+  background: #6f8050;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.profile-edit-submit--disabled {
+  background: #bfc7b9;
+}
+
+.profile-edit-page--wide .profile-edit-content {
+  max-width: 820rpx;
+  margin: 0 auto;
+}

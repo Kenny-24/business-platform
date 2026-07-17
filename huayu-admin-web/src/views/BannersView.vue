@@ -48,9 +48,7 @@
           <template #default="{ row }">
             <div class="content-cell">
               <strong>{{ row.title }}</strong>
-              <span>
-                {{ row.subtitle || '暂无副标题' }}
-              </span>
+              <span>{{ row.bannerCode || '暂无横幅编码' }} · {{ row.subtitle || '暂无副标题' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -150,21 +148,19 @@
       destroy-on-close
     >
       <el-form label-position="top">
-        <el-form-item label="展示位置">
-          <el-select v-model="form.placement">
-            <el-option
-              label="首页轮播"
-              value="home"
-            />
-            <el-option
-              label="分类页精选横幅"
-              value="categoryHero"
-            />
-          </el-select>
-          <div class="form-tip">
-            分类页只使用已启用且排序值最高的一条。
-          </div>
-        </el-form-item>
+        <div class="form-grid form-grid--two">
+          <el-form-item label="横幅编码">
+            <el-input v-model="form.bannerCode" placeholder="例如 BNR-HOME-SELF；留空由系统生成" />
+          </el-form-item>
+
+          <el-form-item label="展示位置">
+            <el-select v-model="form.placement">
+              <el-option label="首页轮播" value="home" />
+              <el-option label="分类页精选横幅" value="categoryHero" />
+            </el-select>
+            <div class="form-tip">分类页只使用已启用且排序值最高的一条。</div>
+          </el-form-item>
+        </div>
 
         <div class="form-grid form-grid--two">
           <el-form-item label="场景名称">
@@ -287,6 +283,7 @@ const dialogVisible = ref(false)
 
 const emptyForm = () => ({
   _id: '',
+  bannerCode: '',
   scene: '',
   title: '',
   subtitle: '',

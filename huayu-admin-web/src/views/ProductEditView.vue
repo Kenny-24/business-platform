@@ -35,6 +35,14 @@
           </div>
 
           <div class="form-grid form-grid--two">
+            <el-form-item label="商品编码 / SKU">
+              <el-input
+                v-model="form.sku"
+                placeholder="例如 FLW-0001；留空由系统生成"
+              />
+              <div class="form-tip">用于批量更新、节日关联和长期识别，保存后不建议修改。</div>
+            </el-form-item>
+
             <el-form-item
               label="商品名称"
               prop="name"
@@ -44,7 +52,9 @@
                 placeholder="例如 香槟玫瑰"
               />
             </el-form-item>
+          </div>
 
+          <div class="form-grid form-grid--two">
             <el-form-item
               label="商品类型"
               prop="type"
@@ -57,6 +67,10 @@
                   :value="option.value"
                 />
               </el-select>
+            </el-form-item>
+
+            <el-form-item label="商品分类">
+              <el-input v-model="form.category" placeholder="例如 玫瑰、生日花束、多肉组合" />
             </el-form-item>
           </div>
 
@@ -159,7 +173,7 @@
             </el-form-item>
           </div>
 
-          <el-form-item label="购买后收录到“我的图鉴”">
+          <el-form-item label="关联购买图鉴品种">
             <el-select
               v-model="form.atlasIds"
               multiple
@@ -175,7 +189,7 @@
               />
             </el-select>
             <div class="form-tip">
-              一个花束可以关联多个品种。顾客的有效订单包含本商品后，对应品种会进入小程序图鉴的“我的”。
+              一个花束可以关联多个品种。顾客的有效订单包含本商品后，对应图鉴品种会显示“购买过”标记；收藏状态由顾客自行管理。
             </div>
           </el-form-item>
         </el-card>
@@ -279,7 +293,9 @@ const isEdit = computed(
 
 const form = reactive({
   _id: '',
+  sku: '',
   type: 'flower',
+  category: '',
   name: '',
   subtitle: '',
   priceYuan: 0,

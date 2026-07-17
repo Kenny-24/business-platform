@@ -2,7 +2,7 @@
   <div>
     <PageHeader
       title="经营概览"
-      description="查看商品、库存和内容的当前状态。"
+      description="优先查看待处理订单，再关注商品、库存与内容状态。"
     >
       <el-button
         :loading="loading"
@@ -28,6 +28,67 @@
           {{ metric.note }}
         </div>
       </article>
+    </section>
+
+    <section class="dashboard-grid dashboard-grid--orders">
+      <el-card
+        shadow="never"
+        class="panel-card"
+      >
+        <template #header>
+          <div class="panel-header">
+            <strong>订单处理</strong>
+            <RouterLink to="/orders">
+              查看全部订单
+            </RouterLink>
+          </div>
+        </template>
+
+        <div class="dashboard-order-status">
+          <RouterLink
+            v-for="item in orderStatus"
+            :key="item.label"
+            :to="item.path"
+            class="dashboard-order-status__item"
+          >
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </RouterLink>
+        </div>
+
+        <div class="dashboard-order-note">
+          V4.0 先完成下单、商家确认、线下收款、制作、配送和完成闭环；微信支付与库存锁定在下一版本接入。
+        </div>
+      </el-card>
+
+      <el-card
+        shadow="never"
+        class="panel-card"
+      >
+        <template #header>
+          <div class="panel-header">
+            <strong>经营数据</strong>
+            <RouterLink to="/users">
+              查看顾客
+            </RouterLink>
+          </div>
+        </template>
+
+        <div class="content-summary content-summary--business">
+          <div class="content-summary__item">
+            <span>顾客</span>
+            <strong>{{ data.customerCount || 0 }}</strong>
+          </div>
+          <div class="content-summary__item">
+            <span>全部订单</span>
+            <strong>{{ data.orderCount || 0 }}</strong>
+          </div>
+          <div class="content-summary__item">
+            <span>已完成金额</span>
+            <strong>¥{{ completedRevenue }}</strong>
+          </div>
+        </div>
+      </el-card>
     </section>
 
     <section class="dashboard-grid">
@@ -92,28 +153,22 @@
       >
         <template #header>
           <div class="panel-header">
-            <strong>内容状态</strong>
+            <strong>商品与内容</strong>
           </div>
         </template>
 
         <div class="content-summary">
           <div class="content-summary__item">
-            <span>首页推荐商品</span>
-            <strong>
-              {{ data.featuredProducts || 0 }}
-            </strong>
+            <span>正在销售</span>
+            <strong>{{ data.onSaleProducts || 0 }}</strong>
           </div>
           <div class="content-summary__item">
-            <span>启用轮播</span>
-            <strong>
-              {{ data.enabledBanners || 0 }}
-            </strong>
+            <span>首页推荐</span>
+            <strong>{{ data.featuredProducts || 0 }}</strong>
           </div>
           <div class="content-summary__item">
             <span>图鉴内容</span>
-            <strong>
-              {{ data.atlasCount || 0 }}
-            </strong>
+            <strong>{{ data.atlasCount || 0 }}</strong>
           </div>
         </div>
 
@@ -121,8 +176,8 @@
           <RouterLink to="/products/new">
             新增商品
           </RouterLink>
-          <RouterLink to="/banners">
-            管理轮播
+          <RouterLink to="/orders">
+            处理订单
           </RouterLink>
           <RouterLink to="/atlas">
             管理图鉴
@@ -154,29 +209,72 @@ const data = reactive({
   featuredProducts: 0,
   enabledBanners: 0,
   atlasCount: 0,
+  customerCount: 0,
+  orderCount: 0,
+  pendingConfirmOrders: 0,
+  pendingPaymentOrders: 0,
+  makingOrders: 0,
+  deliveringOrders: 0,
+  completedOrders: 0,
+  completedRevenueFen: 0,
   lowStockProducts: []
+})
+
+const completedRevenue = computed(() => {
+  const yuan = Number(data.completedRevenueFen || 0) / 100
+  return Number.isInteger(yuan)
+    ? String(yuan)
+    : yuan.toFixed(2)
 })
 
 const metrics = computed(() => [
   {
-    label: '全部商品',
-    value: data.productCount,
-    note: '全部商品记录'
+    label: '待确认订单',
+    value: data.pendingConfirmOrders,
+    note: '需要尽快确认库存与配送'
   },
   {
-    label: '正在销售',
-    value: data.onSaleProducts,
-    note: '当前已上架'
+    label: '待付款订单',
+    value: data.pendingPaymentOrders,
+    note: '已确认，等待顾客付款'
   },
   {
-    label: '低库存',
-    value: data.lowStockCount,
-    note: '库存不高于 5'
+    label: '制作中',
+    value: data.makingOrders,
+    note: '已经收款并进入制作'
   },
   {
-    label: '已售罄',
-    value: data.soldOutProducts,
-    note: '库存为 0'
+    label: '配送中',
+    value: data.deliveringOrders,
+    note: '正在配送的订单'
+  }
+])
+
+const orderStatus = computed(() => [
+  {
+    label: '待确认',
+    value: data.pendingConfirmOrders,
+    path: '/orders?status=pendingConfirm'
+  },
+  {
+    label: '待付款',
+    value: data.pendingPaymentOrders,
+    path: '/orders?status=pendingPayment'
+  },
+  {
+    label: '制作中',
+    value: data.makingOrders,
+    path: '/orders?status=making'
+  },
+  {
+    label: '配送中',
+    value: data.deliveringOrders,
+    path: '/orders?status=delivering'
+  },
+  {
+    label: '已完成',
+    value: data.completedOrders,
+    path: '/orders?status=completed'
   }
 ])
 

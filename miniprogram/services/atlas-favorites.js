@@ -1,43 +1,108 @@
-const STORAGE_KEY = 'huayu_atlas_favorites_v1'
+const STORAGE_KEY =
+  'huayu_atlas_favorites_v1'
 
-function normalizeIds(value) {
-  if (!Array.isArray(value)) return []
-  return [...new Set(value.map((item) => String(item || '').trim()).filter(Boolean))]
+function text(value) {
+  return String(value || '').trim()
 }
 
-function getAtlasFavoriteIds() {
+function uniqueIds(value) {
+  if (!Array.isArray(value)) return []
+
+  const result = []
+  const seen = new Set()
+
+  value.forEach((item) => {
+    const normalized = text(item)
+
+    if (
+      !normalized ||
+      seen.has(normalized)
+    ) {
+      return
+    }
+
+    seen.add(normalized)
+    result.push(normalized)
+  })
+
+  return result
+}
+
+function readFavoriteAtlasIds() {
   try {
-    return normalizeIds(wx.getStorageSync(STORAGE_KEY))
+    return uniqueIds(
+      wx.getStorageSync(STORAGE_KEY)
+    )
   } catch (error) {
-    console.warn('读取图鉴收藏失败：', error)
     return []
   }
 }
 
-function setAtlasFavoriteIds(ids) {
-  const normalized = normalizeIds(ids)
+function writeFavoriteAtlasIds(ids) {
+  const result = uniqueIds(ids)
+
   try {
-    wx.setStorageSync(STORAGE_KEY, normalized)
+    wx.setStorageSync(
+      STORAGE_KEY,
+      result
+    )
   } catch (error) {
-    console.warn('保存图鉴收藏失败：', error)
+    console.warn(
+      '保存图鉴收藏缓存失败：',
+      error
+    )
   }
-  return normalized
+
+  return result
 }
 
-function toggleAtlasFavorite(id) {
-  const target = String(id || '').trim()
-  if (!target) return getAtlasFavoriteIds()
+function mergeFavoriteAtlasIds() {
+  const merged = []
 
-  const ids = getAtlasFavoriteIds()
-  const next = ids.includes(target)
-    ? ids.filter((item) => item !== target)
-    : [...ids, target]
+  for (
+    let index = 0;
+    index < arguments.length;
+    index += 1
+  ) {
+    const source = arguments[index]
 
-  return setAtlasFavoriteIds(next)
+    if (Array.isArray(source)) {
+      source.forEach((item) => {
+        merged.push(item)
+      })
+    }
+  }
+
+  return writeFavoriteAtlasIds(merged)
+}
+
+function setCachedAtlasFavorite(
+  id,
+  favorite
+) {
+  const normalizedId = text(id)
+  const current = new Set(
+    readFavoriteAtlasIds()
+  )
+
+  if (!normalizedId) {
+    return [...current]
+  }
+
+  if (favorite) {
+    current.add(normalizedId)
+  } else {
+    current.delete(normalizedId)
+  }
+
+  return writeFavoriteAtlasIds(
+    [...current]
+  )
 }
 
 module.exports = {
-  getAtlasFavoriteIds,
-  setAtlasFavoriteIds,
-  toggleAtlasFavorite
+  readFavoriteAtlasIds,
+  writeFavoriteAtlasIds,
+  mergeFavoriteAtlasIds,
+  setCachedAtlasFavorite
 }

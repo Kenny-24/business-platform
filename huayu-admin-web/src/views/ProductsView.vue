@@ -20,7 +20,7 @@
         <el-input
           v-model="filters.keyword"
           clearable
-          placeholder="搜索商品名称"
+          placeholder="搜索商品名称、SKU 或分类"
           @keyup.enter="loadProducts"
           @clear="loadProducts"
         />
@@ -93,9 +93,7 @@
 
               <div class="product-cell__text">
                 <strong>{{ row.name }}</strong>
-                <span>
-                  {{ row.subtitle || '暂无副标题' }}
-                </span>
+                <span>{{ row.sku || '暂无 SKU' }} · {{ row.category || row.subtitle || '未分类' }}</span>
               </div>
             </div>
           </template>

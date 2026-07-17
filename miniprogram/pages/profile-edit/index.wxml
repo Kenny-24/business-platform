@@ -1,0 +1,43 @@
+<view class="safe-page profile-edit-page {{wideLayout ? 'profile-edit-page--wide' : ''}}">
+  <app-nav title="个人资料" showBack solid></app-nav>
+
+  <scroll-view class="profile-edit-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="profile-edit-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view wx:if="{{loading}}" class="profile-edit-loading">正在加载…</view>
+
+      <view wx:else class="profile-edit-card">
+        <view class="avatar-section">
+          <view class="avatar-control">
+            <view class="avatar-visual">
+              <image wx:if="{{avatarTempPath || form.avatarUrl}}" class="avatar-image" src="{{avatarTempPath || form.avatarUrl}}" mode="aspectFill"></image>
+              <view wx:else class="avatar-placeholder">花</view>
+            </view>
+
+            <button
+              class="avatar-picker"
+              open-type="chooseAvatar"
+              hover-class="none"
+              bindchooseavatar="chooseAvatar"
+              aria-label="选择头像"
+            ></button>
+          </view>
+
+          <text class="avatar-hint">点击更换头像</text>
+        </view>
+
+        <view class="profile-form-row">
+          <text class="profile-form-row__label">昵称</text>
+          <input class="profile-form-row__input" type="nickname" value="{{form.nickname}}" placeholder="请输入昵称" maxlength="24" bindinput="updateNickname" />
+        </view>
+
+        <view class="profile-form-note">头像和昵称只用于花予订单与会员资料展示。</view>
+      </view>
+
+      <view class="profile-edit-bottom-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="profile-edit-fixed-bar">
+    <view class="profile-edit-submit {{saving ? 'profile-edit-submit--disabled' : ''}}" bindtap="submit" role="button">{{saving ? '保存中…' : '保存资料'}}</view>
+  </view>
+</view>

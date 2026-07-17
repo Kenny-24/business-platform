@@ -29,7 +29,7 @@
           </view>
 
           <view class="order-grid">
-            <view wx:for="{{orderItems}}" wx:key="key" class="order-entry" data-label="{{item.label}}" bindtap="openOrder" role="button">
+            <view wx:for="{{orderItems}}" wx:key="key" class="order-entry" data-key="{{item.key}}" data-label="{{item.label}}" bindtap="openOrder" role="button">
               <view class="order-entry__icon">
                 <text>{{item.glyph}}</text>
                 <text wx:if="{{item.showCount}}" class="order-entry__badge">{{item.count > 99 ? '99+' : item.count}}</text>

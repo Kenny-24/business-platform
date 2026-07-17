@@ -59,10 +59,40 @@ const routes = [
         meta: { title: '节日管理' }
       },
       {
+        path: 'orders',
+        name: 'orders',
+        component: () => import('../views/OrdersView.vue'),
+        meta: { title: '订单管理' }
+      },
+      {
+        path: 'orders/:id',
+        name: 'order-detail',
+        component: () => import('../views/OrderDetailView.vue'),
+        meta: { title: '订单详情' }
+      },
+      {
+        path: 'users',
+        name: 'users',
+        component: () => import('../views/UsersView.vue'),
+        meta: { title: '顾客管理' }
+      },
+      {
+        path: 'users/:id',
+        name: 'user-detail',
+        component: () => import('../views/UserDetailView.vue'),
+        meta: { title: '顾客详情' }
+      },
+      {
         path: 'atlas',
         name: 'atlas',
         component: () => import('../views/AtlasView.vue'),
         meta: { title: '花予图鉴' }
+      },
+      {
+        path: 'data-import',
+        name: 'data-import',
+        component: () => import('../views/DataImportView.vue'),
+        meta: { title: '数据导入' }
       }
     ]
   },

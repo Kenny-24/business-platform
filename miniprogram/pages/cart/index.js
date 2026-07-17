@@ -13,6 +13,9 @@ const {
   PACKAGING_OPTIONS,
   DELIVERY_OPTIONS
 } = require('../../data/cart-options')
+const {
+  saveCheckoutDraft
+} = require('../../services/order-service')
 
 const PACKAGING_KEY =
   'huayu_cart_packaging_v1'
@@ -892,10 +895,31 @@ Page({
       return
     }
 
-    wx.showToast({
-      title:
-        '结算功能将在订单阶段接入',
-      icon: 'none'
+    const items = this.data.cart
+      .filter((item) => item.selected && !item.invalid)
+      .map((item) => ({
+        productId: String(item.id || item._id || ''),
+        quantity: Number(item.quantity || 1)
+      }))
+      .filter((item) => item.productId)
+
+    if (!items.length) {
+      wx.showToast({
+        title: '请选择可结算商品',
+        icon: 'none'
+      })
+      return
+    }
+
+    saveCheckoutDraft({
+      items,
+      packagingId: this.data.selectedPackagingId,
+      deliveryMethodId: this.data.selectedDeliveryId,
+      createdAt: Date.now()
+    })
+
+    wx.navigateTo({
+      url: '/pages/order-confirm/index'
     })
   }
 })

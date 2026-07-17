@@ -183,9 +183,17 @@ function publicAtlas(item, urlMap) {
     _id: item._id,
     name: text(item.name),
     latinName: text(item.latinName),
+    alias: text(item.alias),
     meaning: text(item.meaning),
     description: text(item.description),
     careGuide: text(item.careGuide),
+    floweringPeriod: text(item.floweringPeriod),
+    toxicityNote: text(item.toxicityNote),
+    imageBackground: ['dark', 'light', 'soft'].includes(
+      text(item.imageBackground)
+    )
+      ? text(item.imageBackground)
+      : 'soft',
     category: text(item.category, '鲜切花'),
     sceneTags: array(item.sceneTags),
     colorTags: array(item.colorTags),

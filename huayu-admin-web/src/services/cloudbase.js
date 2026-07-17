@@ -202,7 +202,8 @@ export async function logout() {
   assertNoSdkError(error, '退出登录失败')
 }
 
-export async function callAdmin(
+export async function callCloudFunction(
+  functionName,
   action,
   payload = {}
 ) {
@@ -210,7 +211,7 @@ export async function callAdmin(
 
   const response =
     await cloudbaseApp.callFunction({
-      name: ADMIN_FUNCTION_NAME,
+      name: functionName,
       data: {
         action,
         ...payload
@@ -222,16 +223,28 @@ export async function callAdmin(
   if (!result || result.ok !== true) {
     const error = new Error(
       result?.message ||
-        `管理员操作失败：${action}`
+        `云函数操作失败：${action}`
     )
 
     error.code =
-      result?.code || 'ADMIN_API_ERROR'
+      result?.code || 'CLOUD_FUNCTION_ERROR'
+    error.details = result?.details || null
 
     throw error
   }
 
   return result.data
+}
+
+export function callAdmin(
+  action,
+  payload = {}
+) {
+  return callCloudFunction(
+    ADMIN_FUNCTION_NAME,
+    action,
+    payload
+  )
 }
 
 export function fetchAdminProfile() {
@@ -281,6 +294,63 @@ export async function uploadImage(
     new Date().toISOString().slice(0, 10),
     `${Date.now()}-${safeFileName(file.name)}`
   ].join('/')
+
+  const result = await cloudbaseApp.uploadFile({
+    cloudPath,
+    filePath: file
+  })
+
+  if (!result?.fileID) {
+    throw new Error('云存储没有返回 File ID')
+  }
+
+  return result.fileID
+}
+
+
+function safeImportFolder(folder) {
+  return String(folder || 'imports')
+    .replace(/[^a-zA-Z0-9/_-]/g, '-')
+    .replace(/\/+/g, '/')
+    .replace(/^\/+|\/+$/g, '')
+}
+
+export async function uploadImportAsset({
+  blob,
+  fileName,
+  folder = 'imports'
+}) {
+  requireWebConfig()
+
+  if (!(blob instanceof Blob)) {
+    throw new Error('没有可上传的图片内容')
+  }
+
+  if (blob.size > 8 * 1024 * 1024) {
+    throw new Error(`图片 ${fileName || ''} 不能超过 8MB`)
+  }
+
+  const normalizedName = safeFileName(
+    fileName || 'image'
+  )
+  const cloudPath = [
+    'public',
+    'admin',
+    'imports',
+    safeImportFolder(folder),
+    new Date().toISOString().slice(0, 10),
+    `${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}-${normalizedName}`
+  ].join('/')
+
+  const file = blob instanceof File
+    ? blob
+    : new File(
+        [blob],
+        normalizedName,
+        { type: blob.type || 'application/octet-stream' }
+      )
 
   const result = await cloudbaseApp.uploadFile({
     cloudPath,

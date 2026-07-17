@@ -1,0 +1,60 @@
+<view class="safe-page order-list-page {{wideLayout ? 'order-list-page--wide' : ''}} {{compactLayout ? 'order-list-page--compact' : ''}}">
+  <app-nav title="我的订单" showBack solid></app-nav>
+
+  <view class="order-tabs">
+    <scroll-view class="order-tabs__scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="order-tabs__inner">
+        <view wx:for="{{tabs}}" wx:key="key" class="order-tab {{activeStatus === item.key ? 'order-tab--active' : ''}}" data-key="{{item.key}}" bindtap="selectTab" role="button">
+          <text>{{item.label}}</text>
+          <text wx:if="{{counts[item.key]}}" class="order-tab__count">{{counts[item.key]}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <scroll-view class="order-list-scroll" style="height: {{contentHeight - 52}}px;" scroll-y enhanced show-scrollbar="{{false}}" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+    <view class="order-list-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view wx:if="{{loading}}" class="order-list-state">正在加载订单…</view>
+
+      <view wx:elif="{{items.length}}" class="order-cards">
+        <view wx:for="{{items}}" wx:key="_id" class="order-card" data-id="{{item._id}}" bindtap="openOrder" role="button">
+          <view class="order-card__head">
+            <view class="order-card__meta">
+              <text class="order-card__number">{{item.orderNo}}</text>
+              <text class="order-card__time">{{item.createdAtText}}</text>
+            </view>
+            <text class="order-card__status order-card__status--{{item.status}}">{{item.statusLabel}}</text>
+          </view>
+
+          <view wx:if="{{item.firstItem}}" class="order-card__product">
+            <image wx:if="{{item.firstItem.imageUrl}}" class="order-card__image" src="{{item.firstItem.imageUrl}}" mode="aspectFill"></image>
+            <view wx:else class="order-card__image order-card__placeholder">花予</view>
+            <view class="order-card__copy">
+              <text class="order-card__name">{{item.firstItem.name}}</text>
+              <text class="order-card__description">{{item.deliveryDate}} · {{item.deliverySlot}}</text>
+              <text wx:if="{{item.moreItemCount}}" class="order-card__more">另有{{item.moreItemCount}}种商品</text>
+            </view>
+            <view class="order-card__amount">
+              <text>共{{item.itemCount}}件</text>
+              <text>¥{{item.amounts.totalAmountText}}</text>
+            </view>
+          </view>
+
+          <view class="order-card__footer">
+            <text>{{item.statusDescription}}</text>
+            <view class="order-card__detail"><text>查看详情</text><view class="order-card__chevron"></view></view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="order-empty">
+        <view class="order-empty__mark">单</view>
+        <text class="order-empty__title">暂无相关订单</text>
+        <text class="order-empty__description">挑选喜欢的鲜花，记录一次温柔的相遇</text>
+        <view class="order-empty__button" bindtap="goShopping" role="button">去选花</view>
+      </view>
+
+      <view class="order-list-bottom-space"></view>
+    </view>
+  </scroll-view>
+</view>

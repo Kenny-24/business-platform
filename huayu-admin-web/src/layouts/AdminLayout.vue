@@ -64,11 +64,14 @@ const authStore = useAuthStore()
 
 const menu = [
   { path: '/dashboard', label: '经营概览' },
+  { path: '/orders', label: '订单管理' },
+  { path: '/users', label: '顾客管理' },
   { path: '/products', label: '商品管理' },
   { path: '/inventory', label: '库存管理' },
   { path: '/banners', label: '横幅管理' },
   { path: '/calendar-events', label: '节日管理' },
-  { path: '/atlas', label: '花予图鉴' }
+  { path: '/atlas', label: '花予图鉴' },
+  { path: '/data-import', label: '数据导入' }
 ]
 
 async function handleLogout() {

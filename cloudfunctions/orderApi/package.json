@@ -1,0 +1,9 @@
+{
+  "name": "orderApi",
+  "version": "4.0.0",
+  "description": "花予顾客端订单确认、创建、列表与详情 API",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

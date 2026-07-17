@@ -1,62 +1,101 @@
 <view class="safe-page atlas-page {{compactLayout ? 'atlas-page--compact' : ''}}">
   <app-nav title="花予图鉴" solid showBack></app-nav>
 
-  <scroll-view class="atlas-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="atlas-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
-      <view class="atlas-intro">
-        <text class="atlas-intro__title">认识每一种花材</text>
-        <text class="atlas-intro__description">“全部”展示花予维护的全部品种；“我的”只收录你在有效订单中购买过的品种。</text>
-      </view>
+  <view class="atlas-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+    <view class="atlas-intro">
+      <text class="atlas-intro__eyebrow">HUAYU BOTANICAL NOTES</text>
+      <text class="atlas-intro__title">认识每一种花材</text>
+      <text class="atlas-intro__description">“全部”展示已发布品种；“收藏”保存你喜欢的花材。有有效购买记录的品种会显示“购买过”。</text>
+    </view>
 
-      <view class="atlas-tabs">
-        <view wx:for="{{tabs}}" wx:key="value" class="atlas-tab {{activeTab === item.value ? 'atlas-tab--active' : ''}}" data-value="{{item.value}}" bindtap="selectTab" role="button">{{item.label}}</view>
-      </view>
+    <view class="atlas-tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="value"
+        class="atlas-tab {{activeTab === item.value ? 'atlas-tab--active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="selectTab"
+        role="button"
+      >{{item.label}}</view>
+    </view>
 
-      <view class="atlas-search">
-        <view class="atlas-search__icon"></view>
-        <input class="atlas-search__input" value="{{searchQuery}}" placeholder="搜索名称、花语或场景" placeholder-class="atlas-search__placeholder" bindinput="onSearchInput" confirm-type="search" />
-        <view wx:if="{{searchQuery}}" class="atlas-search__clear" bindtap="clearSearch" role="button">×</view>
-      </view>
+    <view class="atlas-search">
+      <view class="atlas-search__icon"></view>
+      <input
+        class="atlas-search__input"
+        value="{{searchQuery}}"
+        placeholder="搜索花名"
+        placeholder-class="atlas-search__placeholder"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <view
+        wx:if="{{searchQuery}}"
+        class="atlas-search__clear"
+        bindtap="clearSearch"
+        role="button"
+      >×</view>
+    </view>
 
-      <view class="atlas-result-head">
-        <text>{{activeTab === 'mine' ? '我购买过的品种' : '全部品种'}}</text>
-        <text class="atlas-result-head__count">{{resultCount}} 种</text>
-      </view>
+    <view class="atlas-result-head">
+      <text>{{activeTab === 'favorites' ? '我的收藏' : '全部品种'}}</text>
+      <text class="atlas-result-head__count">{{resultCount}} 种</text>
+    </view>
 
-      <view wx:if="{{visibleItems.length}}" class="atlas-card-grid atlas-card-grid--{{columns}}">
-        <view wx:for="{{visibleItems}}" wx:key="id" class="atlas-item-card" data-id="{{item.id}}" bindtap="openItem" role="button">
-          <image wx:if="{{item.image}}" class="atlas-item-card__image" style="height: {{imageHeight}}px;" src="{{item.image}}" mode="aspectFill" lazy-load></image>
-          <view wx:else class="atlas-item-card__image atlas-item-card__placeholder" style="height: {{imageHeight}}px;">花予</view>
+    <view wx:if="{{visibleItems.length}}" class="atlas-card-grid atlas-card-grid--{{columns}}">
+      <view
+        wx:for="{{visibleItems}}"
+        wx:key="id"
+        class="atlas-item-card"
+        data-id="{{item.id}}"
+        bindtap="openItem"
+        role="button"
+      >
+        <view
+          class="atlas-item-card__media atlas-item-card__media--{{item.imageBackground}}"
+          style="height: {{imageHeight}}px;"
+        >
+          <image
+            wx:if="{{item.image}}"
+            class="atlas-item-card__image"
+            src="{{item.image}}"
+            mode="aspectFit"
+            lazy-load
+          ></image>
+          <view wx:else class="atlas-item-card__placeholder">花予</view>
 
-          <view class="atlas-item-card__body">
-            <view class="atlas-item-card__title-row">
-              <view class="atlas-item-card__name-wrap">
-                <text class="atlas-item-card__name">{{item.name}}</text>
-                <text class="atlas-item-card__latin">{{item.latin || 'Huayu Atlas'}}</text>
-              </view>
-              <text wx:if="{{item.purchased}}" class="atlas-item-card__owned">已收录</text>
-            </view>
+          <text wx:if="{{item.purchased}}" class="atlas-item-card__purchased">购买过</text>
 
-            <text class="atlas-item-card__meaning">{{item.meaning || '花语正在完善中'}}</text>
+          <view
+            class="atlas-item-card__favorite {{item.favorite ? 'atlas-item-card__favorite--active' : ''}}"
+            data-id="{{item.id}}"
+            catchtap="toggleFavorite"
+            role="button"
+            aria-label="{{item.favorite ? '取消收藏' : '收藏'}}"
+          >
+            <text class="favorite-star">{{item.favorite ? '★' : '☆'}}</text>
+          </view>
+        </view>
 
-            <view class="atlas-item-card__footer">
-              <view class="atlas-item-card__tags">
-                <text class="atlas-item-card__tag">{{item.category || '花材'}}</text>
-                <text wx:if="{{item.seasonTags.length}}" class="atlas-item-card__tag atlas-item-card__tag--light">{{item.seasonTags[0]}}</text>
-              </view>
-              <text class="atlas-item-card__detail">详情 ›</text>
-            </view>
+        <view class="atlas-item-card__body">
+          <text class="atlas-item-card__title">{{item.name}}</text>
+          <text class="atlas-item-card__latin">{{item.latinLine}}</text>
+          <text class="atlas-item-card__description">{{item.meaning || item.description || '图鉴内容正在完善中'}}</text>
+
+          <view class="atlas-item-card__meta">
+            <text>{{item.metaLine}}</text>
+            <view class="atlas-item-card__chevron"></view>
           </view>
         </view>
       </view>
-
-      <view wx:else class="atlas-empty">
-        <text class="atlas-empty__title">{{loading ? '正在加载图鉴…' : activeTab === 'mine' ? '还没有购买记录' : '没有找到匹配的品种'}}</text>
-        <text wx:if="{{!loading}}" class="atlas-empty__description">{{activeTab === 'mine' ? '购买关联了图鉴品种的商品后，会自动收录在这里' : '换一个关键词试试'}}</text>
-      </view>
-
-      <view wx:if="{{loadFailed}}" class="atlas-retry" bindtap="loadAtlas" role="button">云端内容暂未加载，点击重试</view>
-      <view class="atlas-bottom-space"></view>
     </view>
-  </scroll-view>
+
+    <view wx:else class="atlas-empty">
+      <text class="atlas-empty__title">{{loading ? '正在加载图鉴…' : activeTab === 'favorites' ? '还没有收藏花材' : '没有找到匹配的品种'}}</text>
+      <text wx:if="{{!loading}}" class="atlas-empty__description">{{activeTab === 'favorites' ? '点击卡片右上角的星星即可收藏' : '请输入花材名称重新搜索'}}</text>
+    </view>
+
+    <view wx:if="{{loadFailed}}" class="atlas-retry" bindtap="retryLoad" role="button">云端内容暂未加载，当前显示内置图鉴。点击重新加载</view>
+    <view class="atlas-bottom-space"></view>
+  </view>
 </view>

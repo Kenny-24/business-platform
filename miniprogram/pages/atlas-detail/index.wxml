@@ -3,35 +3,48 @@
 
   <scroll-view class="atlas-detail-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
     <view wx:if="{{item}}" class="atlas-detail-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
-      <view class="atlas-detail-hero">
-        <image wx:if="{{item.image}}" class="atlas-detail-hero__image" style="height: {{heroHeight}}px;" src="{{item.image}}" mode="aspectFill"></image>
-        <view wx:else class="atlas-detail-hero__image atlas-detail-hero__placeholder" style="height: {{heroHeight}}px;">花予</view>
+      <view class="atlas-detail-hero atlas-detail-hero--{{item.imageBackground}}" style="height: {{heroHeight}}px;">
+        <image wx:if="{{item.image}}" class="atlas-detail-hero__image" src="{{item.image}}" mode="aspectFit"></image>
+        <view wx:else class="atlas-detail-hero__placeholder">花予</view>
+
+        <text wx:if="{{purchased}}" class="atlas-detail-hero__purchased">购买过</text>
+
+        <view
+          class="atlas-detail-favorite {{favorite ? 'atlas-detail-favorite--active' : ''}}"
+          bindtap="toggleFavorite"
+          role="button"
+          aria-label="{{favorite ? '取消收藏' : '收藏'}}"
+        >
+          <text class="detail-star">{{favorite ? '★' : '☆'}}</text>
+        </view>
       </view>
 
-      <view class="atlas-detail-heading">
-        <view class="atlas-detail-heading__main">
-          <view class="atlas-detail-heading__name-row">
-            <text class="atlas-detail-heading__name">{{item.name}}</text>
-            <text wx:if="{{purchased}}" class="atlas-detail-heading__owned">已购收录</text>
-          </view>
-          <text class="atlas-detail-heading__latin">{{item.latin || 'Huayu Atlas'}}</text>
+      <view class="atlas-editorial">
+        <text class="atlas-editorial__title">{{item.name}}</text>
+        <text wx:if="{{item.latin}}" class="atlas-editorial__latin">{{item.latin}}</text>
+        <text wx:if="{{item.meaning}}" class="atlas-editorial__meaning">花语 · {{item.meaning}}</text>
+
+        <view wx:if="{{item.alias}}" class="atlas-editorial__alias">
+          <text>别名</text>
+          <text>{{item.alias}}</text>
         </view>
-        <text class="atlas-detail-heading__category">{{item.category}}</text>
+
+        <text class="atlas-editorial__description">{{item.description || '这一品种的介绍正在由花予花艺师完善。'}}</text>
+        <text class="atlas-editorial__period">[ 花期：{{item.floweringPeriod || item.seasonText}} ]</text>
+      </view>
+
+      <view wx:if="{{item.toxicityNote}}" class="safety-note">
+        <view class="safety-note__mark">!</view>
+        <view class="safety-note__copy">
+          <text class="safety-note__title">安全提示</text>
+          <text class="safety-note__text">{{item.toxicityNote}}</text>
+        </view>
       </view>
 
       <view class="atlas-detail-layout">
         <view class="atlas-detail-layout__main">
-          <view class="detail-card meaning-card">
-            <text class="detail-card__eyebrow">花语</text>
-            <text class="meaning-card__text">{{item.meaning || '花语内容正在完善中'}}</text>
-          </view>
-
           <view class="detail-card">
-            <text class="detail-card__title">花材介绍</text>
-            <text class="detail-card__paragraph">{{item.description || '这一品种的介绍正在由花予花艺师完善。'}}</text>
-          </view>
-
-          <view class="detail-card">
+            <text class="detail-card__eyebrow">CARE GUIDE</text>
             <text class="detail-card__title">养护方法</text>
 
             <view wx:if="{{careSteps.length}}" class="care-list">
@@ -41,12 +54,13 @@
               </view>
             </view>
 
-            <text wx:else class="detail-card__paragraph">养护建议正在完善中。通常建议使用洁净花器、去除水线以下叶片，并定期换水与斜剪根部。</text>
+            <text wx:else class="detail-card__paragraph">通常建议使用洁净花器、去除水线以下叶片，并定期换水与斜剪根部。</text>
           </view>
         </view>
 
         <view class="atlas-detail-layout__side">
           <view class="detail-card">
+            <text class="detail-card__eyebrow">BOTANICAL INFO</text>
             <text class="detail-card__title">品种信息</text>
 
             <view class="info-row">
@@ -77,7 +91,7 @@
       <view wx:if="{{relatedProducts.length}}" class="related-section">
         <view class="related-section__head">
           <text class="related-section__title">相关在售商品</text>
-          <text class="related-section__hint">购买后会收录到“我的”</text>
+          <text class="related-section__hint">购买后显示“购买过”标记</text>
         </view>
 
         <view class="related-grid">

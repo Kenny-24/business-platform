@@ -1,0 +1,41 @@
+{
+  "version": "4.0.0",
+  "project": "huayu-miniapp",
+  "cloudEnvironment": "cloudbase-d6gspds9z5e38b6f0",
+  "scope": [
+    "CloudBase OPENID customer identity",
+    "Customer profile and avatar",
+    "Address list/edit/select/default",
+    "Order confirmation and server-side price recheck",
+    "Create/list/detail/cancel orders",
+    "Web order and customer management",
+    "Profile order/address live counts",
+    "Purchased atlas IDs from valid orders"
+  ],
+  "deferred": [
+    "WeChat Pay",
+    "Inventory reservation and deduction",
+    "Refunds",
+    "Advanced points/coupons/membership"
+  ],
+  "newCollections": [
+    "users",
+    "addresses",
+    "orders",
+    "orderLogs"
+  ],
+  "newCloudFunctions": [
+    "userApi",
+    "orderApi"
+  ],
+  "redeployCloudFunctions": [
+    "adminApi",
+    "userApi",
+    "orderApi"
+  ],
+  "preserve": [
+    "project.config.json real AppID",
+    "huayu-admin-web/public/huayu-config.js Publishable Key",
+    "adminApi HUAYU_BOOTSTRAP_CODE environment variable"
+  ]
+}

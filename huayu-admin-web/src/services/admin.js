@@ -63,5 +63,45 @@ export const adminApi = {
 
   deleteCalendarEvent(eventKey) {
     return callAdmin('deleteCalendarEvent', { eventKey })
+  },
+
+  listOrders(filters = {}) {
+    return callAdmin('listOrders', { filters })
+  },
+
+  getOrder(id) {
+    return callAdmin('getOrder', { id })
+  },
+
+  confirmOrder(id, payload = {}) {
+    return callAdmin('confirmOrder', { id, ...payload })
+  },
+
+  rejectOrder(id, reason) {
+    return callAdmin('rejectOrder', { id, reason })
+  },
+
+  markOrderPaid(id, note = '') {
+    return callAdmin('markOrderPaid', { id, note })
+  },
+
+  startDelivery(id, note = '') {
+    return callAdmin('startDelivery', { id, note })
+  },
+
+  completeOrder(id, note = '') {
+    return callAdmin('completeOrder', { id, note })
+  },
+
+  cancelAdminOrder(id, reason) {
+    return callAdmin('cancelAdminOrder', { id, reason })
+  },
+
+  listUsers(filters = {}) {
+    return callAdmin('listUsers', { filters })
+  },
+
+  getUser(id) {
+    return callAdmin('getUser', { id })
   }
 }

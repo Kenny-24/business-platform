@@ -15,52 +15,26 @@ const {
 
 function buildLayout() {
   const metrics = getLayoutMetrics()
-  const width = Number(
-    metrics.windowWidth || 375
-  )
+  const width = Number(metrics.windowWidth || 375)
 
   return {
-    contentHeight:
-      metrics.contentHeight,
-    horizontalPadding:
-      width <= 350
-        ? 14
-        : width >= 768
-          ? 30
-          : 18,
-    avatarSize:
-      width <= 350
-        ? 62
-        : width >= 768
-          ? 84
-          : 72,
-    wideLayout:
-      width >= 720,
-    compactLayout:
-      width <= 350
+    contentHeight: metrics.contentHeight,
+    horizontalPadding: width <= 350 ? 14 : width >= 768 ? 30 : 18,
+    avatarSize: width <= 350 ? 62 : width >= 768 ? 84 : 72,
+    wideLayout: width >= 720,
+    compactLayout: width <= 350
   }
 }
 
-function serviceValue(
-  key,
-  overview
-) {
+function serviceValue(key, overview) {
   if (key === 'addresses') {
-    const count =
-      overview.counts.addresses
-
-    return count > 0
-      ? `${count}个`
-      : '未添加'
+    const count = Number(overview.counts.addresses || 0)
+    return count > 0 ? `${count}个` : '未添加'
   }
 
   if (key === 'importantDates') {
-    const count =
-      overview.counts.importantDates
-
-    return count > 0
-      ? `${count}个`
-      : '未添加'
+    const count = Number(overview.counts.importantDates || 0)
+    return count > 0 ? `${count}个` : '未添加'
   }
 
   return ''
@@ -73,13 +47,13 @@ Page({
     avatarSize: 72,
     wideLayout: false,
     compactLayout: false,
+    loading: true,
     loggedIn: false,
     profile: {
-      nickname: '登录 / 注册',
+      nickname: '花予用户',
       avatarUrl: '',
-      memberLevel: '',
-      description:
-        '登录后查看订单、积分和收藏'
+      memberLevel: '普通会员',
+      description: '正在同步会员资料'
     },
     orderItems: [],
     assetItems: [],
@@ -102,149 +76,108 @@ Page({
     this.setData(buildLayout())
   },
 
-  refreshOverview() {
+  async refreshOverview() {
+    this.setData({ loading: true })
+
     try {
-      const overview =
-        getProfileOverview()
+      const overview = await getProfileOverview()
 
-      const orderItems =
-        ORDER_STATUS_ITEMS.map(
-          (item) => {
-            const count =
-              Number(
-                overview.orderCounts[
-                  item.key
-                ] || 0
-              )
+      const orderItems = ORDER_STATUS_ITEMS.map((item) => {
+        const count = Number(overview.orderCounts[item.key] || 0)
 
-            return {
-              ...item,
-              count,
-              showCount: count > 0
-            }
-          }
-        )
+        return {
+          ...item,
+          count,
+          showCount: count > 0
+        }
+      })
 
-      const assetItems =
-        ASSET_ITEMS.map(
-          (item) => ({
-            ...item,
-            value:
-              Number(
-                overview.assets[
-                  item.key
-                ] || 0
-              )
-          })
-        )
+      const assetItems = ASSET_ITEMS.map((item) => ({
+        ...item,
+        value: Number(overview.assets[item.key] || 0)
+      }))
 
-      const serviceItems =
-        SERVICE_ITEMS.map(
-          (item) => ({
-            ...item,
-            value:
-              serviceValue(
-                item.key,
-                overview
-              )
-          })
-        )
+      const serviceItems = SERVICE_ITEMS.map((item) => ({
+        ...item,
+        value: serviceValue(item.key, overview)
+      }))
 
       this.setData({
-        loggedIn:
-          overview.loggedIn,
-        profile:
-          overview.profile,
+        loading: false,
+        loggedIn: overview.loggedIn,
+        profile: overview.profile,
         orderItems,
         assetItems,
         serviceItems
       })
     } catch (error) {
-      console.error(
-        '用户中心加载失败：',
-        error
-      )
+      console.error('用户中心加载失败：', error)
+      this.setData({
+        loading: false,
+        'profile.description': '数据暂未同步，点击设置可重试'
+      })
 
       wx.showToast({
-        title: '数据加载失败',
+        title: error.message || '用户数据加载失败',
         icon: 'none'
       })
     }
   },
 
   openProfile() {
-    if (!this.data.loggedIn) {
-      wx.showModal({
-        title: '登录花予',
-        content:
-          '顾客微信登录将在订单与支付功能接入时启用。',
-        showCancel: false,
-        confirmText: '知道了',
-        confirmColor: '#6f8050'
-      })
-      return
-    }
-
-    wx.showToast({
-      title:
-        '个人资料将在用户系统接入后开放',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/profile-edit/index'
     })
   },
 
   openAllOrders() {
-    wx.showToast({
-      title:
-        '订单列表将在订单功能接入后开放',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/order-list/index?status=all'
     })
   },
 
   openOrder(event) {
-    const label = String(
-      event.currentTarget.dataset.label ||
-      '订单'
-    )
+    const status = String(event.currentTarget.dataset.key || 'all')
 
-    wx.showToast({
-      title:
-        `${label}将在订单功能接入后开放`,
-      icon: 'none'
+    wx.navigateTo({
+      url: `/pages/order-list/index?status=${encodeURIComponent(status)}`
     })
   },
 
   openAsset(event) {
-    const key = String(
-      event.currentTarget.dataset.key ||
-      ''
-    )
+    const key = String(event.currentTarget.dataset.key || '')
+
+    if (key === 'favorites') {
+      wx.navigateTo({
+        url: '/pages/atlas/index?tab=favorites'
+      })
+      return
+    }
 
     const messages = {
-      points:
-        '积分明细将在积分流水接入后开放',
-      coupons:
-        '优惠券将在营销功能接入后开放',
-      favorites:
-        '收藏将在商品详情接入后开放'
+      points: '积分流水将在支付版本接入',
+      coupons: '优惠券将在营销版本接入'
     }
 
     wx.showToast({
-      title:
-        messages[key] ||
-        '该功能将在后续开放',
+      title: messages[key] || '该功能将在后续开放',
       icon: 'none'
     })
   },
 
   openService(event) {
-    const key = String(
-      event.currentTarget.dataset.key ||
-      ''
-    )
+    const key = String(event.currentTarget.dataset.key || '')
 
     if (key === 'importantDates') {
       wx.switchTab({
         url: '/pages/calendar/index'
+      })
+      return
+    }
+
+    if (key === 'addresses') {
+      wx.navigateTo({
+        url: '/pages/address-list/index'
       })
       return
     }
@@ -254,20 +187,10 @@ Page({
       return
     }
 
-    if (key === 'addresses') {
-      wx.showToast({
-        title:
-          '地址将在结算功能接入后开放',
-        icon: 'none'
-      })
-      return
-    }
-
     if (key === 'customerService') {
       wx.showModal({
         title: '客服与售后',
-        content:
-          '在线客服、配送说明和售后服务将在正式营业前配置。',
+        content: '订单售后、在线客服和配送说明将在正式营业前统一配置。',
         showCancel: false,
         confirmText: '知道了',
         confirmColor: '#6f8050'
@@ -278,35 +201,25 @@ Page({
   openSettings() {
     wx.showActionSheet({
       itemList: [
-        '刷新数据',
+        '刷新用户与订单数据',
         '清除商品缓存',
         '关于花予'
       ],
       success: (result) => {
         if (result.tapIndex === 0) {
           this.refreshOverview()
-
-          wx.showToast({
-            title: '已刷新',
-            icon: 'success'
-          })
           return
         }
 
         if (result.tapIndex === 1) {
           clearHomeDataCache()
-
-          wx.showToast({
-            title: '缓存已清除',
-            icon: 'success'
-          })
+          wx.showToast({ title: '缓存已清除', icon: 'success' })
           return
         }
 
         wx.showModal({
           title: '关于花予',
-          content:
-            '花予，认真对待每一个重要日子。',
+          content: '花予，认真对待每一个重要日子。',
           showCancel: false,
           confirmText: '知道了',
           confirmColor: '#6f8050'

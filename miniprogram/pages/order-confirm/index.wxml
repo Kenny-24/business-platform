@@ -1,0 +1,143 @@
+<view class="safe-page confirm-page {{wideLayout ? 'confirm-page--wide' : ''}} {{compactLayout ? 'confirm-page--compact' : ''}}">
+  <app-nav title="确认订单" showBack solid></app-nav>
+
+  <scroll-view class="confirm-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="confirm-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view wx:if="{{loading}}" class="confirm-loading">正在核对商品与库存…</view>
+
+      <block wx:elif="{{preview}}">
+        <view class="confirm-layout">
+          <view class="confirm-main">
+            <view class="confirm-card address-card" bindtap="chooseAddress" role="button">
+              <view wx:if="{{deliveryMethodId === 'pickup'}}" class="address-card__copy">
+                <text class="address-card__title">到店自取</text>
+                <text class="address-card__description">商家确认订单后告知自取地点</text>
+              </view>
+
+              <view wx:elif="{{address}}" class="address-card__copy">
+                <view class="address-card__person">
+                  <text class="address-card__name">{{address.receiverName}}</text>
+                  <text class="address-card__phone">{{address.phoneMasked || address.phone}}</text>
+                </view>
+                <text class="address-card__description">{{address.fullAddress}}</text>
+              </view>
+
+              <view wx:else class="address-card__copy">
+                <text class="address-card__title">请选择收货地址</text>
+                <text class="address-card__description">用于配送鲜花与联系收货人</text>
+              </view>
+
+              <view wx:if="{{deliveryMethodId !== 'pickup'}}" class="confirm-chevron"></view>
+            </view>
+
+            <view class="confirm-card option-card">
+              <view class="option-row" bindtap="chooseDeliveryMethod" role="button">
+                <view class="option-row__copy">
+                  <text class="option-row__title">收货方式</text>
+                  <text class="option-row__description">{{preview.deliveryMethod.description}}</text>
+                </view>
+                <view class="option-row__end">
+                  <text class="option-row__value">{{preview.deliveryMethod.name}}</text>
+                  <view class="confirm-chevron"></view>
+                </view>
+              </view>
+
+              <picker mode="date" value="{{deliveryDate}}" start="{{minDate}}" end="{{maxDate}}" bindchange="changeDate">
+                <view class="option-row">
+                  <view class="option-row__copy">
+                    <text class="option-row__title">配送日期</text>
+                    <text class="option-row__description">未来30天内可选</text>
+                  </view>
+                  <view class="option-row__end">
+                    <text class="option-row__value">{{deliveryDate}}</text>
+                    <view class="confirm-chevron"></view>
+                  </view>
+                </view>
+              </picker>
+
+              <picker mode="selector" range="{{options.deliverySlots}}" value="{{deliverySlotIndex}}" bindchange="changeSlot">
+                <view class="option-row">
+                  <view class="option-row__copy">
+                    <text class="option-row__title">配送时间</text>
+                    <text class="option-row__description">最终以商家确认结果为准</text>
+                  </view>
+                  <view class="option-row__end">
+                    <text class="option-row__value">{{deliverySlot}}</text>
+                    <view class="confirm-chevron"></view>
+                  </view>
+                </view>
+              </picker>
+
+              <view class="option-row" bindtap="choosePackaging" role="button">
+                <view class="option-row__copy">
+                  <text class="option-row__title">包装方式</text>
+                  <text class="option-row__description">{{preview.packaging.description}}</text>
+                </view>
+                <view class="option-row__end">
+                  <text class="option-row__value">{{preview.packaging.name}}</text>
+                  <view class="confirm-chevron"></view>
+                </view>
+              </view>
+            </view>
+
+            <view class="confirm-card product-card">
+              <text class="confirm-card__title">商品清单</text>
+              <view wx:for="{{preview.items}}" wx:key="productId" class="product-row">
+                <image wx:if="{{item.imageUrl}}" class="product-row__image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+                <view wx:else class="product-row__image product-row__placeholder">花予</view>
+                <view class="product-row__copy">
+                  <text class="product-row__name">{{item.name}}</text>
+                  <text class="product-row__price">¥{{item.unitPriceText}} / {{item.unit}}</text>
+                </view>
+                <view class="product-row__right">
+                  <text class="product-row__quantity">× {{item.quantity}}</text>
+                  <text class="product-row__subtotal">¥{{item.subtotalText}}</text>
+                </view>
+              </view>
+            </view>
+
+            <view class="confirm-card message-card">
+              <view class="message-field">
+                <text class="message-field__label">贺卡内容</text>
+                <textarea class="message-field__input" value="{{cardMessage}}" maxlength="120" auto-height placeholder="选填，写下想说的话" bindinput="updateCardMessage"></textarea>
+              </view>
+              <view class="message-field">
+                <text class="message-field__label">买家留言</text>
+                <textarea class="message-field__input" value="{{buyerMessage}}" maxlength="200" auto-height placeholder="选填，颜色偏好、花材替换等要求" bindinput="updateBuyerMessage"></textarea>
+              </view>
+            </view>
+          </view>
+
+          <view class="confirm-side">
+            <view class="confirm-card amount-card">
+              <text class="confirm-card__title">费用明细</text>
+              <view class="amount-row"><text>商品金额</text><text>¥{{preview.amounts.goodsAmountText}}</text></view>
+              <view class="amount-row"><text>包装费用</text><text>{{preview.packaging.feeText}}</text></view>
+              <view class="amount-row"><text>配送费用</text><text>{{preview.deliveryMethod.feeText}}</text></view>
+              <view class="amount-row"><text>积分抵扣</text><text>暂未启用</text></view>
+              <view class="amount-line"></view>
+              <view class="amount-row amount-row--total"><text>当前合计</text><text>¥{{preview.amounts.totalAmountText}}</text></view>
+              <text wx:if="{{preview.amounts.amountPending}}" class="amount-note">配送费由商家确认后加入最终应付金额。</text>
+            </view>
+
+            <view class="confirm-notice">
+              提交后订单进入“待确认”。商家确认库存与配送安排后，订单会进入“待付款”。微信支付将在下一版本接入。
+            </view>
+          </view>
+        </view>
+
+        <view class="confirm-bottom-space"></view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{preview}}" class="confirm-fixed-bar">
+    <view class="confirm-total">
+      <text class="confirm-total__label">合计</text>
+      <text class="confirm-total__currency">¥</text>
+      <text class="confirm-total__amount">{{preview.amounts.totalAmountText}}</text>
+      <text wx:if="{{preview.amounts.amountPending}}" class="confirm-total__pending">配送费待确认</text>
+    </view>
+    <view class="confirm-submit {{submitting ? 'confirm-submit--disabled' : ''}}" bindtap="submitOrder" role="button">{{submitting ? '提交中…' : '提交订单'}}</view>
+  </view>
+</view>

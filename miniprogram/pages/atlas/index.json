@@ -1,5 +1,9 @@
 {
-  "disableScroll": true,
+  "navigationStyle": "custom",
+  "disableScroll": false,
+  "backgroundColor": "#fbfbf8",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "app-nav": "/components/app-nav/index"
   }

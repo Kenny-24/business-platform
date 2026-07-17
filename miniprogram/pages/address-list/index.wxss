@@ -1,0 +1,185 @@
+.address-page {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 0;
+  background: #fafbf8;
+}
+
+.address-scroll,
+.address-content {
+  width: 100%;
+}
+
+.address-content {
+  min-height: 100%;
+  padding-top: 16rpx;
+}
+
+.address-tip {
+  padding: 15rpx 18rpx;
+  border: 1rpx solid #dfe6da;
+  border-radius: 14rpx;
+  background: #eef3e9;
+  color: #617148;
+  font-size: 17rpx;
+}
+
+.address-state {
+  padding: 120rpx 0;
+  color: #979d94;
+  font-size: 18rpx;
+  text-align: center;
+}
+
+.address-card {
+  margin-top: 15rpx;
+  padding: 21rpx;
+  border: 1rpx solid #e5e9e2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.address-card:first-child {
+  margin-top: 0;
+}
+
+.address-card__head,
+.address-card__person,
+.address-card__footer,
+.address-card__actions {
+  display: flex;
+  align-items: center;
+}
+
+.address-card__head,
+.address-card__footer {
+  justify-content: space-between;
+}
+
+.address-card__person {
+  min-width: 0;
+}
+
+.address-card__name {
+  color: #2d312b;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.address-card__phone {
+  margin-left: 13rpx;
+  color: #747b71;
+  font-size: 18rpx;
+}
+
+.address-card__default {
+  padding: 4rpx 9rpx;
+  border-radius: 999rpx;
+  background: #edf3e9;
+  color: #617148;
+  font-size: 14rpx;
+}
+
+.address-card__full {
+  display: block;
+  margin-top: 12rpx;
+  color: #555c52;
+  font-size: 19rpx;
+  line-height: 1.55;
+}
+
+.address-card__footer {
+  margin-top: 17rpx;
+  padding-top: 15rpx;
+  border-top: 1rpx solid #edf0ea;
+}
+
+.address-card__label {
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+  background: #f4f6f2;
+  color: #7e857b;
+  font-size: 14rpx;
+}
+
+.address-card__actions {
+  gap: 21rpx;
+  color: #68764b;
+  font-size: 16rpx;
+}
+
+.address-card__actions .is-danger {
+  color: #967267;
+}
+
+.address-empty {
+  display: flex;
+  min-height: 560rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.address-empty__mark {
+  display: flex;
+  width: 88rpx;
+  height: 88rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf2e8;
+  color: #68784f;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.address-empty__title {
+  margin-top: 20rpx;
+  color: #30342e;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.address-empty__description {
+  margin-top: 8rpx;
+  color: #989d95;
+  font-size: 17rpx;
+}
+
+.address-bottom-space {
+  height: calc(118rpx + env(safe-area-inset-bottom));
+}
+
+.address-fixed-bar {
+  position: fixed;
+  z-index: 80;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 14rpx 22rpx calc(14rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #e6e9e3;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.address-add-button {
+  display: flex;
+  height: 66rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 33rpx;
+  background: #6f8050;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.address-page--wide .address-content {
+  max-width: 920rpx;
+  margin: 0 auto;
+}
+
+.address-page--compact .address-card {
+  padding: 18rpx;
+}
