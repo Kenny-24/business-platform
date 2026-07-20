@@ -17,6 +17,14 @@ function readBooleanStorage(key) {
   }
 }
 
+function readStorage(key) {
+  try {
+    return wx.getStorageSync(key) || null
+  } catch (error) {
+    return null
+  }
+}
+
 function writeStorage(key, value) {
   try {
     wx.setStorageSync(key, value)
@@ -25,10 +33,19 @@ function writeStorage(key, value) {
   }
 }
 
+function hasCoordinates(location) {
+  return Boolean(
+    location &&
+    Number.isFinite(Number(location.latitude)) &&
+    Number.isFinite(Number(location.longitude))
+  )
+}
+
 App({
   onLaunch() {
     this.globalData.startupSplashStartedAt = Date.now()
     this.globalData.startupSplashFinished = false
+    this.globalData.latestLocation = readStorage(LOCATION_STORAGE_KEY)
 
     if (!wx.cloud) {
       console.error('当前微信基础库不支持云开发')
@@ -46,6 +63,7 @@ App({
     ensureUser()
       .then((user) => {
         this.globalData.user = user
+        this.restoreSavedLocation(user)
         console.log('Chloris 顾客身份初始化完成')
         this.maybePromptLocation(user)
       })
@@ -53,6 +71,41 @@ App({
         console.warn('顾客身份初始化暂未完成：', error)
         this.maybePromptLocation(null)
       })
+  },
+
+  restoreSavedLocation(user) {
+    const localLocation = readStorage(LOCATION_STORAGE_KEY)
+    const cloudLocation = user && user.lastLocation
+    const latestLocation = hasCoordinates(localLocation)
+      ? localLocation
+      : hasCoordinates(cloudLocation)
+        ? cloudLocation
+        : null
+
+    if (!latestLocation) return
+
+    writeStorage(LOCATION_STORAGE_KEY, latestLocation)
+    this.notifyLocationChanged(latestLocation)
+  },
+
+  notifyLocationChanged(location) {
+    if (!location) return
+
+    this.globalData.latestLocation = location
+
+    try {
+      const pages = typeof getCurrentPages === 'function'
+        ? getCurrentPages()
+        : []
+
+      pages.forEach((page) => {
+        if (page && typeof page.onAppLocationChanged === 'function') {
+          page.onAppLocationChanged(location)
+        }
+      })
+    } catch (error) {
+      console.warn('同步页面定位状态失败：', error)
+    }
   },
 
   maybePromptLocation(user) {
@@ -82,43 +135,61 @@ App({
       confirmText: '允许',
       cancelText: '暂不',
       success: (res) => {
-        this.finishLocationPrompt()
-
         if (!res.confirm) {
+          this.finishLocationPrompt()
           return
         }
 
-        wx.getLocation({
-          type: 'gcj02',
-          success: (location) => {
-            const latestLocation = {
-              latitude: location.latitude,
-              longitude: location.longitude,
-              accuracy: location.accuracy,
-              horizontalAccuracy: location.horizontalAccuracy,
-              verticalAccuracy: location.verticalAccuracy,
-              source: 'firstLaunch'
-            }
-
-            writeStorage(LOCATION_STORAGE_KEY, latestLocation)
-
-            saveLocation(latestLocation)
-              .then((result) => {
-                if (result && result.lastLocation) {
-                  writeStorage(LOCATION_STORAGE_KEY, result.lastLocation)
-                }
-              })
-              .catch((error) => {
-                console.warn('保存最新定位失败：', error)
-              })
-          },
-          fail: (error) => {
-            console.warn('获取定位失败：', error)
-          }
-        })
+        this.requestAndSaveCurrentLocation()
       },
       fail: () => {
         this._locationPrompting = false
+      }
+    })
+  },
+
+  requestAndSaveCurrentLocation() {
+    wx.getLocation({
+      type: 'gcj02',
+      success: (location) => {
+        const latestLocation = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy,
+          horizontalAccuracy: location.horizontalAccuracy,
+          verticalAccuracy: location.verticalAccuracy,
+          source: 'firstLaunch',
+          capturedAt: new Date().toISOString()
+        }
+
+        // 先更新本地和当前页面，避免必须再次点击“选择位置”才能看到状态。
+        writeStorage(LOCATION_STORAGE_KEY, latestLocation)
+        this.notifyLocationChanged(latestLocation)
+        this.finishLocationPrompt()
+
+        saveLocation(latestLocation)
+          .then((result) => {
+            if (!result || !result.lastLocation) return
+
+            writeStorage(LOCATION_STORAGE_KEY, result.lastLocation)
+            this.notifyLocationChanged(result.lastLocation)
+          })
+          .catch((error) => {
+            console.warn('保存最新定位失败：', error)
+          })
+      },
+      fail: (error) => {
+        console.warn('获取定位失败：', error)
+        this.finishLocationPrompt()
+
+        const message = String(error && error.errMsg || '')
+        if (!message.includes('cancel')) {
+          wx.showToast({
+            title: '定位未成功，可稍后手动选择',
+            icon: 'none',
+            duration: 1800
+          })
+        }
       }
     })
   },
@@ -153,6 +224,7 @@ App({
     cloudEnvId: CLOUD_ENV_ID,
     layout: null,
     user: null,
+    latestLocation: null,
     startupSplashStartedAt: 0,
     startupSplashFinished: false
   }

@@ -41,9 +41,15 @@ function getLocationDisplay(location) {
   if (!location) return '选择位置'
 
   const raw = String(location.name || location.address || '').trim()
-  if (!raw) return '已定位'
+  if (raw) {
+    return raw.length > 6 ? `${raw.slice(0, 6)}…` : raw
+  }
 
-  return raw.length > 6 ? `${raw.slice(0, 6)}…` : raw
+  const hasCoordinates =
+    Number.isFinite(Number(location.latitude)) &&
+    Number.isFinite(Number(location.longitude))
+
+  return hasCoordinates ? '当前位置' : '选择位置'
 }
 
 function productSearchText(item) {
@@ -188,7 +194,10 @@ Page({
       heroHeight - metrics.navTotalHeight - 48
     )
 
-    const storedLocation = wx.getStorageSync(LOCATION_STORAGE_KEY)
+    const storedLocation =
+      (app && app.globalData && app.globalData.latestLocation) ||
+      wx.getStorageSync(LOCATION_STORAGE_KEY)
+
     this.setData({
       heroHeight,
       locationText: getLocationDisplay(storedLocation),
@@ -199,9 +208,11 @@ Page({
   },
 
   onShow() {
-    const nextText = getLocationDisplay(
+    const app = getApp()
+    const latestLocation =
+      (app && app.globalData && app.globalData.latestLocation) ||
       wx.getStorageSync(LOCATION_STORAGE_KEY)
-    )
+    const nextText = getLocationDisplay(latestLocation)
 
     if (nextText !== this.data.locationText) {
       this.setData({ locationText: nextText })
@@ -212,6 +223,13 @@ Page({
       this.loadHomeData()
     }
     this._hasShown = true
+  },
+
+  onAppLocationChanged(location) {
+    const nextText = getLocationDisplay(location)
+    if (nextText !== this.data.locationText) {
+      this.setData({ locationText: nextText })
+    }
   },
 
   onUnload() {
@@ -366,7 +384,12 @@ Page({
         }
 
         wx.setStorageSync(LOCATION_STORAGE_KEY, selected)
-        this.setData({ locationText: getLocationDisplay(selected) })
+        const app = getApp()
+        if (app && typeof app.notifyLocationChanged === 'function') {
+          app.notifyLocationChanged(selected)
+        } else {
+          this.setData({ locationText: getLocationDisplay(selected) })
+        }
         saveLocation(selected).catch((error) => {
           console.warn('保存用户位置失败：', error)
         })
