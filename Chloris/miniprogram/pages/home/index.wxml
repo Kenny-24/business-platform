@@ -1,0 +1,263 @@
+<view class="safe-page home-page">
+  <view
+    wx:if="{{showStartupSplash}}"
+    class="startup-splash {{startupSplashLeaving ? 'startup-splash--leaving' : ''}}"
+    catchtouchmove="preventStartupTouch"
+  >
+    <view class="startup-splash__brand">
+      <image
+        class="startup-splash__logo"
+        src="/images/brand/chloris-loading-logo.png"
+        mode="widthFix"
+      ></image>
+    </view>
+  </view>
+  <app-nav
+    title="Chloris（克罗丽丝）"
+    brand
+    overlay
+    light="{{!navSolid}}"
+    solid="{{navSolid}}"
+    showLocation
+    locationText="{{locationText}}"
+    bind:location="chooseLocation"
+  ></app-nav>
+
+  <view class="hero-shell" style="height: {{heroHeight}}px;">
+    <swiper
+      class="hero"
+      circular="{{banners.length > 1}}"
+      autoplay="{{banners.length > 1}}"
+      interval="5600"
+      duration="520"
+      bindchange="onBannerChange"
+    >
+      <swiper-item
+        wx:for="{{banners}}"
+        wx:for-item="banner"
+        wx:for-index="bannerIndex"
+        wx:key="id"
+      >
+        <view class="hero-slide">
+          <image
+            wx:if="{{banner.image}}"
+            class="hero-image"
+            src="{{banner.image}}"
+            mode="aspectFill"
+            lazy-load="{{bannerIndex > 0}}"
+          ></image>
+          <view wx:else class="hero-image hero-image--placeholder">
+            <text>CHLORIS</text>
+          </view>
+
+          <view class="hero-overlay"></view>
+          <view class="hero-copy">
+            <text class="hero-eyebrow">{{banner.scene}}</text>
+            <text class="hero-title">{{banner.title}}</text>
+            <text class="hero-subtitle">{{banner.subtitle}}</text>
+            <button
+              class="hero-button"
+              hover-class="hero-button--pressed"
+              data-action="{{banner.action}}"
+              data-category-intent="{{banner.categoryIntent}}"
+              bindtap="onHeroAction"
+            >
+              {{banner.cta}}
+            </button>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+
+    <view wx:if="{{banners.length > 1}}" class="hero-progress">
+      <view
+        wx:for="{{banners}}"
+        wx:for-item="dot"
+        wx:for-index="dotIndex"
+        wx:key="id"
+        class="hero-progress__track"
+      >
+        <view class="hero-progress__fill {{dotIndex === currentBanner ? 'hero-progress__fill--active' : ''}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="home-content">
+    <view class="promise-strip">
+      <view class="promise-item">
+        <text class="promise-item__mark">01</text>
+        <text>下单后确认库存</text>
+      </view>
+      <view class="promise-item">
+        <text class="promise-item__mark">02</text>
+        <text>花材替换先沟通</text>
+      </view>
+      <view class="promise-item">
+        <text class="promise-item__mark">03</text>
+        <text>按日期安排配送</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loadFailed}}" class="cloud-notice" bindtap="loadHomeData">
+      <text>内容暂时没有加载成功，点击重新准备</text>
+    </view>
+
+    <flower-loader
+      wx:if="{{loading}}"
+      compact
+      text="正在为你准备今日花单…"
+    ></flower-loader>
+
+    <block wx:else>
+      <view class="home-section picker-section" bindtap="openBuilder" role="button">
+        <view class="picker-copy">
+          <text class="section-kicker">PERSONAL FLOWER FINDER</text>
+          <view class="picker-headline">
+            <text class="picker-title">帮我选花</text>
+            <text class="picker-tag">3步快速筛选</text>
+          </view>
+          <text class="picker-sub">
+            根据送花对象、预算、颜色偏好，为你快速匹配合适花束。
+          </text>
+          <view class="picker-tags">
+            <text>送给谁</text>
+            <text>预算</text>
+            <text>颜色</text>
+            
+          </view>
+          <view class="picker-button">开始选择</view>
+        </view>
+      </view>
+
+      <view class="home-section quote-section" bindtap="openQuoteStudio" role="button">
+        <view class="quote-section__copy">
+          <text class="section-kicker section-kicker--olive">INSPIRED BY YOUR PHOTO</text>
+          <text class="quote-section__title">上传心仪图片，获取定制报价</text>
+          <text class="quote-section__sub">你上传参考图，商户查看后确认能否制作，并回复报价与建议。</text>
+        </view>
+        <view class="quote-section__badge">上传图片</view>
+      </view>
+
+      <view class="home-section">
+        <section-title title="推荐花束" showMore="{{false}}"></section-title>
+        <scroll-view
+          wx:if="{{bouquets.length}}"
+          class="horizontal-list"
+          scroll-x
+          enhanced
+          show-scrollbar="{{false}}"
+        >
+          <view class="horizontal-inner">
+            <view class="bouquet-item" wx:for="{{bouquets}}" wx:key="id">
+              <product-card
+                item="{{item}}"
+                showAdd="{{true}}"
+                bind:add="addProduct"
+                bind:open="openProduct"
+              ></product-card>
+            </view>
+          </view>
+        </scroll-view>
+        <view wx:else class="section-empty">
+          <text>推荐花束正在更新中</text>
+        </view>
+        <section-more target="bouquets" bind:more="openSectionMore"></section-more>
+      </view>
+
+      <view class="home-section">
+        <section-title title="节日提醒" showMore="{{false}}"></section-title>
+        <view
+          wx:if="{{upcomingEvent}}"
+          class="festival festival--{{upcomingEvent.region}}"
+          bindtap="openEvent"
+          role="button"
+        >
+          <view class="festival-date">
+            <text class="festival-month">{{upcomingEvent.dateLabel}}</text>
+            <text class="festival-countdown">{{upcomingEvent.countdown}}</text>
+          </view>
+          <view class="festival-copy">
+            <view class="festival-title-row">
+              <text class="festival-title">{{upcomingEvent.name}}</text>
+              <text class="festival-region">{{upcomingEvent.regionLabel}}</text>
+            </view>
+            <text class="festival-sub">{{upcomingEvent.description}}</text>
+            <view class="festival-link"><text>查看节日与推荐</text><view class="festival-link__arrow"></view></view>
+          </view>
+          <image
+            wx:if="{{upcomingEvent.productImage}}"
+            class="festival-flower"
+            src="{{upcomingEvent.productImage}}"
+            mode="aspectFill"
+            lazy-load
+          ></image>
+        </view>
+        <view wx:else class="section-empty">
+          <text>近期暂无节日提醒，可以在日历添加 BIG DAY</text>
+        </view>
+        <section-more target="calendar" bind:more="openSectionMore"></section-more>
+      </view>
+
+      <view class="home-section">
+        <section-title title="鲜花护理" showMore="{{false}}"></section-title>
+        <view class="care-grid">
+          <view
+            class="care-card"
+            wx:for="{{careGuides}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="openCare"
+            role="button"
+          >
+            <text class="care-card__number">{{item.number}}</text>
+            <text class="care-card__title">{{item.title}}</text>
+            <text class="care-card__summary">{{item.summary}}</text>
+            <view class="care-card__link"><text>查看方法</text><view class="care-card__link-arrow"></view></view>
+          </view>
+        </view>
+        <section-more target="care" bind:more="openSectionMore"></section-more>
+      </view>
+
+      <view class="home-section">
+        <section-title title="图鉴" showMore="{{false}}"></section-title>
+        <view class="atlas-grid">
+          <view
+            class="atlas-card"
+            wx:for="{{atlasItems}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="openAtlasItem"
+            role="button"
+          >
+            <image
+              wx:if="{{item.image}}"
+              class="atlas-card__image"
+              src="{{item.image}}"
+              mode="aspectFill"
+              lazy-load
+            ></image>
+            <view wx:else class="atlas-card__image atlas-card__placeholder">
+              CHLORIS
+            </view>
+            <view class="atlas-card__shade"></view>
+            <view class="atlas-card__copy">
+              <text class="atlas-card__name">{{item.name}}</text>
+              <text class="atlas-card__latin">
+                {{item.latin || item.latinName}}
+              </text>
+              <text class="atlas-card__meaning">{{item.meaning}}</text>
+            </view>
+          </view>
+        </view>
+        <section-more target="atlas" bind:more="openSectionMore"></section-more>
+      </view>
+
+      <view class="service-note">
+        <text class="service-note__title">配送与售后提示</text>
+        <text class="service-note__body">
+          鲜花会受季节与到货状态影响。缺货或需要同色系替换时，我们会先与你确认；如收货状态或配送存在异常，请保留照片并及时联系客服。
+        </text>
+      </view>
+    </block>
+  </view>
+</view>

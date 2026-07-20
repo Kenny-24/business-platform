@@ -1,0 +1,76 @@
+<view class="safe-page care-page">
+  <app-nav title="鲜花护理" showBack solid></app-nav>
+
+  <view class="care-hero">
+    <text class="care-hero__eyebrow">CHLORIS CARE GUIDE</text>
+    <text class="care-hero__title">让鲜花陪你更久一点</text>
+    <text class="care-hero__sub">不同花材需要不同的水位、修剪与摆放方式。</text>
+  </view>
+
+  <scroll-view
+    class="guide-tabs"
+    scroll-x
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="guide-tabs__inner">
+      <view
+        wx:for="{{guides}}"
+        wx:key="id"
+        class="guide-tab {{activeId === item.id ? 'guide-tab--active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectGuide"
+        role="button"
+      >
+        {{item.title}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="guide-content">
+    <text class="guide-eyebrow">{{activeGuide.eyebrow}}</text>
+    <text class="guide-title">{{activeGuide.title}}</text>
+    <text class="guide-intro">{{activeGuide.intro}}</text>
+
+    <view
+      class="guide-step"
+      wx:for="{{activeGuide.steps}}"
+      wx:key="*this"
+    >
+      <text class="guide-step__number">{{item[0]}}</text>
+      <view class="guide-step__copy">
+        <text class="guide-step__title">{{item[1]}}</text>
+        <text class="guide-step__body">{{item[2]}}</text>
+      </view>
+    </view>
+
+    <view class="tips-card">
+      <text class="tips-card__title">护理提示</text>
+      <view
+        class="tip-row"
+        wx:for="{{activeGuide.tips}}"
+        wx:key="*this"
+      >
+        <text class="tip-dot">•</text>
+        <text>{{item}}</text>
+      </view>
+    </view>
+
+    <view class="care-bottom-space"></view>
+  </view>
+
+  <view class="care-fixed-bar">
+    <view class="care-fixed-bar__inner">
+      <view
+        class="care-action care-action--light"
+        bindtap="openAtlas"
+        role="button"
+      >
+        去图鉴认识花材
+      </view>
+      <view class="care-action" bindtap="openPicker" role="button">
+        帮我选花
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,46 @@
+<view class="safe-page address-page {{wideLayout ? 'address-page--wide' : ''}} {{compactLayout ? 'address-page--compact' : ''}}">
+  <app-nav title="收货地址" showBack solid></app-nav>
+
+  <scroll-view class="address-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="address-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view wx:if="{{selecting}}" class="address-tip">选择一个地址用于本次订单</view>
+
+      <flower-loader wx:if="{{loading}}" compact text="正在读取收货地址…"></flower-loader>
+
+      <view wx:elif="{{items.length}}" class="address-list">
+        <view wx:for="{{items}}" wx:key="_id" class="address-card" data-id="{{item._id}}" bindtap="selectAddress" role="button">
+          <view class="address-card__head">
+            <view class="address-card__person">
+              <text class="address-card__name">{{item.receiverName}}</text>
+              <text class="address-card__phone">{{item.phoneMasked}}</text>
+            </view>
+            <text wx:if="{{item.isDefault}}" class="address-card__default">默认</text>
+          </view>
+
+          <text class="address-card__full">{{item.fullAddress}}</text>
+
+          <view class="address-card__footer">
+            <text class="address-card__label">{{item.label}}</text>
+            <view class="address-card__actions">
+              <text wx:if="{{!item.isDefault}}" data-id="{{item._id}}" catchtap="setDefault">设为默认</text>
+              <text data-id="{{item._id}}" catchtap="editAddress">编辑</text>
+              <text class="is-danger" data-id="{{item._id}}" catchtap="removeAddress">删除</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="address-empty">
+        <view class="address-empty__mark">址</view>
+        <text class="address-empty__title">还没有收货地址</text>
+        <text class="address-empty__description">添加地址后，下单会更快捷</text>
+      </view>
+
+      <view class="address-bottom-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="address-fixed-bar">
+    <view class="address-add-button" bindtap="addAddress" role="button">新增收货地址</view>
+  </view>
+</view>

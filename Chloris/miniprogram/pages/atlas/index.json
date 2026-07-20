@@ -1,0 +1,9 @@
+{
+  "navigationStyle": "custom",
+  "disableScroll": false,
+  "backgroundColor": "#fbfbf8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "app-nav": "/components/app-nav/index"
+  }
+}

@@ -1,0 +1,10 @@
+<view class="flower-loader {{compact ? 'flower-loader--compact' : ''}} {{overlay ? 'flower-loader--overlay' : ''}}">
+  <view class="flower-loader__flower" aria-label="加载中">
+    <view class="flower-loader__petal flower-loader__petal--1"></view>
+    <view class="flower-loader__petal flower-loader__petal--2"></view>
+    <view class="flower-loader__petal flower-loader__petal--3"></view>
+    <view class="flower-loader__petal flower-loader__petal--4"></view>
+    <view class="flower-loader__center"></view>
+  </view>
+  <text wx:if="{{text}}" class="flower-loader__text">{{text}}</text>
+</view>

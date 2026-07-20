@@ -1,0 +1,127 @@
+<view class="safe-page profile-page {{wideLayout ? 'profile-page--wide' : ''}} {{compactLayout ? 'profile-page--compact' : ''}}">
+  <app-nav title="我的" solid></app-nav>
+
+  <scroll-view
+    class="profile-scroll"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view
+      class="profile-content"
+      style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;"
+    >
+      <flower-loader wx:if="{{loading}}" compact text="正在同步订单状态…"></flower-loader>
+
+      <view class="identity-card" bindtap="openProfile" role="button">
+        <image
+          wx:if="{{profile.avatarUrl}}"
+          class="identity-card__avatar"
+          style="width: {{avatarSize}}px; height: {{avatarSize}}px;"
+          src="{{profile.avatarUrl}}"
+          mode="aspectFill"
+        ></image>
+        <view
+          wx:else
+          class="identity-card__avatar identity-card__avatar--placeholder"
+          style="width: {{avatarSize}}px; height: {{avatarSize}}px;"
+        >C</view>
+
+        <view class="identity-card__copy">
+          <text class="identity-card__name">{{profile.nickname}}</text>
+          <text class="identity-card__description">{{profile.description}}</text>
+        </view>
+
+        <view class="row-arrow">
+          <view class="row-arrow__shape"></view>
+        </view>
+      </view>
+
+      <view class="profile-card order-card">
+        <view class="card-head">
+          <text class="card-head__title">我的订单</text>
+          <view class="card-head__more" bindtap="openAllOrders" role="button">
+            <text>全部订单</text>
+            <view class="row-arrow row-arrow--small">
+              <view class="row-arrow__shape"></view>
+            </view>
+          </view>
+        </view>
+
+        <view class="order-grid">
+          <view
+            wx:for="{{orderItems}}"
+            wx:key="key"
+            class="order-entry"
+            data-key="{{item.key}}"
+            bindtap="openOrder"
+            role="button"
+          >
+            <view class="order-entry__icon-wrap">
+              <image class="order-entry__icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+              <text wx:if="{{item.showCount}}" class="order-entry__badge">{{item.count > 99 ? '99+' : item.count}}</text>
+            </view>
+            <text class="order-entry__label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="profile-card asset-card">
+        <view class="card-head card-head--plain">
+          <text class="card-head__title">我的资产</text>
+        </view>
+        <view class="asset-grid">
+          <view
+            wx:for="{{assetItems}}"
+            wx:key="key"
+            class="asset-entry"
+            data-key="{{item.key}}"
+            bindtap="openAsset"
+            role="button"
+          >
+            <text class="asset-entry__value">{{item.value}}</text>
+            <text class="asset-entry__label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="profile-card service-card">
+        <view class="card-head card-head--plain">
+          <text class="card-head__title">常用服务</text>
+        </view>
+
+        <block wx:for="{{serviceItems}}" wx:key="key">
+          <view
+            class="service-entry"
+            data-key="{{item.key}}"
+            bindtap="openService"
+            role="button"
+          >
+            <image class="service-entry__icon" src="{{item.icon}}" mode="aspectFit"></image>
+            <view class="service-entry__copy">
+              <text class="service-entry__label">{{item.label}}</text>
+              <text class="service-entry__description">{{item.description}}</text>
+            </view>
+            <text wx:if="{{item.key !== 'customerService'}}" class="service-entry__value">{{item.value}}</text>
+            <view wx:else class="service-entry__value"></view>
+            <view class="row-arrow row-arrow--small">
+              <view class="row-arrow__shape"></view>
+            </view>
+
+            <button
+              wx:if="{{item.key === 'customerService'}}"
+              class="service-entry__contact-hit"
+              open-type="contact"
+              show-message-card="{{true}}"
+              aria-label="联系客服"
+            ></button>
+          </view>
+        </block>
+      </view>
+
+      <text class="profile-slogan">Chloris · 把花送给每一个值得记住的时刻</text>
+      <view class="profile-bottom-space"></view>
+    </view>
+  </scroll-view>
+</view>

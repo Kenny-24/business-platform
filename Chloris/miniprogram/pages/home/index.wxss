@@ -1,0 +1,808 @@
+.home-page {
+  background: var(--bg);
+}
+
+.hero-shell,
+.hero,
+.hero-slide {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #28251f;
+}
+
+.hero,
+.hero-slide {
+  height: 100%;
+}
+
+.hero-image,
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-image {
+  background: #ddd7ce;
+  transform: scale(1.002);
+}
+
+.hero-image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #d9cac6 0%, #a0948f 48%, #756b67 100%);
+  color: rgba(255, 255, 255, 0.46);
+  font-family: Georgia, serif;
+  font-size: 42rpx;
+  letter-spacing: 12rpx;
+}
+
+.hero-overlay {
+  background: linear-gradient(180deg, rgba(18, 17, 15, 0.22) 0%, rgba(18, 17, 15, 0.02) 42%, rgba(18, 17, 15, 0.76) 100%);
+}
+
+.hero-copy {
+  position: absolute;
+  right: 48rpx;
+  bottom: 92rpx;
+  left: 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-eyebrow,
+.hero-title,
+.hero-subtitle {
+  display: block;
+  max-width: 100%;
+  color: #ffffff;
+  text-shadow: 0 3rpx 16rpx rgba(0, 0, 0, 0.24);
+}
+
+.hero-eyebrow {
+  font-size: 19rpx;
+  font-weight: 500;
+  letter-spacing: 6rpx;
+  line-height: 1.4;
+}
+
+.hero-title {
+  margin-top: 16rpx;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 48rpx;
+  font-weight: 500;
+  letter-spacing: 3rpx;
+  line-height: 1.28;
+}
+
+.hero-subtitle {
+  margin-top: 13rpx;
+  font-size: 21rpx;
+  letter-spacing: 1rpx;
+  line-height: 1.55;
+}
+
+.hero-button {
+  display: flex;
+  width: 286rpx;
+  height: 72rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 30rpx auto 0;
+  padding: 0 26rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.64);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2c2925;
+  font-size: 23rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.12);
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+
+.hero-button--pressed {
+  opacity: 0.88;
+  transform: scale(0.98);
+}
+
+.hero-progress {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: 30rpx;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-progress__track {
+  width: 52rpx;
+  height: 4rpx;
+  margin: 0 5rpx;
+  overflow: hidden;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.hero-progress__fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+  transition: width 260ms ease;
+}
+
+.hero-progress__fill--active {
+  width: 100%;
+}
+
+.home-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 0 22rpx 56rpx;
+  background: var(--bg);
+}
+
+.promise-strip {
+  display: flex;
+  margin-top: 22rpx;
+  padding: 20rpx 6rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 20rpx;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.promise-item {
+  display: flex;
+  width: 33.333%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  color: var(--text-2);
+  font-size: 17rpx;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.promise-item + .promise-item {
+  border-left: 1rpx solid var(--line);
+}
+
+.promise-item__mark {
+  margin-bottom: 5rpx;
+  color: var(--accent-dark);
+  font-family: Georgia, serif;
+  font-size: 15rpx;
+  letter-spacing: 1rpx;
+}
+
+.cloud-notice {
+  display: flex;
+  min-height: 72rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20rpx;
+  padding: 12rpx 18rpx;
+  border: 1rpx solid rgba(216, 135, 152, 0.18);
+  border-radius: 18rpx;
+  background: #fff5f6;
+  color: #aa6472;
+  font-size: 19rpx;
+  text-align: center;
+}
+
+.home-section {
+  width: 100%;
+  margin-top: 22rpx;
+  padding: 28rpx 22rpx 26rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 24rpx;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.picker-section {
+  position: relative;
+  overflow: hidden;
+  padding: 30rpx 28rpx;
+  background: linear-gradient(135deg, #fff7f8 0%, #fffdfb 100%);
+}
+
+.picker-section::after {
+  position: absolute;
+  right: -26rpx;
+  bottom: -50rpx;
+  width: 180rpx;
+  height: 180rpx;
+  border: 1rpx solid rgba(216, 135, 152, 0.12);
+  border-radius: 50%;
+  content: "";
+}
+
+.picker-copy {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.section-kicker {
+  display: block;
+  color: #b86f7e;
+  font-family: Georgia, serif;
+  font-size: 14rpx;
+  letter-spacing: 3rpx;
+}
+
+.section-kicker--olive {
+  color: #758060;
+}
+
+.picker-headline {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-top: 10rpx;
+}
+
+.picker-title {
+  min-width: 0;
+  color: #302d2b;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 34rpx;
+  line-height: 1.3;
+}
+
+.picker-tag {
+  flex: 0 0 auto;
+  padding: 8rpx 13rpx;
+  border-radius: 999rpx;
+  background: rgba(216, 135, 152, 0.11);
+  color: #af6575;
+  font-size: 15rpx;
+  white-space: nowrap;
+}
+
+.picker-sub {
+  display: block;
+  max-width: 92%;
+  margin-top: 10rpx;
+  color: #7d7773;
+  font-size: 19rpx;
+  line-height: 1.65;
+}
+
+.picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 14rpx;
+}
+
+.picker-tags text {
+  margin: 0 8rpx 8rpx 0;
+  padding: 7rpx 12rpx;
+  border: 1rpx solid rgba(202, 137, 150, 0.2);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.74);
+  color: #976a73;
+  font-size: 15rpx;
+}
+
+.picker-button {
+  display: flex;
+  width: 202rpx;
+  height: 60rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12rpx;
+  border-radius: 999rpx;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 19rpx;
+  letter-spacing: 1rpx;
+  box-shadow: 0 8rpx 20rpx rgba(190, 108, 126, 0.14);
+}
+
+.picker-button text {
+  margin-left: 9rpx;
+  font-size: 25rpx;
+  line-height: 1;
+}
+
+.quote-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 30rpx 26rpx;
+  background: linear-gradient(135deg, #f4f5ef 0%, #ffffff 100%);
+}
+
+.quote-section__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.quote-section__title,
+.quote-section__sub {
+  display: block;
+}
+
+.quote-section__title {
+  margin-top: 11rpx;
+  color: #30322d;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 31rpx;
+  line-height: 1.42;
+}
+
+.quote-section__sub {
+  margin-top: 9rpx;
+  color: #7b7d73;
+  font-size: 17rpx;
+  line-height: 1.65;
+}
+
+.quote-section__badge {
+  display: flex;
+  min-width: 132rpx;
+  height: 58rpx;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 18rpx;
+  box-shadow: 0 8rpx 22rpx rgba(75, 88, 54, 0.12);
+}
+
+.horizontal-list {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.horizontal-inner {
+  padding-right: 16rpx;
+  white-space: nowrap;
+}
+
+.bouquet-item {
+  display: inline-block;
+  width: 356rpx;
+  margin-right: 14rpx;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.bouquet-item:last-child {
+  margin-right: 0;
+}
+
+.section-empty {
+  display: flex;
+  min-height: 154rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18rpx;
+  background: var(--surface-soft);
+  color: var(--text-3);
+  font-size: 19rpx;
+  text-align: center;
+}
+
+.festival {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 146rpx;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 18rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(90deg, #fff4f2 0%, #fffaf7 72%, #ffffff 100%);
+}
+
+.festival--international {
+  background: linear-gradient(90deg, #f0f5f8 0%, #f8fbfc 72%, #ffffff 100%);
+}
+
+.festival-date {
+  display: flex;
+  width: 124rpx;
+  flex: 0 0 124rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1rpx solid rgba(190, 118, 128, 0.16);
+}
+
+.festival-month {
+  color: #3c3935;
+  font-family: "Songti SC", serif;
+  font-size: 23rpx;
+  white-space: nowrap;
+}
+
+.festival-countdown {
+  margin-top: 8rpx;
+  color: #c16f7d;
+  font-size: 16rpx;
+}
+
+.festival-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 4rpx 10rpx 4rpx 20rpx;
+}
+
+.festival-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.festival-title {
+  min-width: 0;
+  overflow: hidden;
+  color: #35322f;
+  font-size: 24rpx;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.festival-region {
+  flex: 0 0 auto;
+  margin-left: 8rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 999rpx;
+  background: rgba(216, 135, 152, 0.11);
+  color: #b66d7c;
+  font-size: 13rpx;
+}
+
+.festival--international .festival-region {
+  background: rgba(102, 132, 158, 0.11);
+  color: #607b92;
+}
+
+.festival-sub,
+.festival-link {
+  display: block;
+}
+
+.festival-sub {
+  margin-top: 8rpx;
+  overflow: hidden;
+  color: #858078;
+  font-size: 16rpx;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.festival-link {
+  margin-top: 11rpx;
+  color: #a96472;
+  font-size: 16rpx;
+}
+
+.festival-flower {
+  width: 104rpx;
+  height: 104rpx;
+  flex: 0 0 104rpx;
+  align-self: center;
+  border-radius: 16rpx;
+  background: #f3eee8;
+}
+
+.care-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10rpx;
+}
+
+.care-card {
+  min-width: 0;
+  padding: 20rpx 13rpx 18rpx;
+  border: 1rpx solid #eee9e2;
+  border-radius: 18rpx;
+  background: #faf9f5;
+}
+
+.care-card__number,
+.care-card__title,
+.care-card__summary,
+.care-card__link {
+  display: block;
+}
+
+.care-card__number {
+  color: #c87888;
+  font-family: Georgia, serif;
+  font-size: 15rpx;
+}
+
+.care-card__title {
+  min-height: 54rpx;
+  margin-top: 10rpx;
+  color: #383531;
+  font-family: "Songti SC", serif;
+  font-size: 19rpx;
+  line-height: 1.4;
+}
+
+.care-card__summary {
+  height: 72rpx;
+  margin-top: 8rpx;
+  overflow: hidden;
+  color: #8d8880;
+  font-size: 15rpx;
+  line-height: 1.55;
+}
+
+.care-card__link {
+  margin-top: 11rpx;
+  color: #ad6977;
+  font-size: 15rpx;
+}
+
+.atlas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10rpx;
+}
+
+.atlas-card {
+  position: relative;
+  height: 286rpx;
+  overflow: hidden;
+  border-radius: 18rpx;
+  background: #657250;
+}
+
+.atlas-card__image {
+  width: 100%;
+  height: 100%;
+}
+
+.atlas-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #889574 0%, #5e6d4b 100%);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+}
+
+.atlas-card__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 34%, rgba(24, 28, 20, 0.74) 100%);
+}
+
+.atlas-card__copy {
+  position: absolute;
+  right: 14rpx;
+  bottom: 16rpx;
+  left: 14rpx;
+  color: #ffffff;
+}
+
+.atlas-card__name,
+.atlas-card__latin,
+.atlas-card__meaning {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-card__name {
+  font-family: "Songti SC", serif;
+  font-size: 23rpx;
+}
+
+.atlas-card__latin {
+  margin-top: 5rpx;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: Georgia, serif;
+  font-size: 13rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.atlas-card__meaning {
+  margin-top: 7rpx;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 15rpx;
+}
+
+.service-note {
+  margin-top: 22rpx;
+  padding: 25rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 20rpx;
+  background: var(--surface-soft);
+}
+
+.service-note__title,
+.service-note__body {
+  display: block;
+}
+
+.service-note__title {
+  color: #46423e;
+  font-size: 21rpx;
+  font-weight: 600;
+}
+
+.service-note__body {
+  margin-top: 9rpx;
+  color: #817c74;
+  font-size: 17rpx;
+  line-height: 1.72;
+}
+
+@media (max-width: 360px) {
+  .hero-copy {
+    right: 38rpx;
+    bottom: 84rpx;
+    left: 38rpx;
+  }
+
+  .hero-title {
+    font-size: 42rpx;
+  }
+
+  .hero-button {
+    width: 264rpx;
+    height: 68rpx;
+  }
+
+  .quote-section {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .quote-section__badge {
+    min-width: 126rpx;
+  }
+
+  .care-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .care-card {
+    display: grid;
+    grid-template-columns: 46rpx 1fr;
+    column-gap: 12rpx;
+  }
+
+  .care-card__number {
+    grid-row: 1 / span 3;
+  }
+
+  .care-card__title,
+  .care-card__summary,
+  .care-card__link {
+    grid-column: 2;
+  }
+
+  .care-card__title,
+  .care-card__summary {
+    min-height: 0;
+    height: auto;
+  }
+
+  .atlas-card {
+    height: 250rpx;
+  }
+}
+
+.festival-link,
+.care-card__link {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  line-height: 1;
+}
+
+.festival-link text,
+.care-card__link text {
+  display: block;
+  line-height: 1.25;
+}
+
+.festival-link__arrow,
+.care-card__link-arrow {
+  display: block;
+  width: 9rpx;
+  height: 9rpx;
+  flex: 0 0 9rpx;
+  align-self: center;
+  margin-left: 8rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* 小程序冷启动品牌加载页 */
+.startup-splash {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fffefd;
+  opacity: 1;
+  transition: opacity 260ms ease;
+}
+
+.startup-splash--leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.startup-splash__brand {
+  width: 520rpx;
+  max-width: 72vw;
+  transform: translateY(-28rpx);
+}
+
+.startup-splash__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transform: scale(0.965);
+  animation:
+    chloris-startup-enter 620ms cubic-bezier(0.22, 0.8, 0.28, 1) forwards,
+    chloris-startup-breathe 1700ms 620ms ease-in-out infinite alternate;
+}
+
+@keyframes chloris-startup-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10rpx) scale(0.965);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes chloris-startup-breathe {
+  0% {
+    opacity: 0.86;
+    transform: scale(0.992);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.012);
+  }
+}

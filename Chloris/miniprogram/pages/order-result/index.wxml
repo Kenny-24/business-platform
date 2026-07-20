@@ -1,0 +1,21 @@
+<view class="safe-page result-page">
+  <app-nav title="提交成功" solid></app-nav>
+
+  <view class="result-content" style="min-height: {{contentHeight}}px;">
+    <view class="result-mark">✓</view>
+    <text class="result-title">订单已提交</text>
+    <text class="result-description">商家会尽快确认花材库存和配送安排</text>
+    <text class="result-number">订单号 {{orderNo}}</text>
+
+    <view class="result-notice">商家确认花材库存与配送安排后，订单会进入“待付款”。当前由商家与你确认付款方式，收款后订单进入制作。</view>
+
+    <view class="result-bottom-space"></view>
+  </view>
+
+  <view class="result-fixed-bar">
+    <view class="result-fixed-bar__inner">
+      <view class="result-button result-button--primary" bindtap="viewOrder" role="button">查看订单</view>
+      <view class="result-button" bindtap="goHome" role="button">返回首页</view>
+    </view>
+  </view>
+</view>

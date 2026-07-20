@@ -1,0 +1,105 @@
+<view class="safe-page product-detail-page">
+  <app-nav title="商品详情" showBack solid></app-nav>
+
+  <flower-loader wx:if="{{loading}}" overlay text="正在准备商品详情…"></flower-loader>
+
+  <view wx:elif="{{loadFailed}}" class="detail-error">
+    <text class="detail-error__title">商品详情暂时无法加载</text>
+    <view class="detail-error__button" bindtap="loadProduct" role="button">重新加载</view>
+  </view>
+
+  <block wx:elif="{{product}}">
+    <view class="detail-media">
+      <video
+        wx:if="{{product.videoUrl}}"
+        class="detail-video"
+        src="{{product.videoUrl}}"
+        poster="{{product.videoPosterUrl}}"
+        controls
+        object-fit="cover"
+        show-center-play-btn
+        enable-progress-gesture
+      ></video>
+
+      <swiper
+        wx:if="{{product.galleryUrls.length}}"
+        class="detail-swiper {{product.videoUrl ? 'detail-swiper--after-video' : ''}}"
+        circular="{{product.galleryUrls.length > 1}}"
+        bindchange="onMediaChange"
+      >
+        <swiper-item wx:for="{{product.galleryUrls}}" wx:key="*this">
+          <image
+            class="detail-swiper__image"
+            src="{{item}}"
+            mode="aspectFill"
+            lazy-load="{{index > 0}}"
+            data-src="{{item}}"
+            bindtap="previewImage"
+          ></image>
+        </swiper-item>
+      </swiper>
+
+      <view wx:if="{{product.galleryUrls.length > 1}}" class="detail-media__count">
+        {{mediaIndex + 1}} / {{product.galleryUrls.length}}
+      </view>
+      <view wx:if="{{!product.videoUrl && !product.galleryUrls.length}}" class="detail-media__placeholder">CHLORIS</view>
+    </view>
+
+    <view class="detail-content">
+      <view class="detail-main-card">
+        <view class="detail-name-row">
+          <view class="detail-name-copy">
+            <text class="detail-type">{{product.typeLabel}}</text>
+            <text class="detail-name">{{product.name}}</text>
+            <text wx:if="{{product.subtitle}}" class="detail-subtitle">{{product.subtitle}}</text>
+          </view>
+          <view class="detail-stock {{product.stock <= 5 ? 'detail-stock--low' : ''}}">
+            {{product.stock > 0 ? '当前可售' : '已售罄'}}
+          </view>
+        </view>
+
+        <view class="detail-price-row">
+          <text class="detail-price__currency">¥</text>
+          <text class="detail-price__amount">{{product.priceText}}</text>
+          <text class="detail-price__unit">/{{product.unit}}</text>
+        </view>
+
+        <view class="detail-tags">
+          <text wx:for="{{product.colorTags}}" wx:key="*this" class="detail-tag">{{item}}</text>
+          <text wx:for="{{product.sceneTags}}" wx:key="*this" class="detail-tag detail-tag--soft">{{item}}</text>
+        </view>
+      </view>
+
+      <view class="detail-section">
+        <view class="detail-section__head" data-key="materials" bindtap="toggleSection" role="button">
+          <text>花材说明</text>
+          <view class="detail-chevron {{expandedSection === 'materials' ? 'detail-chevron--open' : ''}}"></view>
+        </view>
+        <text wx:if="{{expandedSection === 'materials'}}" class="detail-section__body">{{product.flowerMaterialInfo}}</text>
+      </view>
+
+      <view class="detail-section">
+        <view class="detail-section__head" data-key="care" bindtap="toggleSection" role="button">
+          <text>护理建议</text>
+          <view class="detail-chevron {{expandedSection === 'care' ? 'detail-chevron--open' : ''}}"></view>
+        </view>
+        <text wx:if="{{expandedSection === 'care'}}" class="detail-section__body">{{product.careDescription}}</text>
+      </view>
+
+      <view class="detail-bottom-space"></view>
+    </view>
+
+    <view class="detail-action-bar">
+      <button class="detail-action-icon" open-type="contact" show-message-card="{{true}}">
+        <image src="/images/icons/profile/customerService.png" mode="aspectFit"></image>
+        <text>客服</text>
+      </button>
+      <view class="detail-action-icon" bindtap="openCart" role="button">
+        <image src="/images/icons/cart-active.png" mode="aspectFit"></image>
+        <text>购物车</text>
+      </view>
+      <view class="detail-action-button detail-action-button--light" bindtap="addProduct" role="button">加入购物车</view>
+      <view class="detail-action-button" bindtap="buyNow" role="button">立即购买</view>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,39 @@
+.quote-list-page { background: #fbfaf7; }
+.quote-list-scroll { width: 100%; }
+.quote-list-content { padding-top: 18rpx; }
+.quote-list-hero { display:flex; align-items:flex-end; justify-content:space-between; padding:26rpx; border:1rpx solid #ebe6de; border-radius:24rpx; background:linear-gradient(135deg,#fff7f6,#f5f6f0); box-shadow:0 10rpx 28rpx rgba(57,52,43,.04); }
+.quote-list-hero__eyebrow,.quote-list-hero__title,.quote-list-hero__sub { display:block; }
+.quote-list-hero__eyebrow { color:#7a8663; font-family:Georgia,serif; font-size:15rpx; letter-spacing:3rpx; }
+.quote-list-hero__title { margin-top:10rpx; color:#2d2b28; font-family:"Songti SC",serif; font-size:34rpx; }
+.quote-list-hero__sub { margin-top:10rpx; color:#8b867f; font-size:18rpx; line-height:1.6; }
+.quote-list-hero__button { flex:0 0 auto; margin-left:18rpx; padding:15rpx 20rpx; border-radius:999rpx; background:#718052; color:#fff; font-size:18rpx; }
+.quote-tabs { display:flex; margin-top:18rpx; padding:6rpx; border:1rpx solid #ebe7df; border-radius:20rpx; background:#f2f3ed; }
+.quote-tab { position:relative; display:flex; min-width:0; height:62rpx; flex:1; align-items:center; justify-content:center; border-radius:16rpx; color:#88857e; font-size:18rpx; }
+.quote-tab--active { background:#fff; color:#5d6d42; font-weight:600; box-shadow:0 5rpx 16rpx rgba(52,57,44,.05); }
+.quote-tab__count { margin-left:5rpx; padding:2rpx 7rpx; border-radius:999rpx; background:#e7eadf; color:#627047; font-size:14rpx; }
+.quote-list-head { display:flex; align-items:center; justify-content:space-between; padding:24rpx 4rpx 10rpx; color:#302e2b; font-size:25rpx; font-weight:600; }
+.quote-list-refresh { color:#778264; font-size:17rpx; font-weight:400; }
+.quote-card-list { display:flex; flex-direction:column; gap:14rpx; }
+.quote-record { position:relative; display:flex; min-height:190rpx; align-items:center; padding:18rpx 46rpx 18rpx 18rpx; border:1rpx solid #ebe6df; border-radius:22rpx; background:#fff; box-shadow:0 8rpx 24rpx rgba(52,48,40,.035); }
+.quote-record__image { width:142rpx; height:142rpx; flex:0 0 142rpx; border-radius:18rpx; background:#f3f1ec; }
+.quote-record__placeholder { display:flex; align-items:center; justify-content:center; color:#b4afa5; font-family:Georgia,serif; font-size:16rpx; letter-spacing:2rpx; }
+.quote-record__copy { min-width:0; flex:1; margin-left:18rpx; }
+.quote-record__top,.quote-record__bottom { display:flex; align-items:center; justify-content:space-between; gap:12rpx; }
+.quote-record__number { color:#34312e; font-size:21rpx; font-weight:600; }
+.quote-status { flex:0 0 auto; padding:7rpx 12rpx; border-radius:999rpx; background:#f2f0ea; color:#807b72; font-size:15rpx; }
+.quote-status--warning { background:#faf3df; color:#a27b28; }
+.quote-status--primary { background:#edf1e7; color:#637449; }
+.quote-status--success { background:#e9f3eb; color:#4f7656; }
+.quote-status--danger { background:#f8e9e9; color:#a45f61; }
+.quote-record__message { display:-webkit-box; overflow:hidden; margin-top:13rpx; color:#77716b; font-size:18rpx; line-height:1.55; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.quote-record__bottom { margin-top:15rpx; color:#aaa49c; font-size:16rpx; }
+.quote-record__price { color:#5c6d40; font-size:22rpx; font-weight:700; }
+.quote-record__arrow { position:absolute; top:50%; right:22rpx; width:12rpx; height:12rpx; border-top:2rpx solid #aaa79f; border-right:2rpx solid #aaa79f; transform:translateY(-50%) rotate(45deg); }
+.quote-empty { display:flex; min-height:360rpx; flex-direction:column; align-items:center; justify-content:center; padding:40rpx; border:1rpx solid #ebe7df; border-radius:22rpx; background:#fff; text-align:center; }
+.quote-empty__title { color:#45413d; font-size:24rpx; }
+.quote-empty__sub { margin-top:12rpx; color:#99938c; font-size:18rpx; line-height:1.7; }
+.quote-empty__button { margin-top:24rpx; padding:15rpx 28rpx; border-radius:999rpx; background:#718052; color:#fff; font-size:18rpx; }
+.quote-list-bottom-space { height:50rpx; }
+.quote-list-page--wide .quote-card-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.quote-list-page--compact .quote-list-hero { align-items:flex-start; flex-direction:column; }
+.quote-list-page--compact .quote-list-hero__button { margin:18rpx 0 0; }

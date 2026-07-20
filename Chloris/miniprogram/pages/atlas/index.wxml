@@ -1,0 +1,108 @@
+<view class="safe-page atlas-page {{compactLayout ? 'atlas-page--compact' : ''}}">
+  <app-nav title="图鉴" solid showBack></app-nav>
+
+  <view class="atlas-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+    <view class="atlas-intro atlas-intro--elevated">
+      <text class="atlas-intro__eyebrow">CHLORIS BOTANICAL NOTES</text>
+      <text class="atlas-intro__title">认识每一种花材</text>
+      <text class="atlas-intro__description">“全部”展示已发布品种；“收藏”保存你喜欢的花材。只有在当前筛选结果确实为空时，才会显示空状态提示。</text>
+    </view>
+
+    <view class="atlas-toolbar">
+      <view class="atlas-tabs">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="value"
+          class="atlas-tab {{activeTab === item.value ? 'atlas-tab--active' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="selectTab"
+          role="button"
+        >{{item.label}}</view>
+      </view>
+
+      <view class="atlas-search">
+        <view class="atlas-search__icon"></view>
+        <input
+          class="atlas-search__input"
+          value="{{searchQuery}}"
+          placeholder="搜索花名"
+          placeholder-class="atlas-search__placeholder"
+          bindinput="onSearchInput"
+          confirm-type="search"
+        />
+        <view
+          wx:if="{{searchQuery}}"
+          class="atlas-search__clear"
+          bindtap="clearSearch"
+          role="button"
+        >×</view>
+      </view>
+    </view>
+
+    <view class="atlas-result-head">
+      <view>
+        <text>{{activeTab === 'favorites' ? '我的收藏' : '全部品种'}}</text>
+        <text class="atlas-result-head__sub">大气简约展示，突出花名与花语</text>
+      </view>
+      <text class="atlas-result-head__count">{{resultCount}} 种</text>
+    </view>
+
+    <flower-loader wx:if="{{loading}}" compact text="正在整理 Chloris 图鉴…"></flower-loader>
+
+    <view wx:elif="{{visibleItems.length}}" class="atlas-card-grid atlas-card-grid--{{columns}}">
+      <view
+        wx:for="{{visibleItems}}"
+        wx:key="id"
+        class="atlas-item-card"
+        data-id="{{item.id}}"
+        bindtap="openItem"
+        role="button"
+      >
+        <view
+          class="atlas-item-card__media atlas-item-card__media--{{item.imageBackground}}"
+          style="height: {{imageHeight}}px;"
+        >
+          <image
+            wx:if="{{item.image}}"
+            class="atlas-item-card__image"
+            src="{{item.image}}"
+            mode="aspectFit"
+            lazy-load
+          ></image>
+          <view wx:else class="atlas-item-card__placeholder">CHLORIS</view>
+
+          <text wx:if="{{item.purchased}}" class="atlas-item-card__purchased">购买过</text>
+
+          <view
+            class="atlas-item-card__favorite {{item.favorite ? 'atlas-item-card__favorite--active' : ''}}"
+            data-id="{{item.id}}"
+            catchtap="toggleFavorite"
+            role="button"
+            aria-label="{{item.favorite ? '取消收藏' : '收藏'}}"
+          >
+            <text class="favorite-star">{{item.favorite ? '★' : '☆'}}</text>
+          </view>
+        </view>
+
+        <view class="atlas-item-card__body">
+          <text class="atlas-item-card__title">{{item.name}}</text>
+          <text class="atlas-item-card__latin">{{item.latinLine}}</text>
+          <text class="atlas-item-card__description">{{item.meaning || item.description || '图鉴内容正在完善中'}}</text>
+
+          <view class="atlas-item-card__meta">
+            <text>{{item.metaLine}}</text>
+            <view class="atlas-item-card__chevron"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{!loading && !visibleItems.length}}" class="atlas-empty">
+      <text class="atlas-empty__title">{{activeTab === 'favorites' ? '还没有收藏花材' : '没有找到匹配的品种'}}</text>
+      <text class="atlas-empty__description">{{activeTab === 'favorites' ? '点击卡片右上角星标即可收藏喜欢的花材。' : '请修改关键词或切换到“全部”查看其他花材。'}}</text>
+    </view>
+
+    <view wx:if="{{loadFailed}}" class="atlas-retry" bindtap="retryLoad" role="button">云端内容暂未加载，当前显示内置图鉴。点击重新加载</view>
+    <view class="atlas-bottom-space"></view>
+  </view>
+</view>

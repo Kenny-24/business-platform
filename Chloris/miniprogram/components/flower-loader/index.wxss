@@ -1,0 +1,101 @@
+.flower-loader {
+  display: flex;
+  width: 100%;
+  min-height: 220rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 20rpx;
+  box-sizing: border-box;
+}
+
+.flower-loader--compact {
+  min-height: 116rpx;
+  padding: 22rpx 16rpx;
+}
+
+.flower-loader--overlay {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  min-height: 100vh;
+  background: rgba(251,250,247,.88);
+  backdrop-filter: blur(5px);
+}
+
+.flower-loader__flower {
+  position: relative;
+  width: 48rpx;
+  height: 48rpx;
+  animation: flowerSpin 1.65s linear infinite;
+}
+
+.flower-loader__petal {
+  position: absolute;
+  width: 22rpx;
+  height: 28rpx;
+  border-radius: 60% 60% 48% 48%;
+  background: #efb2bf;
+  transform-origin: 11rpx 24rpx;
+}
+
+.flower-loader__petal--1 {
+  top: -5rpx;
+  left: 13rpx;
+}
+
+.flower-loader__petal--2 {
+  top: 12rpx;
+  right: -1rpx;
+  transform: rotate(90deg);
+}
+
+.flower-loader__petal--3 {
+  bottom: -5rpx;
+  left: 13rpx;
+  transform: rotate(180deg);
+}
+
+.flower-loader__petal--4 {
+  top: 12rpx;
+  left: -1rpx;
+  transform: rotate(270deg);
+}
+
+.flower-loader__center {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #d98597;
+}
+
+.flower-loader__text {
+  margin-top: 20rpx;
+  color: #8e8a82;
+  font-size: 21rpx;
+  line-height: 1.4;
+}
+
+.flower-loader--compact .flower-loader__flower {
+  transform: scale(.82);
+}
+
+.flower-loader--compact .flower-loader__text {
+  margin-top: 12rpx;
+  font-size: 18rpx;
+}
+
+@keyframes flowerSpin {
+  0% {
+    transform: rotate(0deg) scale(.92);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+  100% {
+    transform: rotate(360deg) scale(.92);
+  }
+}

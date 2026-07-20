@@ -1,0 +1,82 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/category/index",
+    "pages/calendar/index",
+    "pages/cart/index",
+    "pages/profile/index",
+    "pages/flower-care/index",
+    "pages/flower-picker/index",
+    "pages/product-detail/index",
+    "pages/atlas/index",
+    "pages/custom-quote/index",
+    "pages/quote-list/index",
+    "pages/quote-detail/index",
+    "pages/atlas-detail/index",
+    "pages/address-list/index",
+    "pages/address-edit/index",
+    "pages/profile-edit/index",
+    "pages/order-confirm/index",
+    "pages/order-list/index",
+    "pages/order-detail/index",
+    "pages/order-result/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#FBFAF7",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8A8982",
+    "selectedColor": "#68764B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/category/index",
+        "text": "分类",
+        "iconPath": "images/icons/category.png",
+        "selectedIconPath": "images/icons/category-active.png"
+      },
+      {
+        "pagePath": "pages/calendar/index",
+        "text": "日历",
+        "iconPath": "images/icons/calendar.png",
+        "selectedIconPath": "images/icons/calendar-active.png"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "text": "购物车",
+        "iconPath": "images/icons/cart.png",
+        "selectedIconPath": "images/icons/cart-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/icons/profile.png",
+        "selectedIconPath": "images/icons/profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "requiredPrivateInfos": [
+    "chooseLocation",
+    "getLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于判断鲜花配送范围、记录常用配送区域并展示对应服务信息"
+    }
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "flower-loader": "/components/flower-loader/index"
+  }
+}

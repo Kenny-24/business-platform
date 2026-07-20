@@ -1,0 +1,84 @@
+page {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-soft: #f7f5f0;
+  --surface-pink: #fff7f8;
+  --primary: #68764b;
+  --primary-dark: #4f5d38;
+  --accent: #d88798;
+  --accent-dark: #b96f7e;
+  --text: #292824;
+  --text-2: #706d66;
+  --text-3: #9a968e;
+  --line: #ebe7df;
+  --shadow: 0 12rpx 36rpx rgba(54, 49, 40, 0.045);
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 28rpx;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+view,
+scroll-view,
+swiper,
+swiper-item,
+image,
+text,
+button,
+input,
+textarea,
+picker {
+  box-sizing: border-box;
+}
+
+button {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  text-align: inherit;
+}
+
+button::after {
+  border: 0;
+}
+
+image {
+  display: block;
+}
+
+.safe-page {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.card {
+  border: 1rpx solid var(--line);
+  border-radius: 22rpx;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.song-font {
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+}
+
+.muted {
+  color: var(--text-2);
+}
+
+.price {
+  color: var(--accent-dark);
+}

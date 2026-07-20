@@ -1,0 +1,50 @@
+{
+  "description": "Chloris（克罗丽丝）鲜花小程序",
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "huayu-admin-web",
+        "type": "folder"
+      },
+      {
+        "value": "docs",
+        "type": "folder"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "ignoreUploadUnusedFiles": true,
+    "compileHotReLoad": false,
+    "compileWorklet": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.7.0",
+  "appid": "wx3a8a358176a75cbd",
+  "projectname": "chloris-miniapp",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

@@ -1,9 +1,0 @@
-{
-  "name": "adminApi",
-  "version": "3.0.0",
-  "description": "花予 Web 商户后台统一管理员 API",
-  "main": "index.js",
-  "dependencies": {
-    "@cloudbase/node-sdk": "3.18.1"
-  }
-}
