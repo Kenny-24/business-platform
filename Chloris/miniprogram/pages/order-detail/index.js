@@ -35,6 +35,167 @@ function formatDeliverySchedule(deliveryDate, deliverySlot, fallback = '待商�
   return dateText || slotText || fallback
 }
 
+const DELIVERY_SCHEDULE_STATUS_META = {
+  notRequired: {
+    label: '无需二次确认',
+    description: '该订单无需额外确认配送时间'
+  },
+  pendingMerchantConfirm: {
+    label: '待商家确认',
+    description: '商家正在确认你选择的配送时间'
+  },
+  customerConfirmationRequired: {
+    label: '待你确认调整',
+    description: '商家提出了新的配送时间，请确认是否接受'
+  },
+  confirmed: {
+    label: '时间已确认',
+    description: '最终配送时间已经确认'
+  },
+  adjustmentRejected: {
+    label: '调整未接受',
+    description: '你暂未接受商家建议，商家会继续与你沟通'
+  }
+}
+
+function normalizeDeliveryScheduleMeta(order = {}) {
+  const status = String(order.deliveryScheduleStatus || 'pendingMerchantConfirm').trim()
+    || 'pendingMerchantConfirm'
+  const fallback = DELIVERY_SCHEDULE_STATUS_META[status]
+    || DELIVERY_SCHEDULE_STATUS_META.pendingMerchantConfirm
+  const label = String(order.deliveryScheduleStatusLabel || '').trim()
+  const description = String(order.deliveryScheduleStatusDescription || '').trim()
+
+  return {
+    deliveryScheduleStatus: status,
+    deliveryScheduleStatusLabel: label || fallback.label,
+    deliveryScheduleStatusDescription: description || fallback.description
+  }
+}
+
+function buildDeliverySteps(order, status) {
+  if (status === 'customerConfirmationRequired') {
+    return [
+      { key: 'submitted', title: '需求已提交', state: 'done' },
+      { key: 'merchant', title: '商家已调整', state: 'done' },
+      { key: 'customer', title: '等待你确认', state: 'current' }
+    ]
+  }
+
+  if (status === 'adjustmentRejected') {
+    return [
+      { key: 'submitted', title: '需求已提交', state: 'done' },
+      { key: 'merchant', title: '重新沟通中', state: 'current' },
+      { key: 'final', title: '确认最终时间', state: 'pending' }
+    ]
+  }
+
+  if (status === 'confirmed') {
+    const orderStatus = String(order.status || '')
+    const completed = orderStatus === 'completed'
+    const delivering = orderStatus === 'delivering'
+
+    return [
+      { key: 'submitted', title: '需求已提交', state: 'done' },
+      { key: 'merchant', title: '时间已确认', state: 'done' },
+      {
+        key: 'delivery',
+        title: completed
+          ? '配送已完成'
+          : delivering
+            ? '正在配送'
+            : '等待配送',
+        state: completed ? 'done' : 'current'
+      }
+    ]
+  }
+
+  return [
+    { key: 'submitted', title: '需求已提交', state: 'done' },
+    { key: 'merchant', title: '商家确认中', state: 'current' },
+    { key: 'final', title: '形成最终安排', state: 'pending' }
+  ]
+}
+
+function buildDeliveryPresentation(order, values) {
+  const status = String(order.deliveryScheduleStatus || 'pendingMerchantConfirm')
+  const requested = values.requestedScheduleText
+  const confirmed = values.confirmedScheduleText
+  const proposed = values.proposedScheduleText
+
+  const base = {
+    deliveryTone: 'pending',
+    deliveryHeadline: '正在确认配送时间',
+    deliveryMainLabel: '你的期望',
+    deliveryMainValue: requested,
+    deliveryCaption: '商家确认库存与配送能力后，会形成最终安排。',
+    deliverySecondaryLabel: '',
+    deliverySecondaryValue: '',
+    deliverySteps: buildDeliverySteps(order, status)
+  }
+
+  if (status === 'confirmed') {
+    return {
+      ...base,
+      deliveryTone: 'confirmed',
+      deliveryHeadline: '配送时间已确认',
+      deliveryMainLabel: '最终配送时间',
+      deliveryMainValue: confirmed || requested,
+      deliveryCaption: '商家将按这个时间准备并安排配送。'
+    }
+  }
+
+  if (status === 'customerConfirmationRequired') {
+    return {
+      ...base,
+      deliveryTone: 'action',
+      deliveryHeadline: '商家建议调整配送时间',
+      deliveryMainLabel: '商家建议',
+      deliveryMainValue: proposed || '等待商家补充',
+      deliveryCaption: '请核对新的时间安排，并在页面底部确认或反馈。',
+      deliverySecondaryLabel: '你原来的期望',
+      deliverySecondaryValue: requested
+    }
+  }
+
+  if (status === 'adjustmentRejected') {
+    return {
+      ...base,
+      deliveryTone: 'rejected',
+      deliveryHeadline: '正在重新协商配送时间',
+      deliveryMainLabel: '你的期望',
+      deliveryMainValue: requested,
+      deliveryCaption: '你暂未接受上次调整，商家会继续与你沟通。',
+      deliverySecondaryLabel: proposed ? '上次商家建议' : '',
+      deliverySecondaryValue: proposed
+    }
+  }
+
+  if (status === 'notRequired') {
+    return {
+      ...base,
+      deliveryTone: 'neutral',
+      deliveryHeadline: '配送安排',
+      deliveryMainLabel: '日期时间',
+      deliveryMainValue: values.deliveryScheduleText,
+      deliveryCaption: '该订单无需额外确认配送时间。',
+      deliverySteps: []
+    }
+  }
+
+  if (requested === '未填写') {
+    return {
+      ...base,
+      deliveryHeadline: '等待补充配送时间',
+      deliveryMainLabel: '期望配送时间',
+      deliveryMainValue: '暂未填写',
+      deliveryCaption: '商家会与你联系，补充并确认具体配送安排。'
+    }
+  }
+
+  return base
+}
+
 Page({
   data: {
     contentHeight: 520,
@@ -74,33 +235,46 @@ Page({
 
     try {
       const order = await getOrderDetail(this.data.id)
-      const isQuoteOrder = String(order.sourceType || '') === 'quoteRequest'
-      const hasDeliverySchedule = order.deliveryScheduleStatus !== 'notRequired'
-        || Boolean(order.requestedDeliveryDate || order.confirmedDeliveryDate || order.proposedDeliveryDate)
+      const deliveryScheduleMeta = normalizeDeliveryScheduleMeta(order)
+      const normalizedOrder = { ...order, ...deliveryScheduleMeta }
+      const isQuoteOrder = String(normalizedOrder.sourceType || '') === 'quoteRequest'
+      const hasDeliverySchedule = normalizedOrder.deliveryScheduleStatus !== 'notRequired'
+        || Boolean(normalizedOrder.requestedDeliveryDate || normalizedOrder.confirmedDeliveryDate || normalizedOrder.proposedDeliveryDate)
+      const deliveryScheduleText = formatDeliverySchedule(normalizedOrder.deliveryDate, normalizedOrder.deliverySlot)
+      const requestedScheduleText = formatDeliverySchedule(
+        normalizedOrder.requestedDeliveryDate,
+        normalizedOrder.requestedDeliverySlot,
+        '未填写'
+      )
+      const confirmedScheduleText = formatDeliverySchedule(
+        normalizedOrder.confirmedDeliveryDate,
+        normalizedOrder.confirmedDeliverySlot,
+        ''
+      )
+      const proposedScheduleText = formatDeliverySchedule(
+        normalizedOrder.proposedDeliveryDate,
+        normalizedOrder.proposedDeliverySlot,
+        ''
+      )
+      const deliveryPresentation = buildDeliveryPresentation(normalizedOrder, {
+        deliveryScheduleText,
+        requestedScheduleText,
+        confirmedScheduleText,
+        proposedScheduleText
+      })
 
       this.setData({
         loading: false,
         order: {
-          ...order,
+          ...normalizedOrder,
           isQuoteOrder,
           hasDeliverySchedule,
           createdAtText: formatDateTime(order.createdAt),
-          deliveryScheduleText: formatDeliverySchedule(order.deliveryDate, order.deliverySlot),
-          requestedScheduleText: formatDeliverySchedule(
-            order.requestedDeliveryDate,
-            order.requestedDeliverySlot,
-            '未填写'
-          ),
-          confirmedScheduleText: formatDeliverySchedule(
-            order.confirmedDeliveryDate,
-            order.confirmedDeliverySlot,
-            ''
-          ),
-          proposedScheduleText: formatDeliverySchedule(
-            order.proposedDeliveryDate,
-            order.proposedDeliverySlot,
-            ''
-          ),
+          deliveryScheduleText,
+          requestedScheduleText,
+          confirmedScheduleText,
+          proposedScheduleText,
+          ...deliveryPresentation,
           hasLogistics: Boolean(order.logisticsCompanyName && order.trackingNo),
           logisticsUpdatedAtText: formatDateTime(order.logisticsUpdatedAt),
           logisticsTrace: (order.logisticsTrace || []).map((item) => ({
@@ -176,6 +350,26 @@ Page({
     const order = this.data.order
     if (!order || !order.trackingNo) return
     wx.setClipboardData({ data: order.trackingNo })
+  },
+
+  copyDeliveryAddress() {
+    const order = this.data.order
+    const address = order && order.address
+    if (!address) return
+
+    const content = [
+      address.receiverName,
+      address.phone,
+      address.fullAddress
+    ].filter(Boolean).join(' ')
+
+    if (!content) return
+    wx.setClipboardData({
+      data: content,
+      success: () => {
+        wx.showToast({ title: '地址已复制', icon: 'success' })
+      }
+    })
   },
 
   async refreshCurrentLogistics() {

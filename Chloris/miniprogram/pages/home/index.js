@@ -218,6 +218,15 @@ Page({
       this.setData({ locationText: nextText })
     }
 
+    if (
+      app &&
+      typeof app.refreshCurrentLocationIfAuthorized === 'function'
+    ) {
+      app.refreshCurrentLocationIfAuthorized({
+        source: 'homeShow'
+      })
+    }
+
     const now = Date.now()
     if (this._hasShown && now - Number(this._lastHomeLoadAt || 0) > 30000) {
       this.loadHomeData()
@@ -380,10 +389,10 @@ Page({
           address: result.address || '',
           latitude: result.latitude,
           longitude: result.longitude,
-          source: 'chooseLocation'
+          source: 'chooseLocation',
+          capturedAt: new Date().toISOString()
         }
 
-        wx.setStorageSync(LOCATION_STORAGE_KEY, selected)
         const app = getApp()
         if (app && typeof app.notifyLocationChanged === 'function') {
           app.notifyLocationChanged(selected)

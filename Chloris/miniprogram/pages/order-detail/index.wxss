@@ -140,287 +140,427 @@
   font-size: 15rpx;
 }
 
-.delivery-method-chip {
-  display: inline-flex;
-  min-height: 40rpx;
+.delivery-card {
+  position: relative;
+}
+
+.delivery-card__header {
   align-items: center;
-  margin-top: 7rpx;
+  padding-bottom: 15rpx;
+}
+
+.delivery-status-pill {
+  display: inline-flex;
+  min-height: 42rpx;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8rpx;
   padding: 0 15rpx;
-  border: 1rpx solid #dfe6d9;
-  border-radius: 20rpx;
-  background: #f7f9f4;
-  color: #687552;
-  font-size: 15rpx;
+  border: 1rpx solid #dfe5d8;
+  border-radius: 22rpx;
+  background: #f5f7f2;
+  color: #667252;
+  font-size: 14rpx;
+  font-weight: 600;
 }
 
-.schedule-panel {
-  margin: 0 18rpx 18rpx;
-  padding: 20rpx;
-  border: 1rpx solid #e5eadf;
+.delivery-status-pill__dot {
+  width: 9rpx;
+  height: 9rpx;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 5rpx rgba(105, 120, 82, 0.09);
+}
+
+.delivery-status-pill--confirmed {
+  border-color: #d5e3cf;
+  background: #edf5e9;
+  color: #557149;
+}
+
+.delivery-status-pill--action {
+  border-color: #eadab7;
+  background: #fff8e9;
+  color: #95733b;
+}
+
+.delivery-status-pill--rejected {
+  border-color: #ead7d7;
+  background: #fbf1f1;
+  color: #916063;
+}
+
+.delivery-status-pill--neutral {
+  border-color: #e1e3df;
+  background: #f7f7f5;
+  color: #747970;
+}
+
+.delivery-overview {
+  position: relative;
+  display: flex;
+  gap: 16rpx;
+  margin: 0 18rpx;
+  overflow: hidden;
+  padding: 21rpx 20rpx 21rpx 18rpx;
+  border: 1rpx solid #e1e8dc;
   border-radius: 18rpx;
-  background: #f8faf6;
+  background: linear-gradient(135deg, #f5f8f1 0%, #fbfcf9 100%);
 }
 
-.schedule-panel__header {
+.delivery-card--confirmed .delivery-overview {
+  border-color: #d9e6d3;
+  background: linear-gradient(135deg, #eef6ea 0%, #fafcf8 100%);
+}
+
+.delivery-card--action .delivery-overview {
+  border-color: #eadfca;
+  background: linear-gradient(135deg, #fff8eb 0%, #fffdf8 100%);
+}
+
+.delivery-card--rejected .delivery-overview {
+  border-color: #eadcdc;
+  background: linear-gradient(135deg, #fbf2f2 0%, #fffafa 100%);
+}
+
+.delivery-card--neutral .delivery-overview {
+  border-color: #e5e6e2;
+  background: #f8f8f6;
+}
+
+.delivery-overview__accent {
+  width: 5rpx;
+  flex: 0 0 5rpx;
+  align-self: stretch;
+  border-radius: 5rpx;
+  background: #7a8962;
+}
+
+.delivery-card--confirmed .delivery-overview__accent {
+  background: #668257;
+}
+
+.delivery-card--action .delivery-overview__accent {
+  background: #c09a57;
+}
+
+.delivery-card--rejected .delivery-overview__accent {
+  background: #a97a7c;
+}
+
+.delivery-card--neutral .delivery-overview__accent {
+  background: #92978e;
+}
+
+.delivery-overview__content {
+  min-width: 0;
+  flex: 1;
+}
+
+.delivery-overview__topline {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14rpx;
 }
 
-.schedule-panel__heading {
-  min-width: 0;
-  flex: 1;
-}
-
-.schedule-panel__title,
-.schedule-panel__subtitle,
-.schedule-primary__label,
-.schedule-primary__value,
-.schedule-message__label,
-.schedule-message__text,
-.schedule-result__label,
-.schedule-result__value {
+.delivery-overview__headline,
+.delivery-overview__label,
+.delivery-overview__time,
+.delivery-overview__caption,
+.delivery-compare__label,
+.delivery-compare__value,
+.delivery-note__label,
+.delivery-note__value,
+.delivery-address__full {
   display: block;
 }
 
-.schedule-panel__title {
-  color: #394033;
-  font-size: 21rpx;
+.delivery-overview__headline {
+  min-width: 0;
+  flex: 1;
+  color: #394032;
+  font-size: 20rpx;
   font-weight: 700;
+  line-height: 1.4;
 }
 
-.schedule-panel__subtitle {
-  margin-top: 7rpx;
-  color: #949a90;
-  font-size: 14rpx;
-  line-height: 1.55;
-}
-
-.schedule-status {
-  display: inline-flex;
-  min-height: 40rpx;
+.delivery-method-text {
   flex: 0 0 auto;
-  align-items: center;
-  padding: 0 14rpx;
-  border-radius: 20rpx;
-  background: #edf1e8;
-  color: #64724f;
+  color: #8b9385;
   font-size: 14rpx;
-  font-weight: 600;
+  line-height: 1.5;
 }
 
-.schedule-status--customerConfirmationRequired {
-  background: #fbf1de;
-  color: #98743a;
+.delivery-overview__label {
+  margin-top: 20rpx;
+  color: #949b90;
+  font-size: 13rpx;
 }
 
-.schedule-status--confirmed {
-  background: #e8f2e5;
-  color: #55704a;
-}
-
-.schedule-status--adjustmentRejected {
-  background: #f7e9e9;
-  color: #995d60;
-}
-
-.schedule-primary {
-  margin-top: 18rpx;
-  padding: 18rpx;
-  border-radius: 15rpx;
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1rpx #edf0ea;
-}
-
-.schedule-primary__label {
-  color: #969c93;
-  font-size: 14rpx;
-}
-
-.schedule-primary__value {
-  margin-top: 8rpx;
-  color: #33382f;
-  font-size: 23rpx;
+.delivery-overview__time {
+  margin-top: 7rpx;
+  color: #30372c;
+  font-size: 25rpx;
   font-weight: 700;
   line-height: 1.35;
+  word-break: break-all;
 }
 
-.schedule-primary__value--empty {
-  color: #9da39a;
-  font-size: 19rpx;
+.delivery-overview__time--empty {
+  color: #9b9f98;
+  font-size: 21rpx;
   font-weight: 500;
 }
 
-.schedule-message {
-  margin-top: 12rpx;
-  padding: 14rpx 16rpx;
-  border-left: 4rpx solid #cbd5bf;
-  border-radius: 0 12rpx 12rpx 0;
-  background: #ffffff;
-}
-
-.schedule-message--adjustment {
-  border-left-color: #dac696;
-  background: #fdf9ef;
-}
-
-.schedule-message__label {
-  color: #92988e;
-  font-size: 13rpx;
-}
-
-.schedule-message__text {
-  margin-top: 5rpx;
-  color: #686f65;
-  font-size: 16rpx;
-  line-height: 1.55;
-}
-
-.schedule-result {
-  display: flex;
-  align-items: center;
-  gap: 13rpx;
-  margin-top: 13rpx;
-  padding: 15rpx 16rpx;
-  border-radius: 14rpx;
-}
-
-.schedule-result--confirmed {
-  background: #eaf3e6;
-}
-
-.schedule-result--proposed {
-  background: #fbf2df;
-}
-
-.schedule-result__icon {
-  display: flex;
-  width: 34rpx;
-  height: 34rpx;
-  flex: 0 0 34rpx;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.78);
-  color: #61734b;
-  font-size: 18rpx;
-  font-weight: 700;
-}
-
-.schedule-result--proposed .schedule-result__icon {
-  color: #9b793d;
-}
-
-.schedule-result__copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.schedule-result__label {
-  color: #7d8478;
-  font-size: 13rpx;
-}
-
-.schedule-result__value {
-  margin-top: 5rpx;
-  color: #394033;
-  font-size: 18rpx;
-  font-weight: 600;
-}
-
-.schedule-help {
-  display: flex;
-  align-items: flex-start;
-  gap: 9rpx;
-  margin-top: 15rpx;
-  padding-top: 14rpx;
-  border-top: 1rpx solid #e8ece4;
-  color: #8c9389;
+.delivery-overview__caption {
+  margin-top: 9rpx;
+  color: #7f877b;
   font-size: 14rpx;
   line-height: 1.55;
 }
 
-.schedule-help__dot {
-  width: 8rpx;
-  height: 8rpx;
-  flex: 0 0 8rpx;
-  margin-top: 7rpx;
-  border-radius: 50%;
-  background: #8b9a71;
-}
-
-.delivery-simple-row {
+.delivery-steps {
   display: flex;
+  margin: 20rpx 18rpx 0;
+  padding: 17rpx 10rpx 15rpx;
+  border-radius: 16rpx;
+  background: #fafbf8;
+}
+
+.delivery-step {
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.delivery-step__rail {
+  position: relative;
+  display: flex;
+  height: 30rpx;
   align-items: center;
-  justify-content: space-between;
-  margin: 0 22rpx 16rpx;
-  padding: 17rpx 0;
-  border-top: 1rpx solid #edf0ea;
+  justify-content: center;
 }
 
-.delivery-simple-row__label {
-  color: #8b9188;
-  font-size: 16rpx;
+.delivery-step__dot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 22rpx;
+  height: 22rpx;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #d8ded2;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ffffff;
+  font-size: 12rpx;
+  font-weight: 700;
 }
 
-.delivery-simple-row__value {
-  color: #454b42;
-  font-size: 17rpx;
+.delivery-step__line {
+  position: absolute;
+  z-index: 1;
+  top: 14rpx;
+  right: -50%;
+  left: 50%;
+  height: 2rpx;
+  background: #dfe4da;
+}
+
+.delivery-step--done .delivery-step__dot {
+  border-color: #73835c;
+  background: #73835c;
+}
+
+.delivery-step--done .delivery-step__line {
+  background: #aebba1;
+}
+
+.delivery-step--current .delivery-step__dot {
+  border: 5rpx solid #e9eee4;
+  background: #71815a;
+  box-shadow: 0 0 0 1rpx #bac5af;
+}
+
+.delivery-card--action .delivery-step--current .delivery-step__dot {
+  border-color: #f5ead3;
+  background: #b68d48;
+  box-shadow: 0 0 0 1rpx #d8bf91;
+}
+
+.delivery-card--rejected .delivery-step--current .delivery-step__dot {
+  border-color: #f2e4e4;
+  background: #9f7072;
+  box-shadow: 0 0 0 1rpx #d2b2b3;
+}
+
+.delivery-step__title {
+  display: block;
+  margin-top: 7rpx;
+  overflow: hidden;
+  color: #9a9f96;
+  font-size: 13rpx;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delivery-step--done .delivery-step__title,
+.delivery-step--current .delivery-step__title {
+  color: #60695b;
   font-weight: 600;
 }
 
-.address-panel {
+.delivery-compare {
   display: flex;
-  align-items: flex-start;
-  gap: 13rpx;
-  margin: 0 18rpx 18rpx;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin: 14rpx 18rpx 0;
+  padding: 16rpx 17rpx;
+  border: 1rpx dashed #dfe4d9;
+  border-radius: 14rpx;
+  background: #ffffff;
+}
+
+.delivery-compare__label {
+  flex: 0 0 auto;
+  color: #949a91;
+  font-size: 14rpx;
+}
+
+.delivery-compare__value {
+  min-width: 0;
+  color: #555d50;
+  font-size: 16rpx;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.delivery-notes {
+  margin: 14rpx 18rpx 0;
+  overflow: hidden;
+  border: 1rpx solid #eaede7;
+  border-radius: 15rpx;
+  background: #fcfcfa;
+}
+
+.delivery-note {
+  padding: 15rpx 17rpx;
+}
+
+.delivery-note + .delivery-note {
+  border-top: 1rpx solid #eaede7;
+}
+
+.delivery-note--adjustment {
+  background: #fdf9ef;
+}
+
+.delivery-note__label {
+  color: #989e95;
+  font-size: 13rpx;
+}
+
+.delivery-note__value {
+  margin-top: 6rpx;
+  color: #666e62;
+  font-size: 16rpx;
+  line-height: 1.55;
+}
+
+.delivery-address {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin: 14rpx 18rpx 0;
   padding: 17rpx;
   border-radius: 16rpx;
-  background: #f6f8f4;
+  background: #f5f7f2;
 }
 
-.address-panel__icon {
-  display: flex;
-  width: 36rpx;
-  height: 36rpx;
-  flex: 0 0 36rpx;
-  align-items: center;
-  justify-content: center;
+.delivery-address:active {
+  background: #eef2e9;
+}
+
+.delivery-address__pin {
+  position: relative;
+  width: 38rpx;
+  height: 38rpx;
+  flex: 0 0 38rpx;
+  border: 2rpx solid #7a8962;
+  border-radius: 50% 50% 50% 8rpx;
+  transform: rotate(-45deg) scale(0.72);
+  background: #eef3e9;
+}
+
+.delivery-address__pin-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10rpx;
+  height: 10rpx;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #e9efe3;
-  color: #667650;
-  font-size: 18rpx;
+  background: #7a8962;
 }
 
-.address-panel__content {
+.delivery-address__content {
   min-width: 0;
   flex: 1;
 }
 
-.address-panel__person {
+.delivery-address__person {
   display: flex;
   align-items: center;
   gap: 12rpx;
 }
 
-.address-panel__person text:first-child {
-  color: #343832;
+.delivery-address__person text:first-child {
+  color: #343a31;
   font-size: 18rpx;
   font-weight: 600;
 }
 
-.address-panel__person text:last-child {
-  color: #858b82;
-  font-size: 15rpx;
+.delivery-address__person text:last-child {
+  color: #858c82;
+  font-size: 14rpx;
 }
 
-.address-panel__full {
-  display: block;
-  margin-top: 8rpx;
-  color: #6e756b;
-  font-size: 16rpx;
+.delivery-address__full {
+  margin-top: 7rpx;
+  color: #6c7468;
+  font-size: 15rpx;
   line-height: 1.55;
+}
+
+.delivery-address__action {
+  flex: 0 0 auto;
+  color: #778463;
+  font-size: 14rpx;
+}
+
+.delivery-footnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 9rpx;
+  margin: 15rpx 18rpx 18rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #edf0ea;
+  color: #92988f;
+  font-size: 13rpx;
+  line-height: 1.55;
+}
+
+.delivery-footnote__dot {
+  width: 8rpx;
+  height: 8rpx;
+  flex: 0 0 8rpx;
+  margin-top: 6rpx;
+  border-radius: 50%;
+  background: #81906c;
 }
 
 .detail-row {
@@ -818,10 +958,20 @@
   padding-left: 17rpx;
 }
 
-.order-detail-page--compact .schedule-panel__header {
+.order-detail-page--compact .delivery-overview__topline {
   display: block;
 }
 
-.order-detail-page--compact .schedule-status {
-  margin-top: 12rpx;
+.order-detail-page--compact .delivery-method-text {
+  display: block;
+  margin-top: 5rpx;
+}
+
+.order-detail-page--compact .delivery-steps {
+  padding-right: 4rpx;
+  padding-left: 4rpx;
+}
+
+.order-detail-page--compact .delivery-step__title {
+  font-size: 12rpx;
 }

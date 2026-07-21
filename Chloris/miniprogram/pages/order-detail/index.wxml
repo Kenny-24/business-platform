@@ -22,75 +22,80 @@
 
         <view class="order-detail-layout">
           <view class="order-detail-main">
-            <view class="detail-card delivery-card">
-              <view class="detail-card__header">
+            <view class="detail-card delivery-card delivery-card--{{order.deliveryTone}}">
+              <view class="detail-card__header delivery-card__header">
                 <view>
                   <text class="detail-card__eyebrow">DELIVERY</text>
                   <text class="detail-card__title">配送信息</text>
                 </view>
-                <text class="delivery-method-chip">{{order.deliveryMethodName}}</text>
-              </view>
-
-              <view wx:if="{{order.hasDeliverySchedule}}" class="schedule-panel">
-                <view class="schedule-panel__header">
-                  <view class="schedule-panel__heading">
-                    <text class="schedule-panel__title">配送安排</text>
-                    <text class="schedule-panel__subtitle">顾客填写期望时间，商家确认后形成最终安排</text>
-                  </view>
-                  <text class="schedule-status schedule-status--{{order.deliveryScheduleStatus}}">{{order.deliveryScheduleStatusLabel}}</text>
-                </view>
-
-                <view class="schedule-primary">
-                  <text class="schedule-primary__label">你的期望</text>
-                  <text class="schedule-primary__value {{order.requestedScheduleText === '未填写' ? 'schedule-primary__value--empty' : ''}}">{{order.requestedScheduleText}}</text>
-                </view>
-
-                <view wx:if="{{order.requestedDeliveryNote}}" class="schedule-message">
-                  <text class="schedule-message__label">配送备注</text>
-                  <text class="schedule-message__text">{{order.requestedDeliveryNote}}</text>
-                </view>
-
-                <view wx:if="{{order.confirmedScheduleText}}" class="schedule-result schedule-result--confirmed">
-                  <view class="schedule-result__icon">✓</view>
-                  <view class="schedule-result__copy">
-                    <text class="schedule-result__label">最终配送时间</text>
-                    <text class="schedule-result__value">{{order.confirmedScheduleText}}</text>
-                  </view>
-                </view>
-
-                <view wx:if="{{order.proposedScheduleText && order.deliveryScheduleStatus !== 'confirmed'}}" class="schedule-result schedule-result--proposed">
-                  <view class="schedule-result__icon">!</view>
-                  <view class="schedule-result__copy">
-                    <text class="schedule-result__label">商家建议时间</text>
-                    <text class="schedule-result__value">{{order.proposedScheduleText}}</text>
-                  </view>
-                </view>
-
-                <view wx:if="{{order.deliveryAdjustmentNote}}" class="schedule-message schedule-message--adjustment">
-                  <text class="schedule-message__label">调整说明</text>
-                  <text class="schedule-message__text">{{order.deliveryAdjustmentNote}}</text>
-                </view>
-
-                <view class="schedule-help">
-                  <view class="schedule-help__dot"></view>
-                  <text>{{order.deliveryScheduleStatusDescription}}</text>
+                <view wx:if="{{order.deliveryScheduleStatusLabel}}" class="delivery-status-pill delivery-status-pill--{{order.deliveryTone}}">
+                  <view class="delivery-status-pill__dot"></view>
+                  <text>{{order.deliveryScheduleStatusLabel}}</text>
                 </view>
               </view>
 
-              <view wx:else class="delivery-simple-row">
-                <text class="delivery-simple-row__label">日期时间</text>
-                <text class="delivery-simple-row__value">{{order.deliveryScheduleText}}</text>
+              <view class="delivery-overview">
+                <view class="delivery-overview__accent"></view>
+                <view class="delivery-overview__content">
+                  <view class="delivery-overview__topline">
+                    <text class="delivery-overview__headline">{{order.deliveryHeadline}}</text>
+                    <text class="delivery-method-text">{{order.deliveryMethodName}}</text>
+                  </view>
+                  <text class="delivery-overview__label">{{order.deliveryMainLabel}}</text>
+                  <text class="delivery-overview__time {{order.deliveryMainValue === '暂未填写' ? 'delivery-overview__time--empty' : ''}}">{{order.deliveryMainValue}}</text>
+                  <text class="delivery-overview__caption">{{order.deliveryCaption}}</text>
+                </view>
               </view>
 
-              <view wx:if="{{order.address}}" class="address-panel">
-                <view class="address-panel__icon">⌖</view>
-                <view class="address-panel__content">
-                  <view class="address-panel__person">
+              <view wx:if="{{order.deliverySteps.length}}" class="delivery-steps">
+                <view
+                  wx:for="{{order.deliverySteps}}"
+                  wx:key="key"
+                  class="delivery-step delivery-step--{{item.state}}"
+                >
+                  <view class="delivery-step__rail">
+                    <view class="delivery-step__dot">
+                      <text wx:if="{{item.state === 'done'}}">✓</text>
+                    </view>
+                    <view wx:if="{{index < order.deliverySteps.length - 1}}" class="delivery-step__line"></view>
+                  </view>
+                  <text class="delivery-step__title">{{item.title}}</text>
+                </view>
+              </view>
+
+              <view wx:if="{{order.deliverySecondaryValue}}" class="delivery-compare">
+                <text class="delivery-compare__label">{{order.deliverySecondaryLabel}}</text>
+                <text class="delivery-compare__value">{{order.deliverySecondaryValue}}</text>
+              </view>
+
+              <view wx:if="{{order.requestedDeliveryNote || order.deliveryAdjustmentNote}}" class="delivery-notes">
+                <view wx:if="{{order.requestedDeliveryNote}}" class="delivery-note">
+                  <text class="delivery-note__label">配送备注</text>
+                  <text class="delivery-note__value">{{order.requestedDeliveryNote}}</text>
+                </view>
+                <view wx:if="{{order.deliveryAdjustmentNote}}" class="delivery-note delivery-note--adjustment">
+                  <text class="delivery-note__label">调整说明</text>
+                  <text class="delivery-note__value">{{order.deliveryAdjustmentNote}}</text>
+                </view>
+              </view>
+
+              <view wx:if="{{order.address}}" class="delivery-address" bindtap="copyDeliveryAddress" role="button">
+                <view class="delivery-address__pin">
+                  <view class="delivery-address__pin-core"></view>
+                </view>
+                <view class="delivery-address__content">
+                  <view class="delivery-address__person">
                     <text>{{order.address.receiverName}}</text>
                     <text>{{order.address.phoneMasked}}</text>
                   </view>
-                  <text class="address-panel__full">{{order.address.fullAddress}}</text>
+                  <text class="delivery-address__full">{{order.address.fullAddress}}</text>
                 </view>
+                <text class="delivery-address__action">复制</text>
+              </view>
+
+              <view class="delivery-footnote">
+                <view class="delivery-footnote__dot"></view>
+                <text>{{order.deliveryScheduleStatusDescription || '配送安排将随订单状态同步更新'}}</text>
               </view>
             </view>
 
