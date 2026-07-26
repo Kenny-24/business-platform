@@ -9,7 +9,6 @@ const auth = app.auth()
 const MAX_ROWS = 100
 const COLLECTIONS = {
   admins: 'admins',
-  atlas: 'atlas',
   products: 'products',
   banners: 'banners',
   calendarEvents: 'calendarEvents',
@@ -17,13 +16,6 @@ const COLLECTIONS = {
 }
 
 const IMPORT_META = {
-  atlas: {
-    label: '图鉴',
-    collection: COLLECTIONS.atlas,
-    codeField: 'atlasCode',
-    imageField: 'imageFileId',
-    prefix: 'atlas'
-  },
   products: {
     label: '商品',
     collection: COLLECTIONS.products,
@@ -55,7 +47,6 @@ const PRODUCT_TYPES = new Set([
   'vase',
   'gift'
 ])
-const IMAGE_BACKGROUNDS = new Set(['soft', 'light', 'dark'])
 const BANNER_PLACEMENTS = new Set(['home', 'categoryHero'])
 const BANNER_ACTION_TYPES = new Set(['category', 'calendar', 'builder'])
 const REGIONS = new Set(['domestic', 'international'])
@@ -276,49 +267,6 @@ function addBooleanIfProvided(target, source, key, errors, label) {
   target[key] = value
 }
 
-function normalizeAtlas(input) {
-  const errors = []
-  const warnings = []
-  const data = {}
-  const atlasCode = normalizedCode(input.atlasCode)
-  const name = text(input.name)
-
-  if (!atlasCode) errors.push('图鉴编码不能为空')
-  else if (!validBusinessCode(atlasCode)) errors.push('图鉴编码格式不正确')
-  if (!name) errors.push('中文花名不能为空')
-
-  data.atlasCode = atlasCode
-  data.name = name
-  addIfProvided(data, input, 'latinName', text)
-  addIfProvided(data, input, 'alias', text)
-  addIfProvided(data, input, 'meaning', text)
-  addIfProvided(data, input, 'description', text)
-  addIfProvided(data, input, 'careGuide', text)
-  addIfProvided(data, input, 'floweringPeriod', text)
-  addIfProvided(data, input, 'toxicityNote', text)
-  addIfProvided(data, input, 'category', text)
-  addIfProvided(data, input, 'sceneTags', stringArray)
-  addIfProvided(data, input, 'colorTags', stringArray)
-  addIfProvided(data, input, 'seasonTags', stringArray)
-  addIfProvided(data, input, 'imageFileId', text)
-  addIfProvided(data, input, 'imageFileName', text)
-
-  if (hasOwn(input, 'imageBackground') && text(input.imageBackground)) {
-    const value = text(input.imageBackground)
-    if (!IMAGE_BACKGROUNDS.has(value)) errors.push('图片背景只能为 soft、light 或 dark')
-    else data.imageBackground = value
-  }
-
-  addBooleanIfProvided(data, input, 'homeFeatured', errors, '首页精选')
-  addBooleanIfProvided(data, input, 'published', errors, '是否发布')
-  if (hasOwn(input, 'sort') && text(input.sort) !== '') data.sort = integer(input.sort, 100)
-
-  if (!text(data.description)) warnings.push('建议补充详细介绍')
-  if (!text(data.imageFileId) && !text(data.imageFileName)) warnings.push('未配置图鉴图片')
-
-  return { code: atlasCode, data, errors, warnings }
-}
-
 function normalizeProduct(input) {
   const errors = []
   const warnings = []
@@ -355,7 +303,6 @@ function normalizeProduct(input) {
   addIfProvided(data, input, 'sceneTags', stringArray)
   addIfProvided(data, input, 'colorTags', stringArray)
   addIfProvided(data, input, 'searchKeywords', stringArray)
-  addIfProvided(data, input, 'atlasCodes', stringArray)
   addIfProvided(data, input, 'coverFileId', text)
   addIfProvided(data, input, 'galleryFileIds', stringArray)
   addIfProvided(data, input, 'videoFileId', text)
@@ -455,7 +402,6 @@ function normalizeCalendar(input) {
 }
 
 function normalizeByType(type, input) {
-  if (type === 'atlas') return normalizeAtlas(input)
   if (type === 'products') return normalizeProduct(input)
   if (type === 'banners') return normalizeBanner(input)
   if (type === 'calendarEvents') return normalizeCalendar(input)
@@ -512,12 +458,12 @@ async function readiness() {
     maxRows: MAX_ROWS,
     collections: result,
     missingCodeTotal,
-    importOrder: ['atlas', 'products', 'banners', 'calendarEvents']
+    importOrder: ['products', 'banners', 'calendarEvents']
   }
 }
 
 async function backfillBusinessCodes(adminContext) {
-  const targets = ['atlas', 'products', 'banners']
+  const targets = ['products', 'banners']
   const result = {}
   let total = 0
 
@@ -529,7 +475,7 @@ async function backfillBusinessCodes(adminContext) {
 
     for (const item of items) {
       if (text(item[meta.codeField])) continue
-      const prefix = type === 'atlas' ? 'ATL' : type === 'products' ? 'SKU' : 'BNR'
+      const prefix = type === 'products' ? 'SKU' : 'BNR'
       const suffix = text(item._id)
         .replace(/[^a-zA-Z0-9]/g, '')
         .slice(-10)
@@ -558,19 +504,14 @@ async function buildContext(type) {
     if (code) existingByCode.set(codeKey(code), item)
   }
 
-  const atlas = type === 'products' ? await safeGetAll(COLLECTIONS.atlas) : []
   const products = type === 'calendarEvents' ? await safeGetAll(COLLECTIONS.products) : []
-  const atlasByCode = new Map()
   const productsBySku = new Map()
 
-  for (const item of atlas) {
-    if (text(item.atlasCode)) atlasByCode.set(codeKey(item.atlasCode), item)
-  }
   for (const item of products) {
     if (text(item.sku)) productsBySku.set(codeKey(item.sku), item)
   }
 
-  return { existing, existingByCode, atlasByCode, productsBySku }
+  return { existing, existingByCode, productsBySku }
 }
 
 async function validateRows({ type, rows, duplicateMode, availableImageNames, requireImages }) {
@@ -606,22 +547,6 @@ async function validateRows({ type, rows, duplicateMode, availableImageNames, re
 
     if (existing && duplicateMode === 'skip') action = 'skip'
     if (existing && duplicateMode === 'abort') errors.push('数据库中已存在相同编码')
-
-    if (type === 'products') {
-      const codes = stringArray(normalized.data.atlasCodes)
-      const missing = []
-      const atlasIds = []
-      codes.forEach((atlasCode) => {
-        const item = context.atlasByCode.get(codeKey(atlasCode))
-        if (!item) missing.push(atlasCode)
-        else atlasIds.push(item._id)
-      })
-      if (missing.length) errors.push(`关联图鉴不存在：${missing.join('、')}`)
-      if (codes.length) {
-        normalized.data.atlasCodes = codes.map((item) => normalizedCode(item))
-        normalized.data.atlasIds = atlasIds
-      }
-    }
 
     if (type === 'calendarEvents') {
       const skus = stringArray(normalized.data.productSkus)
@@ -705,26 +630,6 @@ function buildDocument(type, rowData, existing, adminContext, jobId) {
     if (hasOwn(rowData, key)) incoming[key] = integer(rowData[key], fallback)
   }
 
-  if (type === 'atlas') {
-    incoming.atlasCode = normalizedCode(rowData.atlasCode)
-    incoming.name = text(rowData.name)
-    ;[
-      'latinName',
-      'alias',
-      'meaning',
-      'description',
-      'careGuide',
-      'floweringPeriod',
-      'toxicityNote',
-      'category',
-      'imageBackground',
-      'imageFileId'
-    ].forEach((key) => setText(key))
-    ;['sceneTags', 'colorTags', 'seasonTags'].forEach(setArray)
-    ;['homeFeatured', 'published'].forEach(setBoolean)
-    setInteger('sort', 100)
-  }
-
   if (type === 'products') {
     incoming.sku = normalizedCode(rowData.sku)
     incoming.name = text(rowData.name)
@@ -742,7 +647,7 @@ function buildDocument(type, rowData, existing, adminContext, jobId) {
       'deliveryDescription',
       'careDescription'
     ].forEach((key) => setText(key))
-    ;['sceneTags', 'colorTags', 'searchKeywords', 'atlasCodes', 'atlasIds', 'galleryFileIds'].forEach(setArray)
+    ;['sceneTags', 'colorTags', 'searchKeywords', 'galleryFileIds'].forEach(setArray)
     ;['onSale', 'featured'].forEach(setBoolean)
     ;['priceFen', 'stock', 'sort'].forEach((key) => setInteger(key, key === 'sort' ? 100 : 0))
   }
@@ -786,26 +691,6 @@ function buildDocument(type, rowData, existing, adminContext, jobId) {
   }
 
   const defaults = {}
-  if (!existing && type === 'atlas') {
-    Object.assign(defaults, {
-      latinName: '',
-      alias: '',
-      meaning: '',
-      description: '',
-      careGuide: '',
-      floweringPeriod: '',
-      toxicityNote: '',
-      imageBackground: 'soft',
-      category: '鲜切花',
-      sceneTags: [],
-      colorTags: [],
-      seasonTags: [],
-      imageFileId: '',
-      homeFeatured: false,
-      published: true,
-      sort: 100
-    })
-  }
   if (!existing && type === 'products') {
     Object.assign(defaults, {
       category: '',
@@ -816,8 +701,6 @@ function buildDocument(type, rowData, existing, adminContext, jobId) {
       sceneTags: [],
       colorTags: [],
       searchKeywords: [],
-      atlasCodes: [],
-      atlasIds: [],
       coverFileId: '',
       onSale: true,
       featured: false,

@@ -30,16 +30,16 @@
       <section class="admin-detail-grid">
         <div class="admin-detail-main">
           <el-card shadow="never" class="panel-card">
-            <template #header><strong>顾客与配送信息</strong></template>
+            <template #header><strong>顾客与履约信息</strong></template>
 
             <el-descriptions :column="2" border>
               <el-descriptions-item label="顾客昵称">{{ order.customerNickname || 'Chloris 用户' }}</el-descriptions-item>
               <el-descriptions-item label="收货方式">{{ order.deliveryMethodName }}</el-descriptions-item>
 
-              <el-descriptions-item label="顾客预期送达日期">
+              <el-descriptions-item :label="order.deliveryMethodId === 'pickup' ? '顾客预约自提日期' : '顾客预期送达日期'">
                 {{ requestedDeliveryDateText }}
               </el-descriptions-item>
-              <el-descriptions-item label="顾客预期送达时段">
+              <el-descriptions-item :label="order.deliveryMethodId === 'pickup' ? '顾客预约自提时段' : '顾客预期送达时段'">
                 {{ requestedDeliverySlotText }}
               </el-descriptions-item>
               <el-descriptions-item label="配送确认状态" :span="2">
@@ -60,15 +60,32 @@
                 {{ order.requestedDeliveryNote }}
               </el-descriptions-item>
 
-              <el-descriptions-item label="收货人" :span="2">
-                <template v-if="order.address">
-                  {{ order.address.receiverName }} · {{ order.address.phone }}
-                </template>
-                <template v-else>未填写收货人</template>
-              </el-descriptions-item>
-              <el-descriptions-item label="收货地址" :span="2">
-                {{ order.address?.fullAddress || '未填写收货地址' }}
-              </el-descriptions-item>
+              <template v-if="order.deliveryMethodId === 'pickup'">
+                <el-descriptions-item label="自提门店" :span="2">
+                  {{ order.pickupLocation?.name || '未选择自提门店' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="自提地址" :span="2">
+                  {{ order.pickupLocation?.address || '未填写自提地址' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="门店联系方式" :span="2">
+                  {{ order.pickupLocation?.phone || '未填写联系电话' }}
+                  <template v-if="order.pickupLocation?.businessHours"> · {{ order.pickupLocation.businessHours }}</template>
+                </el-descriptions-item>
+                <el-descriptions-item v-if="order.pickupLocation?.notice" label="到店提示" :span="2">
+                  {{ order.pickupLocation.notice }}
+                </el-descriptions-item>
+              </template>
+              <template v-else>
+                <el-descriptions-item label="收货人" :span="2">
+                  <template v-if="order.address">
+                    {{ order.address.receiverName }} · {{ order.address.phone }}
+                  </template>
+                  <template v-else>未填写收货人</template>
+                </el-descriptions-item>
+                <el-descriptions-item label="收货地址" :span="2">
+                  {{ order.address?.fullAddress || '未填写收货地址' }}
+                </el-descriptions-item>
+              </template>
             </el-descriptions>
           </el-card>
 
@@ -112,7 +129,7 @@
           <el-card v-if="order.canManageDeliverySchedule || deliveryScheduleView.status !== 'notRequired'" shadow="never" class="panel-card schedule-admin-card">
             <template #header>
               <div class="schedule-admin-card__header">
-                <strong>配送时间确认</strong>
+                <strong>{{ order.deliveryMethodId === 'pickup' ? '自提时间安排' : '配送时间安排' }}</strong>
                 <el-tag :type="tagType(deliveryScheduleView.tone)" effect="plain" round>
                   {{ deliveryScheduleView.label }}
                 </el-tag>
@@ -124,25 +141,25 @@
               type="warning"
               :closable="false"
               show-icon
-              title="该订单没有有效的顾客期望配送时间，请在下方补充日期和时段后直接确认。"
+              :title="`该订单没有有效的顾客期望${order.deliveryMethodId === 'pickup' ? '自提' : '配送'}时间，请在下方补充日期和时段后直接确认。`"
             />
             <el-alert
               v-else-if="deliveryScheduleView.status === 'customerConfirmationRequired'"
               type="warning"
               :closable="false"
               show-icon
-              title="已提出调整，正在等待顾客确认"
+              :title="order.deliveryMethodId === 'pickup' ? '已调整自提时间，正在等待顾客确认' : '已调整配送时间，正在等待顾客确认'"
             />
             <el-alert
               v-else-if="deliveryScheduleView.status === 'adjustmentRejected'"
               type="error"
               :closable="false"
               show-icon
-              title="顾客未接受上次调整，请重新沟通时间"
+              :title="order.deliveryMethodId === 'pickup' ? '顾客未接受上次自提时间调整，请重新沟通' : '顾客未接受上次配送时间调整，请重新沟通'"
             />
 
             <el-form label-position="top" class="schedule-form" :disabled="!order.canManageDeliverySchedule">
-              <el-form-item label="配送日期" required>
+              <el-form-item :label="order.deliveryMethodId === 'pickup' ? '自提日期' : '配送日期'" required>
                 <el-date-picker
                   v-model="scheduleForm.deliveryDate"
                   type="date"
@@ -153,12 +170,12 @@
                   style="width: 100%"
                 />
               </el-form-item>
-              <el-form-item label="配送时段" required>
+              <el-form-item :label="order.deliveryMethodId === 'pickup' ? '自提时段' : '配送时段'" required>
                 <el-select v-model="scheduleForm.deliverySlot" placeholder="选择配送时段" style="width: 100%">
                   <el-option v-for="slot in deliverySlots" :key="slot" :label="slot" :value="slot" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="配送费用（元）">
+              <el-form-item v-if="order.deliveryMethodId !== 'pickup'" label="配送费用（元）">
                 <el-input-number
                   v-model="scheduleForm.deliveryFeeYuan"
                   :min="0"
@@ -175,42 +192,28 @@
                   :rows="3"
                   maxlength="300"
                   show-word-limit
-                  placeholder="例如：可按顾客时间配送，或说明调整原因"
+                  :placeholder="order.deliveryMethodId === 'pickup' ? '例如：门店备货完成时间或取货注意事项' : '例如：可按顾客时间配送，或说明调整原因'"
                 />
               </el-form-item>
             </el-form>
 
             <div class="schedule-action-grid">
               <el-button :disabled="!order.canManageDeliverySchedule || order.status === 'delivering'" :loading="scheduleLoading" @click="saveDeliverySchedule('propose')">
-                提出调整时间
+                {{ order.deliveryMethodId === 'pickup' ? '调整自提时间' : '调整配送时间' }}
               </el-button>
               <el-button type="primary" :disabled="!order.canManageDeliverySchedule" :loading="scheduleLoading" @click="saveDeliverySchedule('confirmRequested')">
-                确认配送时间
+                {{ order.deliveryMethodId === 'pickup' ? '确认自提时间' : '确认配送时间' }}
               </el-button>
             </div>
           </el-card>
 
           <el-card shadow="never" class="panel-card order-action-card">
             <template #header><strong>订单处理</strong></template>
-
-            <template v-if="order.status === 'pendingConfirm'">
-              <el-form label-position="top">
-                <el-form-item label="配送费用（元）">
-                  <el-input-number v-model="actionForm.deliveryFeeYuan" :min="0" :precision="2" :step="1" />
-                </el-form-item>
-                <el-form-item label="商家备注">
-                  <el-input v-model="actionForm.note" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="可填写花材替换、配送说明等" />
-                </el-form-item>
-              </el-form>
-              <el-button type="primary" :loading="actionLoading" @click="confirmCurrentOrder">确认订单</el-button>
-              <el-button :loading="actionLoading" @click="rejectCurrentOrder">无法接单</el-button>
-            </template>
-
-            <template v-else-if="order.status === 'pendingPayment'">
+            <template v-if="order.status === 'pendingPayment'">
               <p class="order-action-card__hint">
-                {{ canMarkPaid ? '确认已通过线下方式收款后，可开始制作。' : '请先在上方确认订单的最终配送时间。' }}
+                顾客订单已直接进入待付款。确认实际收到款项后，可开始制作。
               </p>
-              <el-button type="primary" :disabled="!canMarkPaid" :loading="actionLoading" @click="markPaid">
+              <el-button type="primary" :loading="actionLoading" @click="markPaid">
                 确认线下收款并开始制作
               </el-button>
             </template>
@@ -253,8 +256,7 @@
             <template #header><strong>费用明细</strong></template>
             <div class="amount-summary-list">
               <div><span>商品金额</span><strong>¥{{ order.goodsAmountText }}</strong></div>
-              <div><span>包装费用</span><strong>¥{{ order.packagingFeeText }}</strong></div>
-              <div><span>配送费用</span><strong>{{ order.deliveryFeePending ? '待确认' : `¥${order.deliveryFeeText}` }}</strong></div>
+              <div><span>配送费用</span><strong>{{ Number(order.deliveryFeeFen || 0) > 0 ? `¥${order.deliveryFeeText}` : '免费' }}</strong></div>
               <div><span>优惠金额</span><strong>− ¥{{ order.discountText }}</strong></div>
               <div class="is-total"><span>应付金额</span><strong>¥{{ order.totalAmountText }}</strong></div>
             </div>
@@ -324,44 +326,42 @@ const paymentLabel = computed(() => {
   return '未付款'
 })
 
-const canMarkPaid = computed(() => {
-  if (!order.value) return false
-  return ['confirmed', 'notRequired'].includes(deliveryScheduleView.value.status)
-})
+const canMarkPaid = computed(() => Boolean(order.value && order.value.status === 'pendingPayment'))
 
 const deliveryScheduleView = computed(() => {
   const current = order.value || {}
   const status = String(current.deliveryScheduleStatus || '').trim()
+  const fulfillmentName = current.deliveryMethodId === 'pickup' ? '自提' : '配送'
   const map = {
     notRequired: {
       label: '无需二次确认',
       tone: 'info',
-      description: '该订单不需要额外确认配送时间。'
+      description: `该订单不需要额外确认${fulfillmentName}时间。`
     },
     missingSchedule: {
-      label: '待补充配送时间',
+      label: `待补充${fulfillmentName}时间`,
       tone: 'warning',
-      description: '该订单尚未填写有效的配送日期和时段，请由商家补充并确认。'
+      description: `该订单尚未填写有效的${fulfillmentName}日期和时段，请由商家补充并确认。`
     },
     pendingMerchantConfirm: {
-      label: '待商家确认',
-      tone: 'warning',
-      description: '顾客已填写期望配送时间，等待商家确认。'
+      label: '时间已选定',
+      tone: 'success',
+      description: `顾客已选择${fulfillmentName}时间，可直接付款。`
     },
     customerConfirmationRequired: {
-      label: '待顾客确认调整',
-      tone: 'primary',
-      description: '商家已提出新的配送时间，等待顾客确认。'
+      label: '时间已选定',
+      tone: 'success',
+      description: `顾客已选择${fulfillmentName}时间，可直接付款。`
     },
     confirmed: {
       label: '时间已确认',
       tone: 'success',
-      description: '最终配送日期和时段已经确认。'
+      description: `最终${fulfillmentName}日期和时段已经确认。`
     },
     adjustmentRejected: {
-      label: '顾客未接受调整',
-      tone: 'danger',
-      description: '顾客未接受上次调整，请重新沟通配送时间。'
+      label: '时间已选定',
+      tone: 'success',
+      description: `顾客已选择${fulfillmentName}时间，可直接付款。`
     }
   }
 
@@ -533,10 +533,6 @@ async function rejectCurrentOrder() {
 }
 
 function markPaid() {
-  if (!canMarkPaid.value) {
-    feedback.warning('请先确认最终配送时间')
-    return
-  }
   return runAction(() => adminApi.markOrderPaid(order.value._id, actionForm.note), '已确认收款，订单进入制作中')
 }
 

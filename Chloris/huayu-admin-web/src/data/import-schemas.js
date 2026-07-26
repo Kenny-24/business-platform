@@ -67,48 +67,6 @@ function normalizeHeaders(rawRow, schema) {
 }
 
 export const importSchemas = {
-  atlas: {
-    value: 'atlas',
-    label: '图鉴',
-    collection: 'atlas',
-    template: '/import-templates/图鉴导入模板.xlsx',
-    imageFolder: 'atlas',
-    imageFileNameField: 'imageFileName',
-    imageFileIdField: 'imageFileId',
-    description: '先导入图鉴，再导入商品。图鉴编码用于商品关联。',
-    headerMap: {
-      '图鉴编码': 'atlasCode',
-      '中文花名': 'name',
-      '英文名/拉丁名': 'latinName',
-      '别名': 'alias',
-      '花语': 'meaning',
-      '详细介绍': 'description',
-      '花期': 'floweringPeriod',
-      '养护方法': 'careGuide',
-      '安全提示': 'toxicityNote',
-      '分类': 'category',
-      '颜色标签': 'colorTags',
-      '场景标签': 'sceneTags',
-      '季节标签': 'seasonTags',
-      '图片背景': 'imageBackground',
-      '图片文件名': 'imageFileName',
-      '图片FileID（可选）': 'imageFileId',
-      '图片FileID': 'imageFileId',
-      '首页精选': 'homeFeatured',
-      '是否发布': 'published',
-      '排序': 'sort'
-    },
-    listFields: ['colorTags', 'sceneTags', 'seasonTags'],
-    booleanFields: ['homeFeatured', 'published'],
-    numberFields: ['sort'],
-    previewColumns: [
-      { key: 'atlasCode', label: '图鉴编码', width: 150 },
-      { key: 'name', label: '中文花名', width: 130 },
-      { key: 'latinName', label: '英文名', width: 150 },
-      { key: 'category', label: '分类', width: 100 },
-      { key: 'imageFileName', label: '图片文件', minWidth: 180 }
-    ]
-  },
   products: {
     value: 'products',
     label: '商品',
@@ -117,7 +75,7 @@ export const importSchemas = {
     imageFolder: 'products',
     imageFileNameField: 'imageFileName',
     imageFileIdField: 'coverFileId',
-    description: '商品中的关联图鉴编码必须已经存在。价格以元填写，云端保存为分。',
+    description: '价格以元填写，云端保存为分。',
     headerMap: {
       '商品编码': 'sku',
       '商品名称': 'name',
@@ -134,13 +92,12 @@ export const importSchemas = {
       '场景标签': 'sceneTags',
       '颜色标签': 'colorTags',
       '搜索关键词': 'searchKeywords',
-      '关联图鉴编码': 'atlasCodes',
       '商品图片文件名': 'imageFileName',
       '图片文件名': 'imageFileName',
       '图片FileID（可选）': 'coverFileId',
       '图片FileID': 'coverFileId'
     },
-    listFields: ['sceneTags', 'colorTags', 'searchKeywords', 'atlasCodes'],
+    listFields: ['sceneTags', 'colorTags', 'searchKeywords'],
     booleanFields: ['onSale', 'featured'],
     numberFields: ['priceYuan', 'stock', 'sort'],
     previewColumns: [
@@ -228,7 +185,7 @@ export const importSchemas = {
 }
 
 export function schemaFor(type) {
-  return importSchemas[type] || importSchemas.atlas
+  return importSchemas[type] || importSchemas.products
 }
 
 export function normalizeWorkbookRows(type, rawRows) {

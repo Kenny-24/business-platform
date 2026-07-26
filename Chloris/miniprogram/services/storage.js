@@ -1,5 +1,4 @@
 const CART_KEY = 'huayu_cart_v2'
-const POINTS_KEY = 'huayu_points_v2'
 
 function getCart() {
   return wx.getStorageSync(CART_KEY) || []
@@ -50,20 +49,11 @@ function removeCartItem(id) {
   return setCart(getCart().filter((item) => item.id !== id))
 }
 
-function getPoints() {
-  return Math.max(0, Number(wx.getStorageSync(POINTS_KEY) || 0))
-}
-
-function setPoints(points) {
-  wx.setStorageSync(POINTS_KEY, Math.max(0, Number(points || 0)))
-}
 
 module.exports = {
   getCart,
   setCart,
   addToCart,
   updateCartItem,
-  removeCartItem,
-  getPoints,
-  setPoints
+  removeCartItem
 }

@@ -15,6 +15,64 @@ function number(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
+function timestamp(value) {
+  if (!value) return 0
+  if (value instanceof Date) return value.getTime()
+  let source = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?$/.test(source)) source = `${source.replace(' ', 'T')}+08:00`
+  else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(source)) source = `${source}+08:00`
+  const parsed = new Date(source).getTime()
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function campaignAvailable(campaign, now = Date.now()) {
+  if (!campaign || campaign.enabled === false) return false
+  const start = timestamp(campaign.preSaleStartAt)
+  const end = timestamp(campaign.preSaleEndAt || campaign.reservationDeadlineAt)
+  if (start && now < start) return false
+  if (end && now > end) return false
+  return true
+}
+
+function effectiveProduct(item, campaign = null) {
+  if (!campaign) return item
+  const campaignType = text(campaign.type)
+  const isPreorderCampaign = ['valentine', 'festival'].includes(campaignType)
+  const isLimitedCampaign = ['limited', 'seasonal'].includes(campaignType)
+  return {
+    ...item,
+    campaignType,
+    campaignName: text(campaign.name),
+    salesMode: isPreorderCampaign ? 'preorder' : isLimitedCampaign ? 'spot' : text(item.salesMode, 'spot'),
+    limitedTimeEnabled: isLimitedCampaign ? true : item.limitedTimeEnabled === true,
+    saleStartAt: isLimitedCampaign ? text(campaign.preSaleStartAt) : text(item.saleStartAt),
+    saleEndAt: isLimitedCampaign ? text(campaign.preSaleEndAt || campaign.reservationDeadlineAt) : text(item.saleEndAt),
+    preorderStartAt: isPreorderCampaign ? text(campaign.preSaleStartAt) : text(item.preorderStartAt),
+    preorderEndAt: isPreorderCampaign ? text(campaign.preSaleEndAt) : text(item.preorderEndAt),
+    deliveryStartDate: isPreorderCampaign ? text(campaign.deliveryStartDate) : text(item.deliveryStartDate),
+    deliveryEndDate: isPreorderCampaign ? text(campaign.deliveryEndDate) : text(item.deliveryEndDate),
+    reservationDeadlineAt: isPreorderCampaign ? text(campaign.reservationDeadlineAt) : text(item.reservationDeadlineAt)
+  }
+}
+
+function productAvailable(item, now = Date.now(), campaign = null) {
+  if (item.onSale !== true || number(item.stock) <= 0) return false
+  if (text(item.festivalCampaignId) && !campaignAvailable(campaign, now)) return false
+  if (item.limitedTimeEnabled === true) {
+    const start = timestamp(item.saleStartAt)
+    const end = timestamp(item.saleEndAt)
+    if (start && now < start) return false
+    if (end && now > end) return false
+  }
+  if (String(item.salesMode || 'spot') === 'preorder') {
+    const start = timestamp(item.preorderStartAt)
+    const end = timestamp(item.preorderEndAt || item.reservationDeadlineAt)
+    if (start && now < start) return false
+    if (end && now > end) return false
+  }
+  return true
+}
+
 function array(value) {
   return Array.isArray(value) ? value : []
 }
@@ -152,7 +210,21 @@ function publicProduct(item, urlMap) {
     sceneTags: array(item.sceneTags),
     colorTags: array(item.colorTags),
     searchKeywords: array(item.searchKeywords),
-    atlasIds: array(item.atlasIds),
+    salesMode: ['spot', 'preorder'].includes(text(item.salesMode)) ? text(item.salesMode) : 'spot',
+    limitedTimeEnabled: item.limitedTimeEnabled === true,
+    saleStartAt: text(item.saleStartAt),
+    saleEndAt: text(item.saleEndAt),
+    festivalCampaignId: text(item.festivalCampaignId),
+    campaignType: text(item.campaignType),
+    campaignName: text(item.campaignName),
+    preorderStartAt: text(item.preorderStartAt),
+    preorderEndAt: text(item.preorderEndAt),
+    deliveryStartDate: text(item.deliveryStartDate),
+    deliveryEndDate: text(item.deliveryEndDate),
+    reservationDeadlineAt: text(item.reservationDeadlineAt),
+    reservationQuota: Math.max(0, Math.round(number(item.reservationQuota))),
+    productionUnits: Math.max(1, Math.round(number(item.productionUnits) || 1)),
+    studioId: text(item.studioId),
     coverFileId,
     imageUrl: urlMap[coverFileId] || '',
     sort: number(item.sort)
@@ -209,36 +281,6 @@ function publicBanner(item, urlMap) {
   }
 }
 
-function publicAtlas(item, urlMap) {
-  const imageFileId = text(item.imageFileId)
-
-  return {
-    _id: item._id,
-    name: text(item.name),
-    latinName: text(item.latinName),
-    alias: text(item.alias),
-    meaning: text(item.meaning),
-    description: text(item.description),
-    careGuide: text(item.careGuide),
-    floweringPeriod: text(item.floweringPeriod),
-    toxicityNote: text(item.toxicityNote),
-    imageBackground: ['dark', 'light', 'soft'].includes(
-      text(item.imageBackground)
-    )
-      ? text(item.imageBackground)
-      : 'soft',
-    category: text(item.category, '鲜切花'),
-    sceneTags: array(item.sceneTags),
-    colorTags: array(item.colorTags),
-    seasonTags: array(item.seasonTags),
-    homeFeatured: item.homeFeatured === true,
-    published: item.published !== false,
-    imageFileId,
-    imageUrl: urlMap[imageFileId] || '',
-    sort: number(item.sort)
-  }
-}
-
 function publicCalendarEvent(item) {
   return {
     _id: item._id || item.eventKey,
@@ -255,6 +297,27 @@ function publicCalendarEvent(item) {
     recommendationEnabled: item.recommendationEnabled !== false,
     enabled: item.enabled !== false,
     builtIn: item.builtIn === true,
+    sort: number(item.sort)
+  }
+}
+
+function publicCampaign(item) {
+  return {
+    _id: item._id,
+    campaignCode: text(item.campaignCode),
+    name: text(item.name),
+    type: text(item.type, 'festival'),
+    title: text(item.title, item.name),
+    subtitle: text(item.subtitle),
+    enabled: item.enabled !== false,
+    preSaleStartAt: text(item.preSaleStartAt),
+    preSaleEndAt: text(item.preSaleEndAt),
+    deliveryStartDate: text(item.deliveryStartDate),
+    deliveryEndDate: text(item.deliveryEndDate),
+    reservationDeadlineAt: text(item.reservationDeadlineAt),
+    maxOrders: Math.max(0, Math.round(number(item.maxOrders))),
+    maxUnits: Math.max(0, Math.round(number(item.maxUnits))),
+    productIds: array(item.productIds),
     sort: number(item.sort)
   }
 }
@@ -276,7 +339,11 @@ exports.main = async (event = {}) => {
         if (!isMissingCollection(error)) throw error
       }
 
-      if (!product || product.onSale !== true) {
+      const campaignId = text(product && product.festivalCampaignId)
+      const campaigns = campaignId ? await safeGetAll('festivalCampaigns') : []
+      const campaign = campaigns.find((item) => text(item._id) === campaignId) || null
+      product = effectiveProduct(product, campaign)
+      if (!product || !productAvailable(product, Date.now(), campaign)) {
         return { ok: false, code: 'NOT_FOUND', message: '商品不存在或已下架' }
       }
 
@@ -293,16 +360,21 @@ exports.main = async (event = {}) => {
         serverTime: Date.now()
       }
     }
-    const [allProducts, allBanners, allAtlas, calendarOverrides] =
+    const [allProducts, allBanners, campaigns, calendarOverrides] =
       await Promise.all([
         safeGetAll('products'),
         safeGetAll('banners'),
-        safeGetAll('atlas'),
+        safeGetAll('festivalCampaigns'),
         safeGetAll('calendarEvents')
       ])
 
+    const campaignMap = new Map(campaigns.map((item) => [text(item._id), item]))
     const products = allProducts
-      .filter((item) => item.onSale === true && number(item.stock) > 0)
+      .map((item) => {
+        const campaign = campaignMap.get(text(item.festivalCampaignId)) || null
+        return effectiveProduct(item, campaign)
+      })
+      .filter((item) => productAvailable(item, Date.now(), campaignMap.get(text(item.festivalCampaignId)) || null))
       .sort((a, b) => number(b.sort) - number(a.sort))
 
     const enabledBanners = allBanners
@@ -317,18 +389,13 @@ exports.main = async (event = {}) => {
       .filter((item) => bannerPlacement(item.placement) === 'categoryHero')
       .slice(0, 3)
 
-    const atlas = allAtlas
-      .filter((item) => item.published === true)
-      .sort((a, b) => number(b.sort) - number(a.sort))
-      .slice(0, 200)
 
     const calendarEvents = mergeCalendarEvents(calendarOverrides)
 
     const fileIds = [
       ...products.map((item) => item.coverFileId),
       ...banners.map((item) => item.imageFileId),
-      ...categoryBanners.map((item) => item.imageFileId),
-      ...atlas.map((item) => item.imageFileId)
+      ...categoryBanners.map((item) => item.imageFileId)
     ]
 
     const urlMap = await createTempUrlMap(fileIds)
@@ -340,7 +407,7 @@ exports.main = async (event = {}) => {
       categoryBanners: categoryBanners.map((item) =>
         publicBanner(item, urlMap)
       ),
-      atlas: atlas.map((item) => publicAtlas(item, urlMap)),
+      campaigns: campaigns.filter((item) => item.enabled !== false).sort((a,b)=>number(b.sort)-number(a.sort)).map(publicCampaign),
       calendarEvents: calendarEvents.map(publicCalendarEvent),
       serverTime: Date.now()
     }
@@ -354,7 +421,7 @@ exports.main = async (event = {}) => {
       products: [],
       banners: [],
       categoryBanners: [],
-      atlas: [],
+      campaigns: [],
       calendarEvents: []
     }
   }

@@ -1,6 +1,5 @@
 const ORDER_TABS = [
   { key: 'all', label: '全部' },
-  { key: 'pendingConfirm', label: '待确认' },
   { key: 'pendingPayment', label: '待付款' },
   { key: 'making', label: '制作中' },
   { key: 'delivering', label: '配送中' },
@@ -8,7 +7,7 @@ const ORDER_TABS = [
 ]
 
 const STATUS_LABELS = {
-  pendingConfirm: '待确认',
+  pendingConfirm: '待付款',
   pendingPayment: '待付款',
   making: '制作中',
   delivering: '配送中',

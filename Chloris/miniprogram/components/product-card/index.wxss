@@ -1,123 +1,18 @@
-.product {
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  border: 1rpx solid #ebe7df;
-  border-radius: 18rpx;
-  background: #ffffff;
-  box-shadow: 0 8rpx 24rpx rgba(55, 50, 42, 0.04);
-}
-
-.product__image {
-  display: block;
-  width: 100%;
-  height: 196rpx;
-  background: #f3efe8;
-}
-
-.product__image--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 50% 38%, rgba(104, 118, 75, 0.12), transparent 34%), #f3f0e9;
-}
-
-.product__placeholder-text {
-  color: #68764b;
-  font-size: 21rpx;
-  font-weight: 700;
-  letter-spacing: 5rpx;
-}
-
-.product__body {
-  min-width: 0;
-  padding: 15rpx 15rpx 14rpx;
-}
-
-.product__name,
-.product__subtitle {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product__name {
-  color: #2c2a26;
-  font-family: "Songti SC", "STSong", serif;
-  font-size: 24rpx;
-  line-height: 1.35;
-}
-
-.product__subtitle {
-  min-height: 27rpx;
-  margin-top: 5rpx;
-  color: #969188;
-  font-size: 17rpx;
-  line-height: 1.35;
-}
-
-.product__footer {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 11rpx;
-}
-
-.product__price {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  color: #c87282;
-  font-size: 23rpx;
-  font-weight: 600;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product__unit {
-  color: #9b968e;
-  font-size: 15rpx;
-  font-weight: 400;
-}
-
-.product__add {
-  display: flex;
-  width: 40rpx;
-  height: 40rpx;
-  min-width: 40rpx;
-  flex: 0 0 40rpx;
-  align-items: center;
-  justify-content: center;
-  margin-left: 8rpx;
-  border-radius: 50%;
-  background: #d88798;
-  color: #ffffff;
-  font-size: 26rpx;
-  line-height: 1;
-  transition: opacity 120ms ease, transform 120ms ease;
-}
-
-.product__add--pressed {
-  opacity: 0.82;
-  transform: scale(0.92);
-}
-
-.product--compact .product__image {
-  height: 154rpx;
-}
-
-.product--compact .product__body {
-  padding: 13rpx;
-}
-
-.product--compact .product__name {
-  font-size: 22rpx;
-}
-
-.product--compact .product__subtitle {
-  font-size: 16rpx;
-}
+.product { position:relative; width:100%; min-width:0; overflow:hidden; border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.product__image { display:block; width:100%; height:214rpx; background:#f3f3f1; }
+.product__image--placeholder { display:flex; align-items:center; justify-content:center; background:#f3f3f1; }
+.product__placeholder-text { color:#777772; font-size: 26rpx; font-weight:650; letter-spacing:5rpx; }
+.product__body { min-width:0; padding:20rpx 18rpx 18rpx; }
+.product__name,.product__subtitle { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.product__name { color:#171717; font-family:inherit; font-size: 30rpx; font-weight:650; line-height:1.35; }
+.product__subtitle { min-height:27rpx; margin-top:7rpx; color:#8d8d88; font-size: 24rpx; line-height:1.35; }
+.product__footer { display:flex; min-width:0; align-items:center; justify-content:space-between; margin-top:17rpx; }
+.product__price { flex:1 1 auto; min-width:0; overflow:hidden; color:#171717; font-size: 28rpx; font-weight:500; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+.product__unit { color:#8d8d88; font-size: 22rpx; font-weight:400; }
+.product__add { display:flex; width:42rpx; height:42rpx; min-width:42rpx; flex:0 0 42rpx; align-items:center; justify-content:center; margin-left:10rpx; border:1rpx solid #111; border-radius:50%; background:#111; color:#fff; font-size: 30rpx; line-height:1; transition:opacity 120ms ease,transform 120ms ease; }
+.product__add--pressed { opacity:.72; transform:scale(.94); }
+.product--compact .product__image { height:164rpx; }
+.product--compact .product__body { padding:16rpx; }
+.product--compact .product__name { font-size: 28rpx; }
+.product--compact .product__subtitle { font-size: 22rpx; }
+.product-card__badge { position:absolute; z-index:2; top:12rpx; left:12rpx; padding:7rpx 12rpx; border-radius:6rpx; background:rgba(255,255,255,.94); box-shadow:none; color:#292929; font-size: 26rpx; }

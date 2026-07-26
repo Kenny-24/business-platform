@@ -14,7 +14,7 @@ const COLLECTIONS = {
   orders: 'orders',
   orderLogs: 'orderLogs',
   quoteRequests: 'quoteRequests',
-  atlas: 'atlas'
+  studios: 'studios'
 }
 
 const PURCHASED_STATUSES = new Set([
@@ -205,6 +205,53 @@ async function resolveFileUrl(fileId) {
   }
 }
 
+async function getPrimaryStudio() {
+  try {
+    const result = await db
+      .collection(COLLECTIONS.studios)
+      .limit(100)
+      .get()
+
+    return (result.data || [])
+      .filter((item) => item && item.enabled !== false)
+      .sort((a, b) => {
+        const sortDiff = number(b.sort) - number(a.sort)
+        if (sortDiff) return sortDiff
+        return dateValue(b.updatedAt) - dateValue(a.updatedAt)
+      })[0] || null
+  } catch (error) {
+    if (isMissingCollectionError(error)) return null
+    console.warn('[userApi] 工作室信息读取失败：', error)
+    return null
+  }
+}
+
+async function merchantView(studio) {
+  if (!studio) {
+    return {
+      name: 'Chloris 花艺',
+      wechat: '',
+      wechatQrUrl: '',
+      profileCoverUrl: '',
+      logoUrl: ''
+    }
+  }
+
+  const [wechatQrUrl, profileCoverUrl, logoUrl] = await Promise.all([
+    resolveFileUrl(studio.wechatQrFileId),
+    resolveFileUrl(studio.profileCoverFileId),
+    resolveFileUrl(studio.logoFileId)
+  ])
+
+  return {
+    name: text(studio.name, 'Chloris 花艺'),
+    wechat: text(studio.wechat),
+    wechatQrUrl,
+    profileCoverUrl,
+    logoUrl
+  }
+}
+
 async function ensureUser(identity) {
   await assertCollectionExists(COLLECTIONS.users)
 
@@ -222,8 +269,6 @@ async function ensureUser(identity) {
       avatarFileId: '',
       memberLevel: 'normal',
       memberLevelLabel: '普通会员',
-      points: 0,
-      favoriteAtlasIds: [],
       locationPrompted: false,
       enabled: true,
       createdAt: db.serverDate(),
@@ -262,12 +307,11 @@ async function userView(user) {
     nickname: text(user.nickname, 'Chloris 用户'),
     contactName: text(user.contactName),
     contactPhone: text(user.contactPhone),
+    contactWechat: text(user.contactWechat),
     avatarFileId: text(user.avatarFileId),
     avatarUrl: await resolveFileUrl(user.avatarFileId),
     memberLevel: text(user.memberLevel, 'normal'),
     memberLevelLabel: text(user.memberLevelLabel, '普通会员'),
-    points: Math.max(0, Math.round(number(user.points))),
-    favoriteAtlasIds: stringArray(user.favoriteAtlasIds),
     lastLocation: user.lastLocation || null,
     locationPrompted: user.locationPrompted === true,
     createdAt: isoDate(user.createdAt),
@@ -293,6 +337,7 @@ function sanitizeQuoteRequest(input) {
   const images = stringArray(input.images).slice(0, 4)
   const contactName = text(input.contactName)
   const contactPhone = text(input.contactPhone).replace(/\s+/g, '')
+  const contactWechat = text(input.contactWechat).trim()
 
   if (!images.length) {
     throw new BusinessError('请至少上传一张参考图')
@@ -308,6 +353,7 @@ function sanitizeQuoteRequest(input) {
     images,
     contactName: contactName.slice(0, 24),
     contactPhone,
+    contactWechat: contactWechat.slice(0, 40),
     message: text(input.message).slice(0, 300)
   }
 }
@@ -364,6 +410,7 @@ async function createQuoteRequestAction(event, identity) {
     data: {
       contactName: payload.contactName,
       contactPhone: payload.contactPhone,
+      contactWechat: payload.contactWechat,
       updatedAt: db.serverDate()
     }
   })
@@ -374,6 +421,7 @@ async function createQuoteRequestAction(event, identity) {
     userNickname: text(user.nickname, 'Chloris 用户'),
     contactName: payload.contactName,
     contactPhone: payload.contactPhone,
+    contactWechat: payload.contactWechat,
     message: payload.message,
     images: payload.images,
     status: 'pending',
@@ -609,6 +657,7 @@ async function quoteView(item, includeDetails = false, imageUrlMap = null) {
     statusTone: meta.tone,
     contactName: text(record.contactName),
     contactPhoneMasked: maskPhone(record.contactPhone),
+    contactWechat: text(record.contactWechat),
     message: text(record.message),
     images,
     coverUrl: images[0] || '',
@@ -630,6 +679,7 @@ async function quoteView(item, includeDetails = false, imageUrlMap = null) {
 
   if (includeDetails) {
     result.contactPhone = text(record.contactPhone)
+    result.contactWechat = text(record.contactWechat)
     result.timeline = buildQuoteTimeline(record, status)
   }
 
@@ -718,13 +768,18 @@ function quoteAddressSnapshot(address) {
 }
 
 function sanitizeQuoteDeliveryInput(input = {}) {
+  const deliveryMethodId = text(input.deliveryMethodId, 'delivery') === 'pickup' ? 'pickup' : 'delivery'
   const addressId = text(input.addressId)
+  const pickupLocationId = text(input.pickupLocationId)
   const requestedDeliveryDate = text(input.requestedDeliveryDate)
   const requestedDeliverySlot = text(input.requestedDeliverySlot)
   const requestedDeliveryNote = text(input.requestedDeliveryNote).slice(0, 120)
 
-  if (!addressId) {
+  if (deliveryMethodId === 'delivery' && !addressId) {
     throw new BusinessError('请选择收货地址', 'ADDRESS_REQUIRED')
+  }
+  if (deliveryMethodId === 'pickup' && !pickupLocationId) {
+    throw new BusinessError('请选择自提门店', 'PICKUP_LOCATION_REQUIRED')
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDeliveryDate)) {
@@ -746,10 +801,25 @@ function sanitizeQuoteDeliveryInput(input = {}) {
   }
 
   return {
+    deliveryMethodId,
     addressId,
+    pickupLocationId,
     requestedDeliveryDate,
     requestedDeliverySlot,
     requestedDeliveryNote
+  }
+}
+
+function quotePickupSnapshot(studio = {}) {
+  return {
+    id: text(studio._id),
+    studioId: text(studio._id),
+    name: text(studio.pickupName || studio.name, 'Chloris 合作工作室'),
+    address: text(studio.pickupAddress || studio.address),
+    phone: text(studio.pickupPhone || studio.phone),
+    contactName: text(studio.contactName),
+    businessHours: text(studio.pickupHours, '请按预约时间到店取货'),
+    notice: text(studio.pickupNotice, '到店后请向工作人员出示订单号')
   }
 }
 
@@ -796,11 +866,22 @@ async function acceptQuoteAndCreateOrder(quote, identity, deliveryInput = {}) {
   }
 
   const delivery = sanitizeQuoteDeliveryInput(deliveryInput)
-  const addresses = await listUserAddresses(identity.userId)
-  const address = addresses.find((item) => text(item._id) === delivery.addressId)
-  if (!address) {
+  const addresses = delivery.deliveryMethodId === 'delivery'
+    ? await listUserAddresses(identity.userId)
+    : []
+  const address = delivery.deliveryMethodId === 'delivery'
+    ? addresses.find((item) => text(item._id) === delivery.addressId)
+    : null
+  if (delivery.deliveryMethodId === 'delivery' && !address) {
     throw new BusinessError('所选收货地址不存在，请重新选择', 'ADDRESS_REQUIRED')
   }
+  const pickupStudio = delivery.deliveryMethodId === 'pickup'
+    ? await getDocument(COLLECTIONS.studios, delivery.pickupLocationId)
+    : null
+  if (delivery.deliveryMethodId === 'pickup' && (!pickupStudio || pickupStudio.enabled === false || pickupStudio.supportsPickup === false)) {
+    throw new BusinessError('所选自提门店不可用，请重新选择', 'PICKUP_LOCATION_REQUIRED')
+  }
+  const pickupLocation = pickupStudio ? quotePickupSnapshot(pickupStudio) : null
 
   await Promise.all([
     assertCollectionExists(COLLECTIONS.orders),
@@ -848,28 +929,28 @@ async function acceptQuoteAndCreateOrder(quote, identity, deliveryInput = {}) {
     status: 'pendingPayment',
     statusLabel: '待付款',
     paymentStatus: 'unpaid',
-    deliveryMethodId: 'delivery',
-    deliveryMethodName: '配送到家',
-    deliveryFeePending: true,
+    deliveryMethodId: delivery.deliveryMethodId,
+    deliveryMethodName: delivery.deliveryMethodId === 'pickup' ? '到店取货' : '配送到家',
+    pickupLocationId: pickupLocation && pickupLocation.id || '',
+    pickupLocation,
+    suggestedStudioId: pickupLocation && pickupLocation.id || '',
+    deliveryFeePending: false,
 
     requestedDeliveryDate: delivery.requestedDeliveryDate,
     requestedDeliverySlot: delivery.requestedDeliverySlot,
     requestedDeliveryNote: delivery.requestedDeliveryNote,
-    deliveryScheduleStatus: 'pendingMerchantConfirm',
-    deliveryScheduleStatusLabel: '待商家确认',
-    deliveryConfirmed: false,
+    deliveryScheduleStatus: 'confirmed',
+    deliveryScheduleStatusLabel: '时间已确认',
+    deliveryConfirmed: true,
     deliveryDate: delivery.requestedDeliveryDate,
     deliverySlot: delivery.requestedDeliverySlot,
-    confirmedDeliveryDate: '',
-    confirmedDeliverySlot: '',
+    confirmedDeliveryDate: delivery.requestedDeliveryDate,
+    confirmedDeliverySlot: delivery.requestedDeliverySlot,
     proposedDeliveryDate: '',
     proposedDeliverySlot: '',
     deliveryAdjustmentNote: '',
 
-    address: quoteAddressSnapshot(address),
-    packagingId: 'customQuote',
-    packagingName: '按定制方案制作',
-    packagingDescription: '以商户回复的定制方案为准',
+    address: address ? quoteAddressSnapshot(address) : null,
     cardMessage: '',
     buyerMessage: text(quote.message),
     merchantNote: text(quote.merchantReply),
@@ -882,19 +963,17 @@ async function acceptQuoteAndCreateOrder(quote, identity, deliveryInput = {}) {
       unitPriceFen: quotedPriceFen,
       subtotalFen: quotedPriceFen,
       coverFileId,
-      atlasIds: []
     }],
-    atlasIds: [],
     goodsAmountFen: quotedPriceFen,
-    packagingFeeFen: 0,
     deliveryFeeFen: 0,
     discountFen: 0,
-    pointsDeductionFen: 0,
     totalAmountFen: quotedPriceFen,
-    amountPending: true,
+    amountPending: false,
     createdAt: db.serverDate(),
     updatedAt: db.serverDate(),
-    submittedAt: db.serverDate()
+    submittedAt: db.serverDate(),
+    confirmedAt: db.serverDate(),
+    deliveryConfirmedAt: db.serverDate()
   }
 
   await db.collection(COLLECTIONS.orders).doc(orderId).set({ data: orderDocument })
@@ -909,7 +988,9 @@ async function acceptQuoteAndCreateOrder(quote, identity, deliveryInput = {}) {
       requestedDeliveryDate: delivery.requestedDeliveryDate,
       requestedDeliverySlot: delivery.requestedDeliverySlot,
       requestedDeliveryNote: delivery.requestedDeliveryNote,
+      deliveryMethodId: delivery.deliveryMethodId,
       selectedAddressId: delivery.addressId,
+      pickupLocationId: delivery.pickupLocationId,
       orderId,
       orderNo,
       orderCreatedAt: db.serverDate(),
@@ -923,7 +1004,7 @@ async function acceptQuoteAndCreateOrder(quote, identity, deliveryInput = {}) {
     orderNo,
     status: 'pendingPayment',
     title: '定制报价已确认',
-    note: `顾客期望 ${delivery.requestedDeliveryDate} ${delivery.requestedDeliverySlot} 配送，等待商家确认时间`,
+    note: `${delivery.deliveryMethodId === 'pickup' ? '自提' : '配送'}时间：${delivery.requestedDeliveryDate} ${delivery.requestedDeliverySlot}；订单已进入待付款`,
     userId: identity.userId
   })
 
@@ -1296,125 +1377,6 @@ async function setDefaultAddress(event, identity) {
 }
 
 
-function sanitizeFavoriteAtlasIds(value) {
-  const ids = stringArray(value)
-
-  if (ids.length > 500) {
-    throw new BusinessError('最多收藏500个图鉴品种')
-  }
-
-  return ids
-}
-
-async function filterExistingFavoriteAtlasIds(value) {
-  const ids = sanitizeFavoriteAtlasIds(value)
-  if (!ids.length) return []
-
-  try {
-    await assertCollectionExists(COLLECTIONS.atlas)
-    const existing = new Set()
-
-    for (let index = 0; index < ids.length; index += 100) {
-      const batch = ids.slice(index, index + 100)
-      const result = await db
-        .collection(COLLECTIONS.atlas)
-        .where({ _id: _.in(batch) })
-        .field({ _id: true })
-        .limit(100)
-        .get()
-
-      ;(result.data || []).forEach((item) => {
-        const id = text(item && item._id)
-        if (id) existing.add(id)
-      })
-    }
-
-    return ids.filter((id) => existing.has(id))
-  } catch (error) {
-    console.warn('[userApi] 校验图鉴收藏有效性失败：', error)
-    return ids
-  }
-}
-
-async function persistFavoriteCleanup(user, originalIds, validIds) {
-  if (validIds.length === originalIds.length) return
-
-  try {
-    await db.collection(COLLECTIONS.users).doc(user._id).update({
-      data: {
-        favoriteAtlasIds: validIds,
-        updatedAt: db.serverDate()
-      }
-    })
-  } catch (error) {
-    console.warn('[userApi] 清理失效图鉴收藏失败：', error)
-  }
-}
-
-async function saveAtlasFavorites(event, identity) {
-  const user = await ensureUser(identity)
-  const favoriteAtlasIds = await filterExistingFavoriteAtlasIds(
-    event.ids
-  )
-
-  await db
-    .collection(COLLECTIONS.users)
-    .doc(user._id)
-    .update({
-      data: {
-        favoriteAtlasIds,
-        updatedAt: db.serverDate()
-      }
-    })
-
-  return {
-    favoriteAtlasIds,
-    total: favoriteAtlasIds.length
-  }
-}
-
-async function setAtlasFavorite(event, identity) {
-  const user = await ensureUser(identity)
-  const atlasId = text(event.atlasId)
-
-  if (!atlasId) {
-    throw new BusinessError('缺少图鉴 ID')
-  }
-
-  const current = new Set(
-    await filterExistingFavoriteAtlasIds(
-      user.favoriteAtlasIds
-    )
-  )
-
-  if (event.favorite === true) {
-    current.add(atlasId)
-  } else {
-    current.delete(atlasId)
-  }
-
-  const favoriteAtlasIds = sanitizeFavoriteAtlasIds(
-    [...current]
-  )
-
-  await db
-    .collection(COLLECTIONS.users)
-    .doc(user._id)
-    .update({
-      data: {
-        favoriteAtlasIds,
-        updatedAt: db.serverDate()
-      }
-    })
-
-  return {
-    atlasId,
-    favorite: favoriteAtlasIds.includes(atlasId),
-    favoriteAtlasIds,
-    total: favoriteAtlasIds.length
-  }
-}
-
 function normalizeOrderStatus(value) {
   const status = text(value)
 
@@ -1455,54 +1417,30 @@ async function listUserOrders(userId) {
 }
 
 async function getOverview(identity) {
-  const [user, addresses, orders, quoteRequests] = await Promise.all([
+  const [user, addresses, orders, quoteRequests, studio] = await Promise.all([
     ensureUser(identity),
     listUserAddresses(identity.userId),
     listUserOrders(identity.userId),
-    listUserQuoteDocuments(identity.userId)
+    listUserQuoteDocuments(identity.userId),
+    getPrimaryStudio()
   ])
 
   const orderCounts = {
-    pendingConfirm: 0,
     pendingPayment: 0,
     making: 0,
     delivering: 0,
     afterSale: 0
   }
 
-  const purchasedAtlasIds = new Set()
-  const originalFavoriteAtlasIds = sanitizeFavoriteAtlasIds(
-    user.favoriteAtlasIds
-  )
-  const favoriteAtlasIds = await filterExistingFavoriteAtlasIds(
-    originalFavoriteAtlasIds
-  )
-
-  await persistFavoriteCleanup(
-    user,
-    originalFavoriteAtlasIds,
-    favoriteAtlasIds
-  )
-
   for (const order of orders) {
     const status = normalizeOrderStatus(order.status)
 
     if (['refundPending', 'refunded'].includes(status)) {
       orderCounts.afterSale += 1
+    } else if (['pendingConfirm', 'pendingPayment'].includes(status)) {
+      orderCounts.pendingPayment += 1
     } else if (Object.prototype.hasOwnProperty.call(orderCounts, status)) {
       orderCounts[status] += 1
-    }
-
-    const purchased =
-      PURCHASED_STATUSES.has(status) ||
-      ['paid', 'offlinePaid'].includes(text(order.paymentStatus))
-
-    if (purchased) {
-      stringArray(order.atlasIds).forEach((id) => purchasedAtlasIds.add(id))
-
-      for (const item of Array.isArray(order.items) ? order.items : []) {
-        stringArray(item && item.atlasIds).forEach((id) => purchasedAtlasIds.add(id))
-      }
     }
   }
 
@@ -1511,17 +1449,14 @@ async function getOverview(identity) {
     profile: await userView(user),
     orderCounts,
     assets: {
-      points: Math.max(0, Math.round(number(user.points))),
-      coupons: 0,
-      favorites: favoriteAtlasIds.length
+      coupons: 0
     },
     counts: {
       addresses: addresses.length,
       quoteRequests: quoteRequests.length,
       quotePendingDecision: quoteRequests.filter((item) => normalizeQuoteStatus(item) === 'quoted').length
     },
-    purchasedAtlasIds: [...purchasedAtlasIds],
-    favoriteAtlasIds
+    merchant: await merchantView(studio)
   }
 }
 
@@ -1565,10 +1500,6 @@ exports.main = async (event = {}) => {
         return success(await getQuoteRequestAction(event, identity))
       case 'respondQuoteRequest':
         return success(await respondQuoteRequestAction(event, identity))
-      case 'saveAtlasFavorites':
-        return success(await saveAtlasFavorites(event, identity))
-      case 'setAtlasFavorite':
-        return success(await setAtlasFavorite(event, identity))
       default:
         throw new BusinessError(`未知操作：${action}`, 'UNKNOWN_ACTION')
     }

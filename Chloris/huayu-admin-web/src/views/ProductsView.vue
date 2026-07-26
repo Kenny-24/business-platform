@@ -39,6 +39,15 @@
           />
         </el-select>
 
+        <el-select v-model="filters.salesMode" clearable placeholder="全部销售模式" @change="loadProducts">
+          <el-option label="现货销售" value="spot" />
+          <el-option label="预约销售" value="preorder" />
+        </el-select>
+
+        <el-select v-model="filters.campaignId" clearable placeholder="全部活动" @change="loadProducts">
+          <el-option v-for="item in campaigns" :key="item._id" :label="item.name" :value="item._id" />
+        </el-select>
+
         <el-select
           v-model="filters.saleStatus"
           clearable
@@ -53,10 +62,8 @@
             label="已经下架"
             value="offSale"
           />
-          <el-option
-            label="已经售罄"
-            value="soldOut"
-          />
+          <el-option label="等待自动上架 / 已自动下架" value="scheduled" />
+          <el-option label="已经售罄" value="soldOut" />
         </el-select>
 
         <el-button
@@ -112,6 +119,19 @@
           <template #default="{ row }">
             ¥{{ formatYuan(row.priceFen) }}
             / {{ row.unit }}
+          </template>
+        </el-table-column>
+
+        <el-table-column label="销售模式" width="125">
+          <template #default="{ row }">
+            <el-tag :type="row.salesMode === 'preorder' ? 'warning' : 'success'" effect="plain">{{ row.salesModeLabel }}</el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="活动 / 销售窗口" min-width="190">
+          <template #default="{ row }">
+            <div>{{ campaignName(row.festivalCampaignId) || '常规商品' }}</div>
+            <el-tag size="small" :type="row.windowStatusTone" effect="plain">{{ row.windowStatusLabel }}</el-tag>
           </template>
         </el-table-column>
 
@@ -234,11 +254,14 @@ import { feedback } from '../utils/feedback'
 const router = useRouter()
 const loading = ref(false)
 const products = ref([])
+const campaigns = ref([])
 
 const filters = reactive({
   keyword: '',
   type: '',
-  saleStatus: ''
+  saleStatus: '',
+  salesMode: '',
+  campaignId: ''
 })
 
 const typeOptions = [
@@ -267,6 +290,8 @@ const typeOptions = [
     value: 'gift'
   }
 ]
+
+function campaignName(id) { return campaigns.value.find((item) => item._id === id)?.name || '' }
 
 function formatYuan(priceFen) {
   return (
@@ -346,5 +371,8 @@ async function removeProduct(row) {
   }
 }
 
-onMounted(loadProducts)
+onMounted(async () => {
+  try { campaigns.value = (await adminApi.listFestivalCampaigns()).items || [] } catch (error) {}
+  await loadProducts()
+})
 </script>

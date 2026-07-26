@@ -24,10 +24,5 @@ const banners = [
   { id: 'fallback-moment', image: '', scene: 'BIG DAY', title: '记住每一个值得庆祝的时刻', subtitle: '生日、纪念日与节日提醒', cta: '查看日历', action: 'calendar' }
 ]
 
-const atlasItems = [
-  { id: 'atlas-rose', name: '玫瑰', latin: 'Rosa', meaning: '温柔与偏爱', category: '鲜切花', image: '', homeFeatured: true },
-  { id: 'atlas-lisianthus', name: '洋桔梗', latin: 'Eustoma', meaning: '真诚与不变', category: '鲜切花', image: '', homeFeatured: true },
-  { id: 'atlas-hydrangea', name: '绣球', latin: 'Hydrangea', meaning: '圆满与团聚', category: '鲜切花', image: '', homeFeatured: true }
-]
 
-module.exports = { flowers, bouquets, succulents, categories, colors, banners, atlasItems }
+module.exports = { flowers, bouquets, succulents, categories, colors, banners }

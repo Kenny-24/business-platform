@@ -32,7 +32,21 @@ function normalizeProduct(item) {
     sceneTags: normalizeStringArray(item.sceneTags),
     colorTags: normalizeStringArray(item.colorTags),
     searchKeywords: normalizeStringArray(item.searchKeywords),
-    atlasIds: normalizeStringArray(item.atlasIds),
+    salesMode: normalizeString(item.salesMode) || 'spot',
+    limitedTimeEnabled: item.limitedTimeEnabled === true,
+    saleStartAt: normalizeString(item.saleStartAt),
+    saleEndAt: normalizeString(item.saleEndAt),
+    festivalCampaignId: normalizeString(item.festivalCampaignId),
+    campaignType: normalizeString(item.campaignType),
+    campaignName: normalizeString(item.campaignName),
+    preorderStartAt: normalizeString(item.preorderStartAt),
+    preorderEndAt: normalizeString(item.preorderEndAt),
+    deliveryStartDate: normalizeString(item.deliveryStartDate),
+    deliveryEndDate: normalizeString(item.deliveryEndDate),
+    reservationDeadlineAt: normalizeString(item.reservationDeadlineAt),
+    reservationQuota: Math.max(0, Number(item.reservationQuota || 0)),
+    productionUnits: Math.max(1, Number(item.productionUnits || 1)),
+    studioId: normalizeString(item.studioId),
     color:
       Array.isArray(item.colorTags) && item.colorTags.length > 0
         ? normalizeString(item.colorTags[0])
@@ -110,26 +124,8 @@ function normalizeBanner(item, index) {
   }
 }
 
-function normalizeAtlas(item, index) {
-  return {
-    id: item._id || `cloud-atlas-${index}`,
-    _id: item._id || `cloud-atlas-${index}`,
-    name: normalizeString(item.name),
-    latin: normalizeString(item.latinName),
-    latinName: normalizeString(item.latinName),
-    meaning: normalizeString(item.meaning),
-    description: normalizeString(item.description),
-    careGuide: normalizeString(item.careGuide),
-    category: normalizeString(item.category) || '鲜切花',
-    sceneTags: normalizeStringArray(item.sceneTags),
-    colorTags: normalizeStringArray(item.colorTags),
-    seasonTags: normalizeStringArray(item.seasonTags),
-    imageFileId: normalizeString(item.imageFileId),
-    image: normalizeString(item.imageUrl),
-    homeFeatured: item.homeFeatured === true,
-    published: item.published !== false,
-    sort: Number(item.sort || 0)
-  }
+function normalizeCampaign(item, index) {
+  return { id: item._id || `campaign-${index}`, _id: item._id || `campaign-${index}`, name: normalizeString(item.name), type: normalizeString(item.type) || 'festival', title: normalizeString(item.title) || normalizeString(item.name), subtitle: normalizeString(item.subtitle), enabled: item.enabled !== false, preSaleStartAt: normalizeString(item.preSaleStartAt), preSaleEndAt: normalizeString(item.preSaleEndAt), deliveryStartDate: normalizeString(item.deliveryStartDate), deliveryEndDate: normalizeString(item.deliveryEndDate), reservationDeadlineAt: normalizeString(item.reservationDeadlineAt), productIds: normalizeStringArray(item.productIds), sort: Number(item.sort || 0) }
 }
 
 function normalizeCalendarEvent(item, index) {
@@ -166,7 +162,7 @@ function normalizePayload(payload) {
     products: (payload.products || []).map(normalizeProduct),
     banners: (payload.banners || []).map(normalizeBanner),
     categoryBanners: (payload.categoryBanners || []).map(normalizeBanner),
-    atlas: (payload.atlas || []).map(normalizeAtlas),
+    campaigns: (payload.campaigns || []).map(normalizeCampaign),
     calendarEvents: (payload.calendarEvents || []).map(normalizeCalendarEvent),
     serverTime: Number(payload.serverTime || Date.now()),
     fetchedAt: Date.now()

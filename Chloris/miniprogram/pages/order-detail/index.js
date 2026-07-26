@@ -12,9 +12,9 @@ function buildLayout() {
 
   return {
     contentHeight: metrics.contentHeight,
-    horizontalPadding: width <= 350 ? 14 : width >= 768 ? 28 : 18,
-    compactLayout: width <= 350,
-    wideLayout: width >= 720
+    horizontalPadding: Number(metrics.horizontalPadding || (width <= 350 ? 14 : width >= 768 ? 28 : 18)),
+    compactLayout: Boolean(metrics.isSmallScreen || width <= 350),
+    wideLayout: Boolean(metrics.isWideScreen || width >= 720)
   }
 }
 
@@ -26,7 +26,7 @@ function formatDateTime(value) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-function formatDeliverySchedule(deliveryDate, deliverySlot, fallback = '待商家确认') {
+function formatDeliverySchedule(deliveryDate, deliverySlot, fallback = '未选择') {
   const dateText = String(deliveryDate || '').trim()
   const slotText = String(deliverySlot || '').trim()
 
@@ -41,8 +41,8 @@ const DELIVERY_SCHEDULE_STATUS_META = {
     description: '该订单无需额外确认配送时间'
   },
   pendingMerchantConfirm: {
-    label: '待商家确认',
-    description: '商家正在确认你选择的配送时间'
+    label: '时间已选定',
+    description: '将按你选择的配送时间安排制作与配送'
   },
   customerConfirmationRequired: {
     label: '待你确认调整',
@@ -55,6 +55,14 @@ const DELIVERY_SCHEDULE_STATUS_META = {
   adjustmentRejected: {
     label: '调整未接受',
     description: '你暂未接受商家建议，商家会继续与你沟通'
+  },
+  cancelled: {
+    label: '配送已取消',
+    description: '订单已取消，不再安排制作与配送'
+  },
+  refunded: {
+    label: '配送已终止',
+    description: '订单已退款，不再安排制作与配送'
   }
 }
 
@@ -74,6 +82,23 @@ function normalizeDeliveryScheduleMeta(order = {}) {
 }
 
 function buildDeliverySteps(order, status) {
+  const orderStatus = String(order.status || '')
+  const isPickup = String(order.deliveryMethodId || '') === 'pickup'
+
+  if (orderStatus === 'cancelled') {
+    return [
+      { key: 'created', title: '订单已创建', state: 'done' },
+      { key: 'cancelled', title: '订单已取消', state: 'current' }
+    ]
+  }
+
+  if (orderStatus === 'refunded') {
+    return [
+      { key: 'created', title: '订单已创建', state: 'done' },
+      { key: 'refunded', title: '订单已退款', state: 'current' }
+    ]
+  }
+
   if (status === 'customerConfirmationRequired') {
     return [
       { key: 'submitted', title: '需求已提交', state: 'done' },
@@ -96,39 +121,64 @@ function buildDeliverySteps(order, status) {
     const delivering = orderStatus === 'delivering'
 
     return [
-      { key: 'submitted', title: '需求已提交', state: 'done' },
-      { key: 'merchant', title: '时间已确认', state: 'done' },
+      { key: 'submitted', title: '订单已创建', state: 'done' },
+      { key: 'merchant', title: '时间已选定', state: 'done' },
       {
         key: 'delivery',
         title: completed
-          ? '配送已完成'
+          ? (isPickup ? '取货已完成' : '配送已完成')
           : delivering
-            ? '正在配送'
-            : '等待配送',
+            ? (isPickup ? '等待到店取货' : '正在配送')
+            : (isPickup ? '等待门店备货' : '等待配送'),
         state: completed ? 'done' : 'current'
       }
     ]
   }
 
   return [
-    { key: 'submitted', title: '需求已提交', state: 'done' },
-    { key: 'merchant', title: '商家确认中', state: 'current' },
-    { key: 'final', title: '形成最终安排', state: 'pending' }
+    { key: 'submitted', title: '订单已创建', state: 'done' },
+    { key: 'payment', title: '等待付款', state: 'current' },
+    { key: 'final', title: '付款后开始制作', state: 'pending' }
   ]
 }
 
 function buildDeliveryPresentation(order, values) {
   const status = String(order.deliveryScheduleStatus || 'pendingMerchantConfirm')
+  const orderStatus = String(order.status || '')
+  const isPickup = String(order.deliveryMethodId || '') === 'pickup'
+  const fulfillmentName = isPickup ? '自提' : '配送'
   const requested = values.requestedScheduleText
   const confirmed = values.confirmedScheduleText
   const proposed = values.proposedScheduleText
 
+  if (orderStatus === 'cancelled' || orderStatus === 'refunded') {
+    const refunded = orderStatus === 'refunded'
+    const originalSchedule = confirmed || requested || values.deliveryScheduleText
+
+    return {
+      deliveryTone: 'cancelled',
+      deliveryHeadline: refunded ? '订单已退款' : `${fulfillmentName}安排已取消`,
+      deliveryMainLabel: originalSchedule && originalSchedule !== '未填写' && originalSchedule !== '未选择'
+        ? `原计划${fulfillmentName}时间`
+        : `${fulfillmentName}安排`,
+      deliveryMainValue: originalSchedule && originalSchedule !== '未填写' && originalSchedule !== '未选择'
+        ? originalSchedule
+        : '未安排',
+      deliveryCaption: refunded
+        ? `订单已经退款，不会继续制作或安排${fulfillmentName}。`
+        : `订单已经取消，不会继续制作或安排${fulfillmentName}。`,
+      deliverySecondaryLabel: '',
+      deliverySecondaryValue: '',
+      deliverySteps: buildDeliverySteps(order, status)
+    }
+  }
+
   const base = {
     deliveryTone: 'pending',
-    deliveryHeadline: '正在确认配送时间',
+    deliveryHeadline: `${fulfillmentName}时间已选定`,
     deliveryMainLabel: '你的期望',
     deliveryMainValue: requested,
-    deliveryCaption: '商家确认库存与配送能力后，会形成最终安排。',
+    deliveryCaption: `付款完成后，将按所选时间安排制作与${fulfillmentName}。`,
     deliverySecondaryLabel: '',
     deliverySecondaryValue: '',
     deliverySteps: buildDeliverySteps(order, status)
@@ -138,10 +188,10 @@ function buildDeliveryPresentation(order, values) {
     return {
       ...base,
       deliveryTone: 'confirmed',
-      deliveryHeadline: '配送时间已确认',
-      deliveryMainLabel: '最终配送时间',
+      deliveryHeadline: `${fulfillmentName}时间已选定`,
+      deliveryMainLabel: `预计${fulfillmentName}时间`,
       deliveryMainValue: confirmed || requested,
-      deliveryCaption: '商家将按这个时间准备并安排配送。'
+      deliveryCaption: `付款完成后，将按这个时间安排制作与${fulfillmentName}。`
     }
   }
 
@@ -149,7 +199,7 @@ function buildDeliveryPresentation(order, values) {
     return {
       ...base,
       deliveryTone: 'action',
-      deliveryHeadline: '商家建议调整配送时间',
+      deliveryHeadline: `商家建议调整${fulfillmentName}时间`,
       deliveryMainLabel: '商家建议',
       deliveryMainValue: proposed || '等待商家补充',
       deliveryCaption: '请核对新的时间安排，并在页面底部确认或反馈。',
@@ -162,7 +212,7 @@ function buildDeliveryPresentation(order, values) {
     return {
       ...base,
       deliveryTone: 'rejected',
-      deliveryHeadline: '正在重新协商配送时间',
+      deliveryHeadline: `正在重新协商${fulfillmentName}时间`,
       deliveryMainLabel: '你的期望',
       deliveryMainValue: requested,
       deliveryCaption: '你暂未接受上次调整，商家会继续与你沟通。',
@@ -175,10 +225,10 @@ function buildDeliveryPresentation(order, values) {
     return {
       ...base,
       deliveryTone: 'neutral',
-      deliveryHeadline: '配送安排',
+      deliveryHeadline: `${fulfillmentName}安排`,
       deliveryMainLabel: '日期时间',
       deliveryMainValue: values.deliveryScheduleText,
-      deliveryCaption: '该订单无需额外确认配送时间。',
+      deliveryCaption: `该订单无需额外确认${fulfillmentName}时间。`,
       deliverySteps: []
     }
   }
@@ -186,14 +236,82 @@ function buildDeliveryPresentation(order, values) {
   if (requested === '未填写') {
     return {
       ...base,
-      deliveryHeadline: '等待补充配送时间',
-      deliveryMainLabel: '期望配送时间',
+      deliveryHeadline: `等待补充${fulfillmentName}时间`,
+      deliveryMainLabel: `期望${fulfillmentName}时间`,
       deliveryMainValue: '暂未填写',
-      deliveryCaption: '商家会与你联系，补充并确认具体配送安排。'
+      deliveryCaption: `商家会与你联系，补充并确认具体${fulfillmentName}安排。`
     }
   }
 
   return base
+}
+
+function normalizeDirectPaymentOrder(order = {}) {
+  const rawStatus = String(order.status || 'pendingPayment').trim() || 'pendingPayment'
+  const status = rawStatus === 'pendingConfirm' ? 'pendingPayment' : rawStatus
+  const paymentStatus = String(order.paymentStatus || 'unpaid').trim() || 'unpaid'
+  const requestedDate = String(order.requestedDeliveryDate || order.deliveryDate || '').trim()
+  const requestedSlot = String(order.requestedDeliverySlot || order.deliverySlot || '').trim()
+  const confirmedDate = String(order.confirmedDeliveryDate || requestedDate).trim()
+  const confirmedSlot = String(order.confirmedDeliverySlot || requestedSlot).trim()
+  const isUnpaid = !['paid', 'offlinePaid'].includes(paymentStatus)
+  const isCancelled = status === 'cancelled'
+  const isRefunded = status === 'refunded'
+  const isTerminal = isCancelled || isRefunded
+  const hasSelectedSchedule = Boolean(requestedDate || requestedSlot)
+  const isPickup = String(order.deliveryMethodId || '') === 'pickup'
+  const fulfillmentName = isPickup ? '自提' : '配送'
+
+  let deliveryScheduleStatus = hasSelectedSchedule ? 'confirmed' : 'notRequired'
+  let deliveryScheduleStatusLabel = hasSelectedSchedule ? '时间已选定' : '无需二次确认'
+  let deliveryScheduleStatusDescription = hasSelectedSchedule
+    ? `将按你选择的${fulfillmentName}时间安排制作与${fulfillmentName}`
+    : `该订单无需额外确认${fulfillmentName}时间`
+
+  if (isCancelled) {
+    deliveryScheduleStatus = 'cancelled'
+    deliveryScheduleStatusLabel = `${fulfillmentName}已取消`
+    deliveryScheduleStatusDescription = `订单已取消，不再安排制作与${fulfillmentName}`
+  } else if (isRefunded) {
+    deliveryScheduleStatus = 'refunded'
+    deliveryScheduleStatusLabel = `${fulfillmentName}已终止`
+    deliveryScheduleStatusDescription = `订单已退款，不再安排制作与${fulfillmentName}`
+  }
+
+  let paymentStatusText = ['paid', 'offlinePaid'].includes(paymentStatus) ? '已付款' : '未付款'
+  if (isCancelled) paymentStatusText += ' · 已取消'
+  if (isRefunded) paymentStatusText = '已退款'
+
+  return {
+    ...order,
+    status,
+    statusLabel: status === 'pendingPayment' ? '待付款' : order.statusLabel,
+    statusDescription: status === 'pendingPayment'
+      ? '订单已创建，请完成付款'
+      : isCancelled
+        ? (order.statusDescription || '订单已经取消')
+        : isRefunded
+          ? (order.statusDescription || '订单已经退款')
+          : order.statusDescription,
+    paymentStatus,
+    paymentStatusText,
+    isPickup,
+    deliveryMethodName: isPickup ? '到店自取' : (order.deliveryMethodName || '配送到家'),
+    requestedDeliveryDate: requestedDate,
+    requestedDeliverySlot: requestedSlot,
+    confirmedDeliveryDate: confirmedDate,
+    confirmedDeliverySlot: confirmedSlot,
+    deliveryScheduleStatus,
+    deliveryScheduleStatusLabel,
+    deliveryScheduleStatusDescription,
+    deliveryConfirmed: !isTerminal && hasSelectedSchedule,
+    isCancelled,
+    isRefunded,
+    isTerminal,
+    canRespondDeliverySchedule: false,
+    canPay: !isTerminal && status === 'pendingPayment' && isUnpaid,
+    canCancel: !isTerminal && status === 'pendingPayment'
+  }
 }
 
 Page({
@@ -207,12 +325,15 @@ Page({
     cancelling: false,
     scheduleSubmitting: false,
     logisticsRefreshing: false,
-    order: null
+    order: null,
+    autoPay: false,
+    autoPayHandled: false
   },
 
   onLoad(options = {}) {
     const id = String(options.id || '')
-    this.setData({ ...buildLayout(), id })
+    const autoPay = String(options.autoPay || '') === '1'
+    this.setData({ ...buildLayout(), id, autoPay })
 
     if (!id) {
       wx.showToast({ title: '订单参数不完整', icon: 'none' })
@@ -234,7 +355,8 @@ Page({
     if (showLoading) this.setData({ loading: true })
 
     try {
-      const order = await getOrderDetail(this.data.id)
+      const rawOrder = await getOrderDetail(this.data.id)
+      const order = normalizeDirectPaymentOrder(rawOrder)
       const deliveryScheduleMeta = normalizeDeliveryScheduleMeta(order)
       const normalizedOrder = { ...order, ...deliveryScheduleMeta }
       const isQuoteOrder = String(normalizedOrder.sourceType || '') === 'quoteRequest'
@@ -275,7 +397,7 @@ Page({
           confirmedScheduleText,
           proposedScheduleText,
           ...deliveryPresentation,
-          hasLogistics: Boolean(order.logisticsCompanyName && order.trackingNo),
+          hasLogistics: !normalizedOrder.isTerminal && Boolean(order.logisticsCompanyName && order.trackingNo),
           logisticsUpdatedAtText: formatDateTime(order.logisticsUpdatedAt),
           logisticsTrace: (order.logisticsTrace || []).map((item) => ({
             ...item,
@@ -287,6 +409,11 @@ Page({
           }))
         }
       })
+
+      if (this.data.autoPay && !this.data.autoPayHandled && normalizedOrder.canPay) {
+        this.setData({ autoPayHandled: true })
+        setTimeout(() => this.payOrder(), 120)
+      }
     } catch (error) {
       this.setData({ loading: false })
       wx.showToast({ title: error.message || '订单加载失败', icon: 'none' })
@@ -372,6 +499,28 @@ Page({
     })
   },
 
+
+  copyPickupLocation() {
+    const order = this.data.order
+    const pickup = order && order.pickupLocation
+    if (!pickup) return
+
+    const content = [
+      pickup.name,
+      pickup.address,
+      pickup.phone,
+      pickup.businessHours
+    ].filter(Boolean).join(' ')
+
+    if (!content) return
+    wx.setClipboardData({
+      data: content,
+      success: () => {
+        wx.showToast({ title: '门店信息已复制', icon: 'success' })
+      }
+    })
+  },
+
   async refreshCurrentLogistics() {
     const order = this.data.order
     if (!order || !order.trackingNo || this.data.logisticsRefreshing) return
@@ -423,17 +572,14 @@ Page({
 
   payOrder() {
     const order = this.data.order
-    if (order && order.hasDeliverySchedule && order.deliveryScheduleStatus !== 'confirmed') {
-      wx.showToast({ title: '请先等待配送时间确认', icon: 'none' })
-      return
-    }
+    if (!order || !order.canPay) return
 
     wx.showModal({
-      title: '付款说明',
-      content: '商家确认库存与配送安排后，会与你确认付款方式。付款完成后，订单状态将更新为制作中。需要售后时，请保留订单信息和商品照片。',
+      title: '立即付款',
+      content: '订单已进入待付款。当前项目尚未接入微信支付商户接口；接入商户号后，此按钮可直接调起微信支付。',
       showCancel: false,
       confirmText: '知道了',
-      confirmColor: '#6f8050'
+      confirmColor: '#111111'
     })
   }
 })

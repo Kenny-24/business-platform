@@ -11,6 +11,8 @@ const CATEGORY_INTENT_KEY = 'huayuCategoryIntent'
 const CATEGORY_SEARCH_KEY = 'huayuCategorySearch'
 
 const CATEGORY_DEFINITIONS = [
+  { label: '限时推出', match: (item) => item.limitedTimeEnabled === true },
+  { label: '情人节预定', match: (item) => item.salesMode === 'preorder' && (item._campaignType === 'valentine' || item._searchText.includes('情人节')) },
   { label: '花束', match: (item) => item.type === 'bouquet' },
   { label: '鲜切花材', match: (item) => item.type === 'flower' },
   { label: '绿植多肉', match: (item) => ['succulent', 'greenPlant'].includes(item.type) },
@@ -56,7 +58,14 @@ function prepareProduct(item) {
       : item.color
         ? [item.color]
         : [],
-    searchKeywords: Array.isArray(item.searchKeywords) ? item.searchKeywords : []
+    searchKeywords: Array.isArray(item.searchKeywords) ? item.searchKeywords : [],
+    salesMode: item.salesMode || 'spot',
+    festivalCampaignId: item.festivalCampaignId || '',
+    limitedTimeEnabled: item.limitedTimeEnabled === true,
+    saleStartAt: item.saleStartAt || '',
+    saleEndAt: item.saleEndAt || '',
+    deliveryStartDate: item.deliveryStartDate || '',
+    deliveryEndDate: item.deliveryEndDate || ''
   }
 
   product._searchText = [
@@ -116,7 +125,7 @@ function buildResponsiveLayout(metrics) {
     sidebarWidth,
     mainHorizontalPadding: horizontalPadding,
     gridColumns: columns,
-    productImageHeight: Math.max(112, Math.min(190, Math.round(cardWidth * 1.08))),
+    productImageHeight: Math.max(104, Math.min(168, Math.round(cardWidth * 0.92))),
     compactLayout: mainWidth < 280
   }
 }
@@ -147,6 +156,7 @@ Page({
     searchQuery: '',
     sortMode: 'comprehensive',
     allProducts: [],
+    campaigns: [],
     products: [],
     resultTitle: '花束',
     resultCount: 0,
@@ -217,7 +227,10 @@ Page({
     let products
     try {
       const data = await fetchHomeData({ forceRefresh })
-      products = (data.products || []).map(prepareProduct)
+      const campaigns = data.campaigns || []
+      const campaignMap = new Map(campaigns.map((item) => [String(item.id || item._id), item]))
+      products = (data.products || []).map(prepareProduct).map((item) => { const campaign = campaignMap.get(String(item.festivalCampaignId || '')); return { ...item, _campaignType: campaign && campaign.type || '', campaignName: campaign && campaign.name || '', salesModeLabel: item.salesMode === 'preorder' ? '预约' : '现货' } })
+      this.setData({ campaigns })
     } catch (error) {
       console.warn('分类页使用内置商品数据：', error)
       products = demoProducts()

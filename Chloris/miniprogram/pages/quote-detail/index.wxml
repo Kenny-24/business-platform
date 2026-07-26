@@ -30,6 +30,7 @@
               <view class="quote-info-row"><text>提交时间</text><text>{{item.createdAtText}}</text></view>
               <view class="quote-info-row"><text>联系人</text><text>{{item.contactName}}</text></view>
               <view class="quote-info-row"><text>联系电话</text><text>{{item.contactPhoneMasked}}</text></view>
+              <view wx:if="{{item.contactWechat}}" class="quote-info-row"><text>微信号</text><text selectable>{{item.contactWechat}}</text></view>
               <view class="quote-message-block">
                 <text class="quote-message-block__label">需求说明</text>
                 <text class="quote-message-block__text">{{item.message || '未填写补充说明'}}</text>
@@ -120,13 +121,30 @@
       <view class="delivery-sheet__handle"></view>
       <view class="delivery-sheet__head">
         <view>
-          <text class="delivery-sheet__title">确认配送信息</text>
-          <text class="delivery-sheet__subtitle">先选择期望时间，商家会在后台确认或提出调整。</text>
+          <text class="delivery-sheet__title">确认收货信息</text>
+          <text class="delivery-sheet__subtitle">选择配送到家或到店取货，并确认预约日期与时段。</text>
         </view>
         <view class="delivery-sheet__close" bindtap="closeDeliveryEditor" role="button">×</view>
       </view>
 
       <view class="delivery-form-group">
+        <text class="delivery-form-label">收货方式</text>
+        <view class="quote-fulfillment-options">
+          <view
+            wx:for="{{deliveryMethods}}"
+            wx:key="id"
+            class="quote-fulfillment-option {{deliveryMethodId === item.id ? 'quote-fulfillment-option--active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectQuoteDeliveryMethod"
+            role="button"
+          >
+            <view class="quote-fulfillment-option__dot"></view>
+            <text>{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{deliveryMethodId === 'delivery'}}" class="delivery-form-group">
         <text class="delivery-form-label">收货地址</text>
         <picker range="{{addressOptions}}" range-key="label" value="{{deliveryForm.addressIndex}}" bindchange="onAddressChange">
           <view class="delivery-picker-card">
@@ -139,9 +157,22 @@
         </picker>
       </view>
 
+      <view wx:else class="delivery-form-group">
+        <text class="delivery-form-label">自提门店</text>
+        <picker range="{{pickupLocations}}" range-key="name" value="0" bindchange="onPickupLocationChange">
+          <view class="delivery-picker-card">
+            <view class="delivery-picker-card__copy">
+              <text class="delivery-picker-card__title">{{selectedPickupLocation.name}}</text>
+              <text class="delivery-picker-card__description">{{selectedPickupLocation.address}}</text>
+            </view>
+            <view class="delivery-picker-card__arrow"></view>
+          </view>
+        </picker>
+      </view>
+
       <view class="delivery-form-grid">
         <view class="delivery-form-group">
-          <text class="delivery-form-label">期望配送日期</text>
+          <text class="delivery-form-label">{{deliveryMethodId === 'pickup' ? '预约自提日期' : '期望配送日期'}}</text>
           <picker mode="date" value="{{deliveryForm.requestedDeliveryDate}}" start="{{minDeliveryDate}}" end="{{maxDeliveryDate}}" bindchange="onDeliveryDateChange">
             <view class="delivery-picker-value">
               <text>{{deliveryForm.requestedDeliveryDate}}</text>
@@ -151,7 +182,7 @@
         </view>
 
         <view class="delivery-form-group">
-          <text class="delivery-form-label">期望配送时段</text>
+          <text class="delivery-form-label">{{deliveryMethodId === 'pickup' ? '预约自提时段' : '期望配送时段'}}</text>
           <picker range="{{deliverySlots}}" value="{{deliveryForm.deliverySlotIndex}}" bindchange="onDeliverySlotChange">
             <view class="delivery-picker-value">
               <text>{{selectedDeliverySlot}}</text>
@@ -162,17 +193,17 @@
       </view>
 
       <view class="delivery-form-group">
-        <text class="delivery-form-label">配送备注</text>
+        <text class="delivery-form-label">{{deliveryMethodId === 'pickup' ? '自提备注' : '配送备注'}}</text>
         <textarea
           class="delivery-form-textarea"
           value="{{deliveryForm.requestedDeliveryNote}}"
           maxlength="120"
-          placeholder="例如：送达前电话联系、请勿按门铃"
+          placeholder="{{deliveryMethodId === 'pickup' ? '例如：到店前电话联系' : '例如：送达前电话联系、请勿按门铃'}}"
           bindinput="onDeliveryNoteInput"
         ></textarea>
       </view>
 
-      <view class="delivery-sheet__notice">商家确认后会显示最终配送时间；如需调整，会再次请你确认。</view>
+      <view class="delivery-sheet__notice">提交后将按所选收货方式和预约时间生成待付款订单；如需调整，商家会另行与你沟通。</view>
       <view class="delivery-sheet__submit {{submitting ? 'delivery-sheet__submit--disabled' : ''}}" bindtap="confirmDeliveryAndCreate" role="button">
         {{submitting ? '正在生成订单…' : '确认并生成订单'}}
       </view>

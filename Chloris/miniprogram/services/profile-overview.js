@@ -2,9 +2,6 @@ const {
   getOverview,
   getCachedOverview
 } = require('./user-service')
-const {
-  recordPurchasedAtlasIds
-} = require('./atlas-purchases')
 
 const COUPONS_KEY = 'huayu_coupons_v1'
 
@@ -57,14 +54,6 @@ function normalizeOverview(source) {
   const importantDates = readImportantDates()
     .filter((item) => item.enabled !== false)
 
-  const purchasedAtlasIds = Array.isArray(overview.purchasedAtlasIds)
-    ? overview.purchasedAtlasIds
-    : []
-  const favoriteAtlasIds = Array.isArray(overview.favoriteAtlasIds)
-    ? overview.favoriteAtlasIds
-    : null
-
-  recordPurchasedAtlasIds(purchasedAtlasIds)
 
   return {
     loggedIn: overview.loggedIn !== false,
@@ -84,11 +73,7 @@ function normalizeOverview(source) {
       afterSale: Number(overview.orderCounts && overview.orderCounts.afterSale || 0)
     },
     assets: {
-      points: Number(overview.assets && overview.assets.points || 0),
-      coupons: Number(overview.assets && overview.assets.coupons || 0) + countActiveCoupons(coupons),
-      favorites: favoriteAtlasIds
-        ? favoriteAtlasIds.length
-        : Number(overview.assets && overview.assets.favorites || 0)
+      coupons: Number(overview.assets && overview.assets.coupons || 0) + countActiveCoupons(coupons)
     },
     counts: {
       addresses: Number(overview.counts && overview.counts.addresses || 0),
@@ -96,7 +81,13 @@ function normalizeOverview(source) {
       quoteRequests: Number(overview.counts && overview.counts.quoteRequests || 0),
       quotePendingDecision: Number(overview.counts && overview.counts.quotePendingDecision || 0)
     },
-    purchasedAtlasIds
+    merchant: {
+      name: String(overview.merchant && overview.merchant.name || 'Chloris 花艺'),
+      wechat: String(overview.merchant && overview.merchant.wechat || ''),
+      wechatQrUrl: String(overview.merchant && overview.merchant.wechatQrUrl || ''),
+      profileCoverUrl: String(overview.merchant && overview.merchant.profileCoverUrl || '/images/brand/profile-cover.jpg'),
+      logoUrl: String(overview.merchant && overview.merchant.logoUrl || '/images/brand/chloris-loading-logo.png')
+    }
   }
 }
 

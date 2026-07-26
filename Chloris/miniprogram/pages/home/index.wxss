@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #d9cac6 0%, #a0948f 48%, #756b67 100%);
+  background: #f6f6f4;
   color: rgba(255, 255, 255, 0.46);
   font-family: Georgia, serif;
   font-size: 42rpx;
@@ -41,7 +41,7 @@
 }
 
 .hero-overlay {
-  background: linear-gradient(180deg, rgba(18, 17, 15, 0.22) 0%, rgba(18, 17, 15, 0.02) 42%, rgba(18, 17, 15, 0.76) 100%);
+  background: #f6f6f4;
 }
 
 .hero-copy {
@@ -65,7 +65,7 @@
 }
 
 .hero-eyebrow {
-  font-size: 19rpx;
+  font-size: 26rpx;
   font-weight: 500;
   letter-spacing: 6rpx;
   line-height: 1.4;
@@ -82,7 +82,7 @@
 
 .hero-subtitle {
   margin-top: 13rpx;
-  font-size: 21rpx;
+  font-size: 26rpx;
   letter-spacing: 1rpx;
   line-height: 1.55;
 }
@@ -99,10 +99,10 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.95);
   color: #2c2925;
-  font-size: 23rpx;
+  font-size: 28rpx;
   font-weight: 500;
   letter-spacing: 2rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.12);
+  box-shadow: none;
   transition: transform 150ms ease, opacity 150ms ease;
 }
 
@@ -157,9 +157,9 @@
   margin-top: 22rpx;
   padding: 20rpx 6rpx;
   border: 1rpx solid var(--line);
-  border-radius: 20rpx;
+  border-radius: 0;
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .promise-item {
@@ -171,7 +171,7 @@
   justify-content: center;
   padding: 0 8rpx;
   color: var(--text-2);
-  font-size: 17rpx;
+  font-size: 24rpx;
   line-height: 1.4;
   text-align: center;
 }
@@ -184,7 +184,7 @@
   margin-bottom: 5rpx;
   color: var(--accent-dark);
   font-family: Georgia, serif;
-  font-size: 15rpx;
+  font-size: 22rpx;
   letter-spacing: 1rpx;
 }
 
@@ -195,11 +195,11 @@
   justify-content: center;
   margin-top: 20rpx;
   padding: 12rpx 18rpx;
-  border: 1rpx solid rgba(216, 135, 152, 0.18);
-  border-radius: 18rpx;
+  border: 1rpx solid rgba(17, 17, 17, 0.18);
+  border-radius: 0;
   background: #fff5f6;
   color: #aa6472;
-  font-size: 19rpx;
+  font-size: 26rpx;
   text-align: center;
 }
 
@@ -208,16 +208,16 @@
   margin-top: 22rpx;
   padding: 28rpx 22rpx 26rpx;
   border: 1rpx solid var(--line);
-  border-radius: 24rpx;
+  border-radius: 0;
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .picker-section {
   position: relative;
   overflow: hidden;
   padding: 30rpx 28rpx;
-  background: linear-gradient(135deg, #fff7f8 0%, #fffdfb 100%);
+  background: #f6f6f4;
 }
 
 .picker-section::after {
@@ -226,7 +226,7 @@
   bottom: -50rpx;
   width: 180rpx;
   height: 180rpx;
-  border: 1rpx solid rgba(216, 135, 152, 0.12);
+  border: 1rpx solid rgba(17, 17, 17, 0.12);
   border-radius: 50%;
   content: "";
 }
@@ -241,12 +241,12 @@
   display: block;
   color: #b86f7e;
   font-family: Georgia, serif;
-  font-size: 14rpx;
+  font-size: 20rpx;
   letter-spacing: 3rpx;
 }
 
 .section-kicker--olive {
-  color: #758060;
+  color: #292929;
 }
 
 .picker-headline {
@@ -260,7 +260,7 @@
 
 .picker-title {
   min-width: 0;
-  color: #302d2b;
+  color: #292929;
   font-family: "Songti SC", "STSong", serif;
   font-size: 34rpx;
   line-height: 1.3;
@@ -270,9 +270,9 @@
   flex: 0 0 auto;
   padding: 8rpx 13rpx;
   border-radius: 999rpx;
-  background: rgba(216, 135, 152, 0.11);
+  background: rgba(17, 17, 17, 0.11);
   color: #af6575;
-  font-size: 15rpx;
+  font-size: 22rpx;
   white-space: nowrap;
 }
 
@@ -281,7 +281,7 @@
   max-width: 92%;
   margin-top: 10rpx;
   color: #7d7773;
-  font-size: 19rpx;
+  font-size: 26rpx;
   line-height: 1.65;
 }
 
@@ -294,11 +294,11 @@
 .picker-tags text {
   margin: 0 8rpx 8rpx 0;
   padding: 7rpx 12rpx;
-  border: 1rpx solid rgba(202, 137, 150, 0.2);
+  border: 1rpx solid rgba(17, 17, 17, 0.2);
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.74);
   color: #976a73;
-  font-size: 15rpx;
+  font-size: 22rpx;
 }
 
 .picker-button {
@@ -311,14 +311,14 @@
   border-radius: 999rpx;
   background: var(--accent);
   color: #ffffff;
-  font-size: 19rpx;
+  font-size: 26rpx;
   letter-spacing: 1rpx;
-  box-shadow: 0 8rpx 20rpx rgba(190, 108, 126, 0.14);
+  box-shadow: none;
 }
 
 .picker-button text {
   margin-left: 9rpx;
-  font-size: 25rpx;
+  font-size: 30rpx;
   line-height: 1;
 }
 
@@ -328,7 +328,7 @@
   justify-content: space-between;
   gap: 20rpx;
   padding: 30rpx 26rpx;
-  background: linear-gradient(135deg, #f4f5ef 0%, #ffffff 100%);
+  background: #f6f6f4;
 }
 
 .quote-section__copy {
@@ -352,7 +352,7 @@
 .quote-section__sub {
   margin-top: 9rpx;
   color: #7b7d73;
-  font-size: 17rpx;
+  font-size: 24rpx;
   line-height: 1.65;
 }
 
@@ -367,8 +367,8 @@
   border-radius: 999rpx;
   background: var(--primary);
   color: #ffffff;
-  font-size: 18rpx;
-  box-shadow: 0 8rpx 22rpx rgba(75, 88, 54, 0.12);
+  font-size: 24rpx;
+  box-shadow: none;
 }
 
 .horizontal-list {
@@ -399,10 +399,10 @@
   min-height: 154rpx;
   align-items: center;
   justify-content: center;
-  border-radius: 18rpx;
+  border-radius: 0;
   background: var(--surface-soft);
   color: var(--text-3);
-  font-size: 19rpx;
+  font-size: 26rpx;
   text-align: center;
 }
 
@@ -414,12 +414,12 @@
   align-items: stretch;
   overflow: hidden;
   padding: 18rpx;
-  border-radius: 20rpx;
-  background: linear-gradient(90deg, #fff4f2 0%, #fffaf7 72%, #ffffff 100%);
+  border-radius: 0;
+  background: #f6f6f4;
 }
 
 .festival--international {
-  background: linear-gradient(90deg, #f0f5f8 0%, #f8fbfc 72%, #ffffff 100%);
+  background: #f6f6f4;
 }
 
 .festival-date {
@@ -429,20 +429,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1rpx solid rgba(190, 118, 128, 0.16);
+  border-right: 1rpx solid rgba(17, 17, 17, 0.16);
 }
 
 .festival-month {
   color: #3c3935;
   font-family: "Songti SC", serif;
-  font-size: 23rpx;
+  font-size: 28rpx;
   white-space: nowrap;
 }
 
 .festival-countdown {
   margin-top: 8rpx;
   color: #c16f7d;
-  font-size: 16rpx;
+  font-size: 22rpx;
 }
 
 .festival-copy {
@@ -460,8 +460,8 @@
 .festival-title {
   min-width: 0;
   overflow: hidden;
-  color: #35322f;
-  font-size: 24rpx;
+  color: #292929;
+  font-size: 28rpx;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -472,13 +472,13 @@
   margin-left: 8rpx;
   padding: 4rpx 8rpx;
   border-radius: 999rpx;
-  background: rgba(216, 135, 152, 0.11);
+  background: rgba(17, 17, 17, 0.11);
   color: #b66d7c;
-  font-size: 13rpx;
+  font-size: 20rpx;
 }
 
 .festival--international .festival-region {
-  background: rgba(102, 132, 158, 0.11);
+  background: rgba(91, 91, 86, 0.11);
   color: #607b92;
 }
 
@@ -490,8 +490,8 @@
 .festival-sub {
   margin-top: 8rpx;
   overflow: hidden;
-  color: #858078;
-  font-size: 16rpx;
+  color: #777772;
+  font-size: 22rpx;
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -500,7 +500,7 @@
 .festival-link {
   margin-top: 11rpx;
   color: #a96472;
-  font-size: 16rpx;
+  font-size: 22rpx;
 }
 
 .festival-flower {
@@ -508,7 +508,7 @@
   height: 104rpx;
   flex: 0 0 104rpx;
   align-self: center;
-  border-radius: 16rpx;
+  border-radius: 6rpx;
   background: #f3eee8;
 }
 
@@ -522,7 +522,7 @@
   min-width: 0;
   padding: 20rpx 13rpx 18rpx;
   border: 1rpx solid #eee9e2;
-  border-radius: 18rpx;
+  border-radius: 0;
   background: #faf9f5;
 }
 
@@ -536,15 +536,15 @@
 .care-card__number {
   color: #c87888;
   font-family: Georgia, serif;
-  font-size: 15rpx;
+  font-size: 22rpx;
 }
 
 .care-card__title {
   min-height: 54rpx;
   margin-top: 10rpx;
-  color: #383531;
+  color: #292929;
   font-family: "Songti SC", serif;
-  font-size: 19rpx;
+  font-size: 26rpx;
   line-height: 1.4;
 }
 
@@ -553,93 +553,22 @@
   margin-top: 8rpx;
   overflow: hidden;
   color: #8d8880;
-  font-size: 15rpx;
+  font-size: 22rpx;
   line-height: 1.55;
 }
 
 .care-card__link {
   margin-top: 11rpx;
   color: #ad6977;
-  font-size: 15rpx;
+  font-size: 22rpx;
 }
 
-.atlas-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10rpx;
-}
-
-.atlas-card {
-  position: relative;
-  height: 286rpx;
-  overflow: hidden;
-  border-radius: 18rpx;
-  background: #657250;
-}
-
-.atlas-card__image {
-  width: 100%;
-  height: 100%;
-}
-
-.atlas-card__placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, #889574 0%, #5e6d4b 100%);
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 18rpx;
-  font-weight: 700;
-  letter-spacing: 4rpx;
-}
-
-.atlas-card__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 34%, rgba(24, 28, 20, 0.74) 100%);
-}
-
-.atlas-card__copy {
-  position: absolute;
-  right: 14rpx;
-  bottom: 16rpx;
-  left: 14rpx;
-  color: #ffffff;
-}
-
-.atlas-card__name,
-.atlas-card__latin,
-.atlas-card__meaning {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.atlas-card__name {
-  font-family: "Songti SC", serif;
-  font-size: 23rpx;
-}
-
-.atlas-card__latin {
-  margin-top: 5rpx;
-  color: rgba(255, 255, 255, 0.75);
-  font-family: Georgia, serif;
-  font-size: 13rpx;
-  letter-spacing: 0.5rpx;
-}
-
-.atlas-card__meaning {
-  margin-top: 7rpx;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 15rpx;
-}
 
 .service-note {
   margin-top: 22rpx;
   padding: 25rpx;
   border: 1rpx solid var(--line);
-  border-radius: 20rpx;
+  border-radius: 0;
   background: var(--surface-soft);
 }
 
@@ -650,14 +579,14 @@
 
 .service-note__title {
   color: #46423e;
-  font-size: 21rpx;
+  font-size: 26rpx;
   font-weight: 600;
 }
 
 .service-note__body {
   margin-top: 9rpx;
   color: #817c74;
-  font-size: 17rpx;
+  font-size: 24rpx;
   line-height: 1.72;
 }
 
@@ -712,9 +641,6 @@
     height: auto;
   }
 
-  .atlas-card {
-    height: 250rpx;
-  }
 }
 
 .festival-link,
@@ -805,4 +731,106 @@
     opacity: 1;
     transform: scale(1.012);
   }
+}
+
+/* V6.14 unified luxury-neutral visual layer */
+.home-page { background:#f7f7f5; }
+.hero-overlay { background:linear-gradient(180deg,rgba(0,0,0,.04) 35%,rgba(0,0,0,.68) 100%); }
+.hero-copy { color:#fff; }
+.hero-title { font-family:inherit; font-weight:650; letter-spacing:2rpx; }
+.hero-button { min-width:300rpx; height:82rpx; border:2rpx solid #fff; border-radius:999rpx; background:#fff; color:#111; font-weight:650; }
+.hero-progress__track { background:rgba(255,255,255,.35); }
+.hero-progress__fill--active { background:#fff; }
+.home-content { background:#f7f7f5; }
+.promise-strip { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.promise-item { color:#5b5b56; }
+.promise-item__mark { color:#171717; }
+.home-section { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.picker-section,.quote-section { background:#fff; }
+.section-kicker,.section-kicker--olive { color:#777772; letter-spacing:3rpx; }
+.picker-title,.quote-section__title { color:#171717; font-family:inherit; font-weight:650; }
+.picker-tag,.quote-section__badge,.picker-tags text { border:1rpx solid #deded9; border-radius:999rpx; background:#fff; color:#5b5b56; }
+.picker-button { display:flex; width:300rpx; height:78rpx; align-items:center; justify-content:center; border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; font-weight:650; }
+.horizontal-list { margin-right:-1rpx; }
+.festival { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.festival-date { background:#f3f3f1; color:#171717; }
+.festival-title,.care-card__title { color:#171717; font-family:inherit; font-weight:650; }
+.festival-region { border:1rpx solid #deded9; background:#fff; color:#5b5b56; }
+.care-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.care-card__number { color:#777772; }
+.care-card__link,.festival-link { color:#171717; }
+.section-empty,.cloud-notice,.service-note { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; color:#5b5b56; box-shadow:none; }
+.startup-splash { background:#fff; }
+.startup-splash__logo { filter:grayscale(1) contrast(1.08); }
+
+
+/* V6.16.1 首页三模块字体微调：保持原布局，仅提升信息密度 */
+.picker-section .section-kicker {
+  font-size: 18rpx;
+  letter-spacing: 2.5rpx;
+}
+
+.picker-section .picker-title {
+  font-size: 30rpx;
+}
+
+.picker-section .picker-tag {
+  padding: 7rpx 12rpx;
+  font-size: 19rpx;
+}
+
+.picker-section .picker-sub {
+  font-size: 22rpx;
+  line-height: 1.62;
+}
+
+.picker-section .picker-tags text {
+  padding: 6rpx 11rpx;
+  font-size: 19rpx;
+}
+
+.picker-section .picker-button {
+  font-size: 22rpx;
+  letter-spacing: .5rpx;
+}
+
+.festival-month {
+  font-size: 24rpx;
+}
+
+.festival-countdown {
+  font-size: 19rpx;
+}
+
+.festival-title {
+  font-size: 24rpx;
+}
+
+.festival-region {
+  font-size: 17rpx;
+}
+
+.festival-sub,
+.festival-link {
+  font-size: 19rpx;
+}
+
+.care-card__number {
+  font-size: 19rpx;
+}
+
+.care-card__title {
+  min-height: 48rpx;
+  font-size: 22rpx;
+  line-height: 1.38;
+}
+
+.care-card__summary {
+  height: 66rpx;
+  font-size: 19rpx;
+  line-height: 1.5;
+}
+
+.care-card__link {
+  font-size: 19rpx;
 }

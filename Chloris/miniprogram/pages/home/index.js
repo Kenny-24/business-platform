@@ -1,6 +1,5 @@
 const {
   banners: fallbackBanners,
-  atlasItems: fallbackAtlas
 } = require('../../data/mock')
 const { addToCart } = require('../../services/storage')
 const { fetchHomeData } = require('../../services/home-data')
@@ -153,7 +152,6 @@ Page({
   data: {
     banners: fallbackBanners,
     bouquets: [],
-    atlasItems: fallbackAtlas,
     careGuides: CARE_GUIDES,
     upcomingEvent: null,
     currentBanner: 0,
@@ -260,10 +258,6 @@ Page({
     try {
       const data = await fetchHomeData({ forceRefresh })
       const products = data.products || []
-      const atlas = data.atlas || []
-      const homeAtlas = atlas.filter((item) => item.homeFeatured)
-      const featuredAtlas = homeAtlas.length ? homeAtlas : atlas
-
       const availableBouquets = products
         .filter(
           (item) =>
@@ -287,9 +281,6 @@ Page({
       this.setData({
         banners: data.banners.length ? data.banners : fallbackBanners,
         bouquets: availableBouquets,
-        atlasItems: featuredAtlas.length
-          ? featuredAtlas.slice(0, 3)
-          : fallbackAtlas,
         upcomingEvent: findUpcomingEvent(
           data.calendarEvents || [],
           products
@@ -302,8 +293,7 @@ Page({
       this.setData({
         loading: false,
         loadFailed: true,
-        banners: fallbackBanners,
-        atlasItems: fallbackAtlas
+        banners: fallbackBanners
       })
     } finally {
       this.scheduleStartupSplashFinish()
@@ -466,7 +456,6 @@ Page({
     const target = event.detail.target
 
     if (target === 'calendar') return this.openCalendar()
-    if (target === 'atlas') return this.openAtlas()
     if (target === 'care') return this.openCare()
 
     return this.openCategory('花束')
@@ -488,18 +477,6 @@ Page({
     return wx.switchTab({ url: '/pages/calendar/index' })
   },
 
-  openAtlasItem(event) {
-    const id = String(event.currentTarget.dataset.id || '')
-    if (!id) return this.openAtlas()
-
-    return wx.navigateTo({
-      url: `/pages/atlas-detail/index?id=${encodeURIComponent(id)}`
-    })
-  },
-
-  openAtlas() {
-    wx.navigateTo({ url: '/pages/atlas/index' })
-  },
 
   openBuilder() {
     wx.navigateTo({ url: '/pages/flower-picker/index' })

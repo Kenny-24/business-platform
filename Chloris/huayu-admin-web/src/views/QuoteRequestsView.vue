@@ -40,6 +40,7 @@
               <div>
                 <strong>{{ row.contactName || row.userNickname }}</strong>
                 <span>{{ row.contactPhone || '未留电话' }}</span>
+                <span v-if="row.contactWechat">微信：{{ row.contactWechat }}</span>
                 <small>{{ row.userId }}</small>
               </div>
             </div>
@@ -92,6 +93,7 @@
         <el-table-column label="操作" width="220" align="right" fixed="right">
           <template #default="{ row }">
             <el-button link :disabled="!row.contactPhone" @click="copyPhone(row.contactPhone)">复制手机号</el-button>
+            <el-button link :disabled="!row.contactWechat" @click="copyWechat(row.contactWechat)">复制微信号</el-button>
             <el-button v-if="row.orderId" link type="success" @click="openOrder(row.orderId)">查看订单</el-button>
             <el-button v-if="row.canReply" link type="primary" @click="openQuote(row)">{{ row.status === 'quoted' ? '修改报价' : '回复报价' }}</el-button>
           </template>
@@ -228,6 +230,16 @@ async function copyPhone(phone) {
     feedback.success('手机号已复制')
   } catch (error) {
     feedback.error(error, '复制手机号失败')
+  }
+}
+
+async function copyWechat(wechat) {
+  if (!wechat) return
+  try {
+    await navigator.clipboard.writeText(wechat)
+    feedback.success('微信号已复制')
+  } catch (error) {
+    feedback.error(error, '复制微信号失败')
   }
 }
 

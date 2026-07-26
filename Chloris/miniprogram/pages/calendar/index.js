@@ -256,9 +256,9 @@ Page({
               event.region === 'international'
                 ? '国际'
                 : event.region === 'merchant'
-                  ? '活动'
+                  ? '商家活动'
                   : event.region === 'personal'
-                    ? '我的'
+                    ? 'BIG DAY'
                     : '国内'
           })
         })

@@ -53,6 +53,18 @@ const routes = [
         meta: { title: '横幅管理' }
       },
       {
+        path: 'festival-campaigns',
+        name: 'festival-campaigns',
+        component: () => import('../views/FestivalCampaignsView.vue'),
+        meta: { title: '节日预售与限时活动' }
+      },
+      {
+        path: 'studio-operations',
+        name: 'studio-operations',
+        component: () => import('../views/StudioOperationsView.vue'),
+        meta: { title: '工作室合作后台' }
+      },
+      {
         path: 'calendar-events',
         name: 'calendar-events',
         component: () => import('../views/CalendarEventsView.vue'),
@@ -87,12 +99,6 @@ const routes = [
         name: 'quote-requests',
         component: () => import('../views/QuoteRequestsView.vue'),
         meta: { title: '图片定制报价' }
-      },
-      {
-        path: 'atlas',
-        name: 'atlas',
-        component: () => import('../views/AtlasView.vue'),
-        meta: { title: '图鉴管理' }
       },
       {
         path: 'data-import',

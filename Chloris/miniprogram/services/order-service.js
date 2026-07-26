@@ -43,10 +43,11 @@ function clearCheckoutDraft() {
   } catch (error) {}
 }
 
-function getCheckoutOptions() {
+function getCheckoutOptions(items = []) {
   return callCloudFunction(
     'orderApi',
-    'getCheckoutOptions'
+    'getCheckoutOptions',
+    { items: Array.isArray(items) ? items : [] }
   )
 }
 

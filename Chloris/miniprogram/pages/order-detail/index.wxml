@@ -25,8 +25,8 @@
             <view class="detail-card delivery-card delivery-card--{{order.deliveryTone}}">
               <view class="detail-card__header delivery-card__header">
                 <view>
-                  <text class="detail-card__eyebrow">DELIVERY</text>
-                  <text class="detail-card__title">配送信息</text>
+                  <text class="detail-card__eyebrow">{{order.isPickup ? 'PICKUP' : 'DELIVERY'}}</text>
+                  <text class="detail-card__title">{{order.isPickup ? '自提信息' : '配送信息'}}</text>
                 </view>
                 <view wx:if="{{order.deliveryScheduleStatusLabel}}" class="delivery-status-pill delivery-status-pill--{{order.deliveryTone}}">
                   <view class="delivery-status-pill__dot"></view>
@@ -70,7 +70,7 @@
 
               <view wx:if="{{order.requestedDeliveryNote || order.deliveryAdjustmentNote}}" class="delivery-notes">
                 <view wx:if="{{order.requestedDeliveryNote}}" class="delivery-note">
-                  <text class="delivery-note__label">配送备注</text>
+                  <text class="delivery-note__label">{{order.isPickup ? '自提备注' : '配送备注'}}</text>
                   <text class="delivery-note__value">{{order.requestedDeliveryNote}}</text>
                 </view>
                 <view wx:if="{{order.deliveryAdjustmentNote}}" class="delivery-note delivery-note--adjustment">
@@ -89,6 +89,23 @@
                     <text>{{order.address.phoneMasked}}</text>
                   </view>
                   <text class="delivery-address__full">{{order.address.fullAddress}}</text>
+                </view>
+                <text class="delivery-address__action">复制</text>
+              </view>
+
+
+              <view wx:if="{{order.isPickup && order.pickupLocation}}" class="delivery-address pickup-location" bindtap="copyPickupLocation" role="button">
+                <view class="delivery-address__pin pickup-location__mark">
+                  <view class="delivery-address__pin-core"></view>
+                </view>
+                <view class="delivery-address__content">
+                  <view class="delivery-address__person">
+                    <text>{{order.pickupLocation.name}}</text>
+                    <text wx:if="{{order.pickupLocation.phone}}">{{order.pickupLocation.phone}}</text>
+                  </view>
+                  <text class="delivery-address__full">{{order.pickupLocation.address}}</text>
+                  <text wx:if="{{order.pickupLocation.businessHours}}" class="pickup-location__hours">{{order.pickupLocation.businessHours}}</text>
+                  <text wx:if="{{order.pickupLocation.notice}}" class="pickup-location__notice">{{order.pickupLocation.notice}}</text>
                 </view>
                 <text class="delivery-address__action">复制</text>
               </view>
@@ -179,8 +196,7 @@
                 </view>
               </view>
               <view class="detail-row"><text>商品金额</text><text>¥{{order.amounts.goodsAmountText}}</text></view>
-              <view class="detail-row"><text>包装费用</text><text>¥{{order.amounts.packagingFeeText}}</text></view>
-              <view class="detail-row"><text>配送费用</text><text>{{order.amounts.deliveryFeeText === '待确认' ? '待确认' : '¥' + order.amounts.deliveryFeeText}}</text></view>
+              <view class="detail-row"><text>{{order.isPickup ? '自提费用' : '配送费用'}}</text><text>{{order.isPickup ? '无需配送费' : (order.amounts.deliveryFeeFen > 0 ? '¥' + order.amounts.deliveryFeeText : '按订单结算')}}</text></view>
               <view class="detail-row"><text>优惠金额</text><text>− ¥{{order.amounts.discountText}}</text></view>
               <view class="detail-line"></view>
               <view class="detail-row detail-row--total"><text>应付金额</text><text>¥{{order.amounts.totalAmountText}}</text></view>
@@ -211,8 +227,7 @@
                 </view>
               </view>
               <view class="detail-row"><text>下单时间</text><text>{{order.createdAtText}}</text></view>
-              <view class="detail-row"><text>包装方式</text><text>{{order.packagingName}}</text></view>
-              <view class="detail-row"><text>支付状态</text><text>{{order.paymentStatus === 'offlinePaid' ? '已确认收款' : '未付款'}}</text></view>
+              <view class="detail-row"><text>支付状态</text><text>{{order.paymentStatusText}}</text></view>
               <view class="info-card__bottom"></view>
             </view>
           </view>

@@ -1,4 +1,4 @@
-<view class="section-title">
+<view class="section-title {{compact ? 'section-title--compact' : ''}}">
   <view class="section-title__copy">
     <text class="section-title__main">{{title}}</text>
     <text

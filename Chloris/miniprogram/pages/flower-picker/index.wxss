@@ -5,8 +5,8 @@
 }
 
 .picker-hero {
-  padding: 30rpx 28rpx 20rpx;
-  background: linear-gradient(180deg, #fff6f7 0%, var(--bg) 100%);
+  padding: 26rpx 26rpx 18rpx;
+  background: #f6f6f4;
 }
 
 .picker-hero__eyebrow,
@@ -18,32 +18,32 @@
 .picker-hero__eyebrow {
   color: #b97180;
   font-family: Georgia, serif;
-  font-size: 14rpx;
-  letter-spacing: 3rpx;
+  font-size: 16rpx;
+  letter-spacing: 2.5rpx;
 }
 
 .picker-hero__title {
-  margin-top: 13rpx;
-  color: #302d2b;
+  margin-top: 10rpx;
+  color: #292929;
   font-family: "Songti SC", "STSong", serif;
-  font-size: 38rpx;
+  font-size: 34rpx;
   line-height: 1.35;
 }
 
 .picker-hero__sub {
-  margin-top: 11rpx;
+  margin-top: 8rpx;
   color: #817b76;
-  font-size: 19rpx;
-  line-height: 1.7;
+  font-size: 23rpx;
+  line-height: 1.6;
 }
 
 .picker-filter-card {
   margin: 0 22rpx;
-  padding: 22rpx;
+  padding: 18rpx;
   border: 1rpx solid var(--line);
-  border-radius: 24rpx;
+  border-radius: 0;
   background: #ffffff;
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .picker-filter-title-row {
@@ -54,22 +54,22 @@
 
 .picker-filter-title {
   color: #322f2b;
-  font-size: 24rpx;
+  font-size: 23rpx;
   font-weight: 700;
 }
 
 .picker-filter-reset {
-  padding: 9rpx 18rpx;
+  padding: 8rpx 16rpx;
   border-radius: 999rpx;
   background: #f4f2ed;
   color: #7e7972;
-  font-size: 16rpx;
+  font-size: 19rpx;
 }
 
 .price-input-section {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  border-radius: 18rpx;
+  margin-top: 16rpx;
+  padding: 17rpx;
+  border-radius: 0;
   background: #faf9f6;
 }
 
@@ -80,7 +80,7 @@
 
 .price-input-section__label {
   color: #393530;
-  font-size: 20rpx;
+  font-size: 23rpx;
   font-weight: 600;
 }
 
@@ -92,20 +92,20 @@
 
 .price-input-box {
   display: flex;
-  height: 68rpx;
+  height: 62rpx;
   flex: 1 1 0;
   align-items: center;
   padding: 0 16rpx;
-  border: 1rpx solid #ebe7df;
-  border-radius: 12rpx;
+  border: 1rpx solid #eeeeeb;
+  border-radius: 6rpx;
   background: #ffffff;
 }
 
 .price-input-box input {
   width: 100%;
-  height: 64rpx;
+  height: 58rpx;
   color: #332f2b;
-  font-size: 20rpx;
+  font-size: 23rpx;
   text-align: center;
 }
 
@@ -114,52 +114,52 @@
 }
 
 .price-input-separator {
-  margin: 0 14rpx;
+  margin: 0 12rpx;
   color: #9e9891;
-  font-size: 22rpx;
+  font-size: 23rpx;
 }
 
 .price-input-section__hint {
   margin-top: 12rpx;
   color: #9a948c;
-  font-size: 16rpx;
+  font-size: 19rpx;
   line-height: 1.55;
 }
 
 .filter-block {
-  margin-top: 18rpx;
+  margin-top: 15rpx;
 }
 
 .filter-block__title {
   display: block;
-  margin-bottom: 12rpx;
+  margin-bottom: 10rpx;
   color: #38342f;
-  font-size: 20rpx;
+  font-size: 23rpx;
   font-weight: 600;
 }
 
 .filter-chip-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: 10rpx;
 }
 
 .filter-chip {
   display: inline-flex;
-  min-height: 58rpx;
+  min-height: 52rpx;
   align-items: center;
   justify-content: center;
-  padding: 0 20rpx;
+  padding: 0 18rpx;
   border: 1rpx solid #e6e0d8;
   border-radius: 999rpx;
   background: #ffffff;
   color: #79746d;
-  font-size: 18rpx;
+  font-size: 21rpx;
 }
 
 .filter-chip--active {
-  border-color: #d98899;
-  background: #d98899;
+  border-color: #111111;
+  background: #111111;
   color: #ffffff;
 }
 
@@ -167,7 +167,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 24rpx 22rpx 12rpx;
+  margin: 20rpx 22rpx 10rpx;
 }
 
 .result-summary__title,
@@ -177,14 +177,14 @@
 
 .result-summary__title {
   color: #34302c;
-  font-size: 25rpx;
+  font-size: 26rpx;
   font-weight: 700;
 }
 
 .result-summary__sub {
   margin-top: 6rpx;
-  color: #918b84;
-  font-size: 17rpx;
+  color: #8d8d88;
+  font-size: 21rpx;
 }
 
 .result-grid {
@@ -200,12 +200,12 @@
 
 .result-empty {
   margin: 0 22rpx;
-  padding: 34rpx 24rpx;
+  padding: 28rpx 22rpx;
   border: 1rpx dashed #ddd7cf;
-  border-radius: 20rpx;
+  border-radius: 0;
   background: #ffffff;
-  color: #8e8881;
-  font-size: 18rpx;
+  color: #8d8d88;
+  font-size: 21rpx;
   line-height: 1.75;
   text-align: center;
 }
@@ -213,7 +213,7 @@
 .result-note {
   margin: 18rpx 22rpx 0;
   color: #9a948c;
-  font-size: 16rpx;
+  font-size: 19rpx;
   line-height: 1.65;
 }
 
@@ -231,7 +231,7 @@
   box-sizing: border-box;
   border-top: 1rpx solid rgba(74, 68, 58, 0.08);
   background: rgba(251, 250, 247, 0.98);
-  box-shadow: 0 -10rpx 30rpx rgba(55, 50, 42, 0.07);
+  box-shadow: none;
 }
 
 .result-fixed-bar__inner {
@@ -241,20 +241,20 @@
 
 .result-action {
   display: flex;
-  height: 78rpx;
+  height: 72rpx;
   flex: 1;
   align-items: center;
   justify-content: center;
-  border: 1rpx solid #6f8050;
-  border-radius: 39rpx;
-  background: #6f8050;
+  border: 1rpx solid #111111;
+  border-radius: 36rpx;
+  background: #111111;
   color: #ffffff;
-  font-size: 21rpx;
+  font-size: 23rpx;
 }
 
 .result-action--light {
   background: #ffffff;
-  color: #627148;
+  color: #292929;
 }
 
 @media (min-width: 720px) {
@@ -265,4 +265,33 @@
   .result-cell {
     width: calc((100% - 32rpx) / 3);
   }
+}
+
+/* V6.14 unified luxury-neutral visual layer */
+.picker-page { background:#f7f7f5; }
+.picker-hero { border-bottom:1rpx solid #eeeeeb; background:#fff; }
+.picker-hero__eyebrow { color:#777772; }
+.picker-hero__title,.picker-filter-title,.result-summary__title { color:#171717; font-family:inherit; font-weight:650; }
+.picker-filter-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.price-input-box { border:1rpx solid #eeeeeb; border-radius:0; background:#f6f6f4; }
+.filter-chip { border:1rpx solid #deded9; border-radius:999rpx; background:#fff; color:#5b5b56; }
+.filter-chip--active { border-color:#111; background:#111; color:#fff; }
+.result-empty,.result-note { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; color:#5b5b56; }
+.result-fixed-bar { border-top:1rpx solid #eeeeeb; background:rgba(255,255,255,.98); box-shadow:none; }
+.result-action { border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; }
+.result-action--light { background:#fff; color:#111; }
+
+
+/* V6.17.5：小屏幕字号与间距自适应 */
+@media (max-width: 360px) {
+  .picker-hero__title { font-size: 31rpx; }
+  .picker-hero__sub { font-size: 20rpx; }
+  .picker-filter-title,
+  .price-input-section__label,
+  .filter-block__title { font-size: 21rpx; }
+  .filter-chip { min-height: 48rpx; padding: 0 16rpx; font-size: 19rpx; }
+  .result-summary__title { font-size: 24rpx; }
+  .result-summary__sub,
+  .result-note { font-size: 18rpx; }
+  .result-action { height: 68rpx; font-size: 21rpx; }
 }

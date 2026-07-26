@@ -11,7 +11,8 @@ const COLLECTIONS = {
   admins: 'admins',
   products: 'products',
   banners: 'banners',
-  atlas: 'atlas',
+  festivalCampaigns: 'festivalCampaigns',
+  studios: 'studios',
   calendarEvents: 'calendarEvents',
   users: 'users',
   addresses: 'addresses',
@@ -29,8 +30,57 @@ const TYPE_LABELS = {
   gift: '礼品'
 }
 
+
+const SALES_MODE_LABELS = {
+  spot: '现货销售',
+  preorder: '预约销售'
+}
+
+const CAMPAIGN_TYPE_LABELS = {
+  valentine: '情人节预定',
+  festival: '节日预售',
+  limited: '限时推出',
+  seasonal: '季节限定'
+}
+
+function normalizedTimestamp(value) {
+  if (!value) return 0
+  if (value instanceof Date) return value.getTime()
+  let source = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?$/.test(source)) {
+    source = `${source.replace(' ', 'T')}+08:00`
+  } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(source)) {
+    source = `${source}+08:00`
+  }
+  const timestamp = new Date(source).getTime()
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+function productWindowStatus(item, now = Date.now()) {
+  if (item.onSale !== true) return { active: false, label: '手动下架', tone: 'info' }
+  if (integer(item.stock) <= 0) return { active: false, label: '已售罄', tone: 'danger' }
+
+  if (item.limitedTimeEnabled === true) {
+    const start = normalizedTimestamp(item.saleStartAt)
+    const end = normalizedTimestamp(item.saleEndAt)
+    if (start && now < start) return { active: false, label: '限时活动待开始', tone: 'warning' }
+    if (end && now > end) return { active: false, label: '限时活动已结束', tone: 'info' }
+  }
+
+  if (text(item.salesMode, 'spot') === 'preorder') {
+    const start = normalizedTimestamp(item.preorderStartAt)
+    const end = normalizedTimestamp(item.preorderEndAt || item.reservationDeadlineAt)
+    if (start && now < start) return { active: false, label: '等待开放预售', tone: 'warning' }
+    if (end && now > end) return { active: false, label: '预售已经结束', tone: 'info' }
+    return { active: true, label: '预约销售中', tone: 'primary' }
+  }
+
+  if (item.limitedTimeEnabled === true) return { active: true, label: '限时销售中', tone: 'primary' }
+  return { active: true, label: '正常销售', tone: 'success' }
+}
+
 const ORDER_STATUS_META = {
-  pendingConfirm: { label: '待确认', tone: 'warning' },
+  pendingConfirm: { label: '待付款', tone: 'warning' },
   pendingPayment: { label: '待付款', tone: 'warning' },
   making: { label: '制作中', tone: 'primary' },
   delivering: { label: '配送中', tone: 'primary' },
@@ -303,10 +353,16 @@ function productView(item, urlMap) {
   const videoFileId = text(item.videoFileId)
   const videoPosterFileId = text(item.videoPosterFileId)
 
+  const windowStatus = productWindowStatus(item)
   return {
     ...item,
     galleryFileIds,
     typeLabel: TYPE_LABELS[item.type] || item.type || '其他',
+    salesMode: ['spot', 'preorder'].includes(text(item.salesMode)) ? text(item.salesMode) : 'spot',
+    salesModeLabel: SALES_MODE_LABELS[text(item.salesMode)] || SALES_MODE_LABELS.spot,
+    effectiveOnSale: windowStatus.active,
+    windowStatusLabel: windowStatus.label,
+    windowStatusTone: windowStatus.tone,
     imageUrl: urlMap[coverFileId] || '',
     galleryUrls: galleryFileIds
       .map((fileId) => urlMap[fileId] || '')
@@ -320,9 +376,6 @@ function bannerView(item, urlMap) {
   return { ...item, imageUrl: urlMap[text(item.imageFileId)] || '' }
 }
 
-function atlasView(item, urlMap) {
-  return { ...item, imageUrl: urlMap[text(item.imageFileId)] || '' }
-}
 
 async function listProducts(event) {
   const filters = event.filters || {}
@@ -348,8 +401,12 @@ async function listProducts(event) {
 
       if (keyword && !searchable.includes(keyword)) return false
       if (filters.type && item.type !== filters.type) return false
-      if (filters.saleStatus === 'onSale' && item.onSale !== true) return false
+      if (filters.salesMode && text(item.salesMode, 'spot') !== filters.salesMode) return false
+      if (filters.campaignId && text(item.festivalCampaignId) !== filters.campaignId) return false
+      const windowStatus = productWindowStatus(item)
+      if (filters.saleStatus === 'onSale' && !windowStatus.active) return false
       if (filters.saleStatus === 'offSale' && item.onSale === true) return false
+      if (filters.saleStatus === 'scheduled' && !(!windowStatus.active && ['限时活动待开始', '等待开放预售', '限时活动已结束', '预售已经结束'].includes(windowStatus.label))) return false
       if (filters.saleStatus === 'soldOut' && number(item.stock) !== 0) return false
       return true
     })
@@ -402,8 +459,6 @@ function sanitizeProduct(input) {
     sceneTags: stringArray(input.sceneTags),
     colorTags: stringArray(input.colorTags),
     searchKeywords: stringArray(input.searchKeywords),
-    atlasCodes: stringArray(input.atlasCodes),
-    atlasIds: stringArray(input.atlasIds),
     coverFileId: text(input.coverFileId),
     galleryFileIds: stringArray(input.galleryFileIds).slice(0, 8),
     videoFileId: text(input.videoFileId),
@@ -413,7 +468,37 @@ function sanitizeProduct(input) {
     sizeDescription: text(input.sizeDescription).slice(0, 500),
     deliveryDescription: text(input.deliveryDescription).slice(0, 1000),
     careDescription: text(input.careDescription).slice(0, 1000),
+    salesMode: ['spot', 'preorder'].includes(text(input.salesMode)) ? text(input.salesMode) : 'spot',
+    limitedTimeEnabled: boolean(input.limitedTimeEnabled),
+    saleStartAt: text(input.saleStartAt),
+    saleEndAt: text(input.saleEndAt),
+    festivalCampaignId: text(input.festivalCampaignId),
+    preorderStartAt: text(input.preorderStartAt),
+    preorderEndAt: text(input.preorderEndAt),
+    deliveryStartDate: text(input.deliveryStartDate),
+    deliveryEndDate: text(input.deliveryEndDate),
+    reservationDeadlineAt,
+    reservationQuota: integer(input.reservationQuota),
+    productionUnits: Math.max(1, integer(input.productionUnits, 1)),
+    studioId: text(input.studioId),
     sort: integer(input.sort, 100)
+  }
+}
+
+function validateProductCommercial(data) {
+  if (data.limitedTimeEnabled === true) {
+    const start = normalizedTimestamp(data.saleStartAt)
+    const end = normalizedTimestamp(data.saleEndAt)
+    if (!start || !end) throw new BusinessError('限时推出必须设置完整的开始和结束时间')
+    if (start >= end) throw new BusinessError('限时销售结束时间必须晚于开始时间')
+  }
+  if (data.salesMode === 'preorder') {
+    const start = normalizedTimestamp(data.preorderStartAt)
+    const end = normalizedTimestamp(data.preorderEndAt || data.reservationDeadlineAt)
+    if (start && end && start >= end) throw new BusinessError('预约结束时间必须晚于开始时间')
+    if (data.deliveryStartDate && data.deliveryEndDate && data.deliveryStartDate > data.deliveryEndDate) {
+      throw new BusinessError('预约配送结束日期不能早于开始日期')
+    }
   }
 }
 
@@ -430,18 +515,55 @@ async function saveProduct(event, adminContext) {
     )
   } catch (error) {}
 
+  if (data.festivalCampaignId) {
+    await assertCollectionExists(COLLECTIONS.festivalCampaigns)
+    const campaign = firstDocument(await db.collection(COLLECTIONS.festivalCampaigns).doc(data.festivalCampaignId).get())
+    if (!campaign) throw new BusinessError('选择的节日活动不存在')
+    const campaignType = text(campaign.type)
+    const isPreorderCampaign = ['valentine', 'festival'].includes(campaignType)
+    const isLimitedCampaign = ['limited', 'seasonal'].includes(campaignType)
+
+    // 关联活动时由活动统一管理销售窗口，避免商品保留上一活动的过期配置。
+    data.campaignManaged = true
+    data.campaignManagedType = campaignType
+    data.salesMode = isPreorderCampaign ? 'preorder' : 'spot'
+    data.preorderStartAt = isPreorderCampaign ? text(campaign.preSaleStartAt) : ''
+    data.preorderEndAt = isPreorderCampaign ? text(campaign.preSaleEndAt) : ''
+    data.deliveryStartDate = isPreorderCampaign ? text(campaign.deliveryStartDate) : ''
+    data.deliveryEndDate = isPreorderCampaign ? text(campaign.deliveryEndDate) : ''
+    data.reservationDeadlineAt = isPreorderCampaign ? text(campaign.reservationDeadlineAt) : ''
+    data.limitedTimeEnabled = isLimitedCampaign
+    data.saleStartAt = isLimitedCampaign ? text(campaign.preSaleStartAt) : ''
+    data.saleEndAt = isLimitedCampaign ? text(campaign.preSaleEndAt || campaign.reservationDeadlineAt) : ''
+  } else if (existing && existing.campaignManaged === true) {
+    // 从活动中移除后恢复常规现货商品；后续可再手动设置独立预约或限时窗口。
+    data.campaignManaged = false
+    data.campaignManagedType = ''
+    data.salesMode = 'spot'
+    data.preorderStartAt = ''
+    data.preorderEndAt = ''
+    data.deliveryStartDate = ''
+    data.deliveryEndDate = ''
+    data.reservationDeadlineAt = ''
+    data.limitedTimeEnabled = false
+    data.saleStartAt = ''
+    data.saleEndAt = ''
+  } else {
+    data.campaignManaged = false
+    data.campaignManagedType = ''
+  }
+
+  if (data.studioId) {
+    await assertCollectionExists(COLLECTIONS.studios)
+    const studio = firstDocument(await db.collection(COLLECTIONS.studios).doc(data.studioId).get())
+    if (!studio || studio.enabled === false) throw new BusinessError('选择的履约工作室不存在或已停用')
+  }
+
+  validateProductCommercial(data)
+
   data.sku = data.sku || text(existing && existing.sku) || defaultBusinessCode('SKU', id)
   await assertUniqueCode(COLLECTIONS.products, 'sku', data.sku, id)
 
-  if (data.atlasIds.length) {
-    const atlasItems = await safeGetAll(COLLECTIONS.atlas)
-    const codeMap = new Map(
-      atlasItems.map((item) => [text(item._id), text(item.atlasCode)]).filter((item) => item[0] && item[1])
-    )
-    data.atlasCodes = data.atlasIds.map((atlasId) => codeMap.get(text(atlasId))).filter(Boolean)
-  } else {
-    data.atlasCodes = []
-  }
 
   const document = {
     ...data,
@@ -451,6 +573,24 @@ async function saveProduct(event, adminContext) {
   }
 
   await db.collection(COLLECTIONS.products).doc(id).set(document)
+
+  // 保持商品与活动的双向关联一致，一个商品同时只归属一个活动。
+  const campaigns = await safeGetAll(COLLECTIONS.festivalCampaigns)
+  for (const campaign of campaigns) {
+    const productIds = stringArray(campaign.productIds)
+    const shouldContain = text(campaign._id) === data.festivalCampaignId
+    const nextProductIds = shouldContain
+      ? [...new Set([...productIds, id])]
+      : productIds.filter((productId) => productId !== id)
+    if (nextProductIds.length !== productIds.length || (shouldContain && !productIds.includes(id))) {
+      await db.collection(COLLECTIONS.festivalCampaigns).doc(campaign._id).update({
+        productIds: nextProductIds,
+        updatedAt: new Date(),
+        updatedBy: adminContext.identity.uid
+      })
+    }
+  }
+
   return { _id: id, ...document }
 }
 
@@ -459,6 +599,15 @@ async function deleteProduct(event) {
   const id = text(event.id)
   if (!id) throw new BusinessError('缺少商品 ID')
   await db.collection(COLLECTIONS.products).doc(id).remove()
+  const campaigns = await safeGetAll(COLLECTIONS.festivalCampaigns)
+  for (const campaign of campaigns) {
+    const productIds = stringArray(campaign.productIds)
+    if (!productIds.includes(id)) continue
+    await db.collection(COLLECTIONS.festivalCampaigns).doc(campaign._id).update({
+      productIds: productIds.filter((productId) => productId !== id),
+      updatedAt: new Date()
+    })
+  }
   return { _id: id }
 }
 
@@ -545,129 +694,6 @@ async function deleteBanner(event) {
   if (!id) throw new BusinessError('缺少轮播 ID')
   await db.collection(COLLECTIONS.banners).doc(id).remove()
   return { _id: id }
-}
-
-function sanitizeAtlas(input) {
-  const name = text(input.name)
-  if (!name) throw new BusinessError('花材名称不能为空')
-  return {
-    atlasCode: text(input.atlasCode).toUpperCase(),
-    name,
-    latinName: text(input.latinName),
-    alias: text(input.alias),
-    meaning: text(input.meaning),
-    description: text(input.description),
-    careGuide: text(input.careGuide),
-    floweringPeriod: text(input.floweringPeriod),
-    toxicityNote: text(input.toxicityNote),
-    imageBackground: ['dark', 'light', 'soft'].includes(
-      text(input.imageBackground)
-    )
-      ? text(input.imageBackground)
-      : 'soft',
-    category: text(input.category, '鲜切花'),
-    sceneTags: stringArray(input.sceneTags),
-    colorTags: stringArray(input.colorTags),
-    seasonTags: stringArray(input.seasonTags),
-    imageFileId: text(input.imageFileId),
-    homeFeatured: boolean(input.homeFeatured),
-    published: boolean(input.published),
-    sort: integer(input.sort, 100)
-  }
-}
-
-async function listAtlas() {
-  const items = await safeGetAll(COLLECTIONS.atlas)
-  const urlMap = await resolveFileUrls(items, ['imageFileId'])
-  return {
-    items: items
-      .sort((a, b) => number(b.sort) - number(a.sort))
-      .map((item) => atlasView(item, urlMap))
-  }
-}
-
-async function saveAtlas(event, adminContext) {
-  await assertCollectionExists(COLLECTIONS.atlas)
-  const input = event.item || {}
-  const data = sanitizeAtlas(input)
-  const id = text(input._id) || createId('atlas')
-  let existing = null
-  try {
-    existing = firstDocument(await db.collection(COLLECTIONS.atlas).doc(id).get())
-  } catch (error) {}
-  data.atlasCode = data.atlasCode || text(existing && existing.atlasCode) || defaultBusinessCode('ATL', id)
-  await assertUniqueCode(COLLECTIONS.atlas, 'atlasCode', data.atlasCode, id)
-  const document = {
-    ...data,
-    createdAt: existing && existing.createdAt || new Date(),
-    updatedAt: new Date(),
-    updatedBy: adminContext.identity.uid
-  }
-  await db.collection(COLLECTIONS.atlas).doc(id).set(document)
-  return { _id: id, ...document }
-}
-
-async function deleteAtlas(event) {
-  await assertCollectionExists(COLLECTIONS.atlas)
-  const id = text(event.id)
-  if (!id) throw new BusinessError('缺少图鉴 ID')
-  await db.collection(COLLECTIONS.atlas).doc(id).remove()
-  return { _id: id }
-}
-
-function mergeCalendarEvents(overrides) {
-  const catalog = cloneHolidayCatalog()
-  const overrideMap = new Map(
-    overrides
-      .filter((item) => text(item.eventKey))
-      .map((item) => [text(item.eventKey), item])
-  )
-  const builtInKeys = new Set(catalog.map((item) => item.eventKey))
-
-  const builtIns = catalog.map((item) => {
-    const override = overrideMap.get(item.eventKey) || {}
-    return {
-      ...item,
-      ...override,
-      _id: override._id || item.eventKey,
-      eventKey: item.eventKey,
-      builtIn: true,
-      isOverridden: Boolean(override._id),
-      rule: { ...item.rule, ...(plainObject(override.rule) || {}) },
-      searchKeywords: Array.isArray(override.searchKeywords)
-        ? override.searchKeywords
-        : item.searchKeywords,
-      productIds: stringArray(override.productIds),
-      enabled: override.enabled !== false,
-      recommendationEnabled: override.recommendationEnabled === undefined
-        ? item.recommendationEnabled !== false
-        : override.recommendationEnabled !== false
-    }
-  })
-
-  const custom = overrides
-    .filter((item) => {
-      const key = text(item.eventKey)
-      return key && !builtInKeys.has(key)
-    })
-    .map((item) => ({
-      ...item,
-      _id: item._id || item.eventKey,
-      builtIn: false,
-      isOverridden: true,
-      eventKey: text(item.eventKey),
-      rule: plainObject(item.rule),
-      searchKeywords: stringArray(item.searchKeywords),
-      productIds: stringArray(item.productIds),
-      enabled: item.enabled !== false,
-      recommendationEnabled: item.recommendationEnabled !== false
-    }))
-
-  return [...builtIns, ...custom].sort((a, b) => {
-    const regionDiff = text(a.region).localeCompare(text(b.region))
-    if (regionDiff) return regionDiff
-    return number(b.sort) - number(a.sort)
-  })
 }
 
 async function listCalendarEvents() {
@@ -834,20 +860,20 @@ function normalizeAdminDeliveryScheduleStatus(order = {}) {
   if (proposedReady) return 'customerConfirmationRequired'
   if (!requestedReady) return 'missingSchedule'
   if (direct === 'adjustmentRejected') return 'adjustmentRejected'
-  if (direct === 'confirmed') return 'pendingMerchantConfirm'
-  return direct || 'pendingMerchantConfirm'
+  if (requestedReady && ['pendingMerchantConfirm', 'confirmed', ''].includes(direct)) return 'confirmed'
+  return direct || 'confirmed'
 }
 
 function adminDeliveryScheduleMeta(status) {
   const map = {
     notRequired: { label: '无需二次确认', tone: 'info', description: '该订单不需要额外确认配送时间。' },
     missingSchedule: { label: '待补充配送时间', tone: 'warning', description: '该订单尚未填写有效的配送日期和时段，请由商家补充并确认。' },
-    pendingMerchantConfirm: { label: '待商家确认', tone: 'warning', description: '顾客已填写期望配送时间，等待商家确认。' },
-    customerConfirmationRequired: { label: '待顾客确认调整', tone: 'primary', description: '商家已提出新的配送时间，等待顾客确认。' },
+    pendingMerchantConfirm: { label: '时间已选定', tone: 'success', description: '顾客已选择配送时间，可直接付款。' },
+    customerConfirmationRequired: { label: '时间已选定', tone: 'success', description: '顾客已选择配送时间，可直接付款。' },
     confirmed: { label: '时间已确认', tone: 'success', description: '最终配送日期和时段已经确认。' },
-    adjustmentRejected: { label: '顾客未接受调整', tone: 'danger', description: '顾客未接受上次调整，请重新沟通配送时间。' }
+    adjustmentRejected: { label: '时间已选定', tone: 'success', description: '顾客已选择配送时间，可直接付款。' }
   }
-  return map[status] || { label: '待确认', tone: 'warning', description: '配送时间状态等待处理。' }
+  return map[status] || { label: '时间已选定', tone: 'success', description: '顾客已选择配送时间。' }
 }
 
 function validateDeliveryScheduleDate(value) {
@@ -874,7 +900,8 @@ function validateDeliveryScheduleSlot(value) {
 }
 
 function orderView(item, urlMap = {}) {
-  const status = text(item.status, 'pendingConfirm')
+  const rawStatus = text(item.status, 'pendingPayment')
+  const status = rawStatus === 'pendingConfirm' ? 'pendingPayment' : rawStatus
   const meta = orderStatusMeta(status)
   const items = (Array.isArray(item.items) ? item.items : []).map((row) => ({
     ...row,
@@ -884,6 +911,12 @@ function orderView(item, urlMap = {}) {
   }))
   const deliveryScheduleStatus = normalizeAdminDeliveryScheduleStatus(item)
   const deliveryScheduleMeta = adminDeliveryScheduleMeta(deliveryScheduleStatus)
+  const isPickup = text(item.deliveryMethodId) === 'pickup'
+  const statusLabel = isPickup && status === 'making'
+    ? '备货中'
+    : isPickup && status === 'delivering'
+      ? '待取货'
+      : meta.label
   const requestedDeliveryDate = isDeliveryDateValue(item.requestedDeliveryDate)
     ? text(item.requestedDeliveryDate)
     : (isDeliveryDateValue(item.deliveryDate) ? text(item.deliveryDate) : '')
@@ -896,7 +929,7 @@ function orderView(item, urlMap = {}) {
     _id: text(item._id),
     orderNo: text(item.orderNo),
     status,
-    statusLabel: meta.label,
+    statusLabel,
     statusTone: meta.tone,
     paymentStatus: text(item.paymentStatus, 'unpaid'),
     customerNickname: text(item.customerNickname, 'Chloris 用户'),
@@ -929,12 +962,8 @@ function orderView(item, urlMap = {}) {
     items,
     itemCount: items.reduce((sum, row) => sum + integer(row.quantity), 0),
     goodsAmountText: formatFen(item.goodsAmountFen),
-    packagingFeeText: formatFen(item.packagingFeeFen),
-    deliveryFeeText: item.deliveryFeePending === true
-      ? '待确认'
-      : formatFen(item.deliveryFeeFen),
+    deliveryFeeText: formatFen(item.deliveryFeeFen),
     discountText: formatFen(item.discountFen),
-    pointsDeductionText: formatFen(item.pointsDeductionFen),
     totalAmountText: formatFen(item.totalAmountFen),
     createdAtText: isoDate(item.createdAt),
     updatedAtText: isoDate(item.updatedAt),
@@ -956,7 +985,11 @@ async function listOrders(event) {
 
   const filtered = items
     .filter((item) => {
-      if (status && status !== 'all' && item.status !== status) return false
+      if (status && status !== 'all') {
+        if (status === 'pendingPayment') {
+          if (!['pendingConfirm', 'pendingPayment'].includes(item.status)) return false
+        } else if (item.status !== status) return false
+      }
       if (deliveryMethodId && item.deliveryMethodId !== deliveryMethodId) return false
 
       if (keyword) {
@@ -965,6 +998,9 @@ async function listOrders(event) {
           item.customerNickname,
           item.address && item.address.receiverName,
           item.address && item.address.phone,
+          item.pickupLocation && item.pickupLocation.name,
+          item.pickupLocation && item.pickupLocation.address,
+          item.pickupLocation && item.pickupLocation.phone,
           ...(Array.isArray(item.items) ? item.items.map((row) => row.name) : [])
         ]
           .map((value) => text(value).toLowerCase())
@@ -985,7 +1021,6 @@ async function listOrders(event) {
 
   const counts = {
     all: items.length,
-    pendingConfirm: 0,
     pendingPayment: 0,
     making: 0,
     delivering: 0,
@@ -996,7 +1031,9 @@ async function listOrders(event) {
   }
 
   for (const item of items) {
-    if (Object.prototype.hasOwnProperty.call(counts, item.status)) {
+    if (['pendingConfirm', 'pendingPayment'].includes(item.status)) {
+      counts.pendingPayment += 1
+    } else if (Object.prototype.hasOwnProperty.call(counts, item.status)) {
       counts[item.status] += 1
     }
   }
@@ -1094,10 +1131,8 @@ async function confirmOrder(event, adminContext) {
   const totalAmountFen = Math.max(
     0,
     integer(order.goodsAmountFen) +
-      integer(order.packagingFeeFen) +
       deliveryFeeFen -
-      integer(order.discountFen) -
-      integer(order.pointsDeductionFen)
+      integer(order.discountFen)
   )
   const merchantNote = text(event.merchantNote)
   const deliveryScheduleStatus = normalizeAdminDeliveryScheduleStatus(order)
@@ -1186,10 +1221,8 @@ async function updateDeliverySchedule(event, adminContext) {
   const totalAmountFen = Math.max(
     0,
     integer(order.goodsAmountFen) +
-      integer(order.packagingFeeFen) +
       deliveryFeeFen -
-      integer(order.discountFen) -
-      integer(order.pointsDeductionFen)
+      integer(order.discountFen)
   )
 
   const common = {
@@ -1297,12 +1330,7 @@ async function rejectOrder(event, adminContext) {
 async function markOrderPaid(event, adminContext) {
   const id = text(event.id)
   const order = await requireOrder(id)
-  assertOrderStatus(order, ['pendingPayment'])
-
-  const deliveryScheduleStatus = normalizeAdminDeliveryScheduleStatus(order)
-  if (!['confirmed', 'notRequired'].includes(deliveryScheduleStatus)) {
-    throw new BusinessError('请先确认订单的最终配送时间')
-  }
+  assertOrderStatus(order, ['pendingConfirm', 'pendingPayment'])
 
   const note = text(event.note, '商家已确认线下收款')
 
@@ -1474,7 +1502,6 @@ async function listUsers(event) {
       ...item,
       avatarUrl: avatarUrlMap[text(item.avatarFileId)] || '',
       memberLevelLabel: text(item.memberLevelLabel, '普通会员'),
-      points: integer(item.points),
       addressCount: addressCountMap.get(item._id) || 0,
       orderCount: orderCountMap.get(item._id) || 0,
       completedAmountFen: completedAmountMap.get(item._id) || 0,
@@ -1508,7 +1535,6 @@ async function getUser(event) {
     ...user,
     avatarUrl: avatarUrlMap[text(user.avatarFileId)] || '',
     memberLevelLabel: text(user.memberLevelLabel, '普通会员'),
-    points: integer(user.points),
     createdAtText: isoDate(user.createdAt),
     addresses: addresses
       .filter((item) => item.userId === id)
@@ -1719,11 +1745,393 @@ async function updateQuoteRequest(event, adminContext) {
     quotedPriceFen
   }
 }
+
+function sanitizeCampaign(input) {
+  const name = text(input.name)
+  if (!name) throw new BusinessError('活动名称不能为空')
+  const type = text(input.type, 'festival')
+  if (!Object.prototype.hasOwnProperty.call(CAMPAIGN_TYPE_LABELS, type)) {
+    throw new BusinessError('活动类型不正确')
+  }
+  const preSaleStartAt = text(input.preSaleStartAt)
+  const preSaleEndAt = text(input.preSaleEndAt)
+  const deliveryStartDate = text(input.deliveryStartDate)
+  const deliveryEndDate = text(input.deliveryEndDate)
+  if (!preSaleStartAt || !preSaleEndAt) {
+    throw new BusinessError('活动必须设置完整的开始和结束时间')
+  }
+  if (normalizedTimestamp(preSaleStartAt) >= normalizedTimestamp(preSaleEndAt)) {
+    throw new BusinessError('活动结束时间必须晚于开始时间')
+  }
+  if (['valentine', 'festival'].includes(type) && (!deliveryStartDate || !deliveryEndDate)) {
+    throw new BusinessError('节日预售必须设置允许配送日期')
+  }
+  if (deliveryStartDate && deliveryEndDate && deliveryStartDate > deliveryEndDate) {
+    throw new BusinessError('配送结束日期不能早于开始日期')
+  }
+  const reservationDeadlineAt = text(input.reservationDeadlineAt)
+  if (reservationDeadlineAt && normalizedTimestamp(reservationDeadlineAt) > normalizedTimestamp(preSaleEndAt)) {
+    throw new BusinessError('预约截止时间不能晚于活动结束时间')
+  }
+  return {
+    campaignCode: text(input.campaignCode).toUpperCase(),
+    name,
+    type,
+    title: text(input.title, name),
+    subtitle: text(input.subtitle),
+    enabled: input.enabled !== false,
+    preSaleStartAt,
+    preSaleEndAt,
+    deliveryStartDate,
+    deliveryEndDate,
+    reservationDeadlineAt,
+    maxOrders: integer(input.maxOrders),
+    maxUnits: integer(input.maxUnits),
+    productIds: stringArray(input.productIds),
+    sort: integer(input.sort, 100)
+  }
+}
+
+function campaignUsage(campaignId, orders = []) {
+  const activeStatuses = new Set(['pendingConfirm', 'pendingPayment', 'making', 'delivering', 'completed', 'refundPending'])
+  const matched = orders.filter((order) => activeStatuses.has(text(order.status)) && (
+    stringArray(order.festivalCampaignIds).includes(campaignId) ||
+    (Array.isArray(order.items) ? order.items : []).some((entry) => text(entry.festivalCampaignId) === campaignId)
+  ))
+  const bookedUnits = matched.reduce((sum, order) => (
+    sum + (Array.isArray(order.items) ? order.items : [])
+      .filter((entry) => text(entry.festivalCampaignId) === campaignId)
+      .reduce((inner, entry) => inner + Math.max(1, integer(entry.productionUnits, 1)) * Math.max(1, integer(entry.quantity, 1)), 0)
+  ), 0)
+  return { bookedOrders: matched.length, bookedUnits }
+}
+
+function campaignView(item, products = [], usage = {}) {
+  const now = Date.now()
+  const start = normalizedTimestamp(item.preSaleStartAt)
+  const end = normalizedTimestamp(item.preSaleEndAt)
+  const isPreorderCampaign = ['valentine', 'festival'].includes(text(item.type))
+  let statusLabel = item.enabled === false ? '已停用' : (isPreorderCampaign ? '预售中' : '活动中')
+  let statusTone = item.enabled === false ? 'info' : 'success'
+  if (item.enabled !== false && start && now < start) { statusLabel = '等待开始'; statusTone = 'warning' }
+  if (item.enabled !== false && end && now > end) { statusLabel = '已经结束'; statusTone = 'info' }
+  const names = new Map(products.map((row) => [text(row._id), text(row.name)]))
+  return {
+    ...item,
+    typeLabel: CAMPAIGN_TYPE_LABELS[text(item.type)] || text(item.type),
+    statusLabel,
+    statusTone,
+    productIds: stringArray(item.productIds),
+    productNames: stringArray(item.productIds).map((id) => names.get(id)).filter(Boolean),
+    bookedOrders: integer(usage.bookedOrders),
+    bookedUnits: integer(usage.bookedUnits),
+    remainingOrders: integer(item.maxOrders) ? Math.max(0, integer(item.maxOrders) - integer(usage.bookedOrders)) : null,
+    remainingUnits: integer(item.maxUnits) ? Math.max(0, integer(item.maxUnits) - integer(usage.bookedUnits)) : null
+  }
+}
+
+async function listFestivalCampaigns() {
+  const [items, products, orders] = await Promise.all([
+    safeGetAll(COLLECTIONS.festivalCampaigns),
+    safeGetAll(COLLECTIONS.products),
+    safeGetAll(COLLECTIONS.orders)
+  ])
+  const result = items.sort((a,b) => integer(b.sort)-integer(a.sort) || normalizedTimestamp(b.preSaleStartAt)-normalizedTimestamp(a.preSaleStartAt))
+    .map((item) => campaignView(item, products, campaignUsage(text(item._id), orders)))
+  return { items: result, total: result.length, collectionReady: await collectionExists(COLLECTIONS.festivalCampaigns) }
+}
+
+async function saveFestivalCampaign(event, adminContext) {
+  await assertCollectionExists(COLLECTIONS.festivalCampaigns)
+  const input = event.campaign || {}
+  const data = sanitizeCampaign(input)
+  const id = text(input._id) || createId('campaign')
+  let existing = null
+  try { existing = firstDocument(await db.collection(COLLECTIONS.festivalCampaigns).doc(id).get()) } catch (error) {}
+  data.campaignCode = data.campaignCode || text(existing && existing.campaignCode) || defaultBusinessCode('CAM', id)
+  await assertUniqueCode(COLLECTIONS.festivalCampaigns, 'campaignCode', data.campaignCode, id)
+  const products = await safeGetAll(COLLECTIONS.products)
+  const knownProductIds = new Set(products.map((product) => text(product._id)))
+  const invalidProductIds = data.productIds.filter((productId) => !knownProductIds.has(productId))
+  if (invalidProductIds.length) {
+    throw new BusinessError('活动关联的部分商品不存在，请刷新商品列表后重试')
+  }
+  const document = { ...data, createdAt: existing && existing.createdAt || new Date(), updatedAt: new Date(), updatedBy: adminContext.identity.uid }
+  await db.collection(COLLECTIONS.festivalCampaigns).doc(id).set(document)
+
+  // 一个商品仅归属一个活动；自动从其他活动中移除重复关联。
+  const otherCampaigns = await safeGetAll(COLLECTIONS.festivalCampaigns)
+  for (const campaign of otherCampaigns) {
+    if (text(campaign._id) === id) continue
+    const currentIds = stringArray(campaign.productIds)
+    const nextIds = currentIds.filter((productId) => !data.productIds.includes(productId))
+    if (nextIds.length !== currentIds.length) {
+      await db.collection(COLLECTIONS.festivalCampaigns).doc(campaign._id).update({
+        productIds: nextIds,
+        updatedAt: new Date(),
+        updatedBy: adminContext.identity.uid
+      })
+    }
+  }
+
+  // 同步活动关联商品，确保分类与详情可以立即识别。
+  for (const product of products) {
+    const shouldLink = data.productIds.includes(text(product._id))
+    const isLinked = text(product.festivalCampaignId) === id
+    if (shouldLink) {
+      const isPreorderCampaign = ['valentine', 'festival'].includes(data.type)
+      const isLimitedCampaign = ['limited', 'seasonal'].includes(data.type)
+      await db.collection(COLLECTIONS.products).doc(product._id).update({
+        festivalCampaignId: id,
+        campaignManaged: true,
+        campaignManagedType: data.type,
+        salesMode: isPreorderCampaign ? 'preorder' : 'spot',
+        preorderStartAt: isPreorderCampaign ? data.preSaleStartAt : '',
+        preorderEndAt: isPreorderCampaign ? data.preSaleEndAt : '',
+        deliveryStartDate: isPreorderCampaign ? data.deliveryStartDate : '',
+        deliveryEndDate: isPreorderCampaign ? data.deliveryEndDate : '',
+        reservationDeadlineAt: isPreorderCampaign ? data.reservationDeadlineAt : '',
+        limitedTimeEnabled: isLimitedCampaign,
+        saleStartAt: isLimitedCampaign ? data.preSaleStartAt : '',
+        saleEndAt: isLimitedCampaign ? (data.preSaleEndAt || data.reservationDeadlineAt) : '',
+        updatedAt: new Date(),
+        updatedBy: adminContext.identity.uid
+      })
+    } else if (isLinked) {
+      const cleanup = { festivalCampaignId: '', campaignManaged: false, campaignManagedType: '', updatedAt: new Date(), updatedBy: adminContext.identity.uid }
+      if (product.campaignManaged === true) {
+        Object.assign(cleanup, {
+          salesMode: 'spot', preorderStartAt: '', preorderEndAt: '', deliveryStartDate: '', deliveryEndDate: '', reservationDeadlineAt: '',
+          saleStartAt: '', saleEndAt: '', limitedTimeEnabled: false
+        })
+      }
+      await db.collection(COLLECTIONS.products).doc(product._id).update(cleanup)
+    }
+  }
+  return campaignView({ _id: id, ...document }, products)
+}
+
+async function deleteFestivalCampaign(event, adminContext) {
+  const id = text(event.id)
+  if (!id) throw new BusinessError('缺少活动 ID')
+  await assertCollectionExists(COLLECTIONS.festivalCampaigns)
+  await db.collection(COLLECTIONS.festivalCampaigns).doc(id).remove()
+  const products = await safeGetAll(COLLECTIONS.products)
+  for (const product of products.filter((item) => text(item.festivalCampaignId) === id)) {
+    const cleanup = { festivalCampaignId: '', campaignManaged: false, campaignManagedType: '', updatedAt: new Date(), updatedBy: adminContext.identity.uid }
+    if (product.campaignManaged === true) {
+      Object.assign(cleanup, {
+        preorderStartAt: '', preorderEndAt: '', deliveryStartDate: '', deliveryEndDate: '', reservationDeadlineAt: '',
+        saleStartAt: '', saleEndAt: '', limitedTimeEnabled: false
+      })
+    }
+    await db.collection(COLLECTIONS.products).doc(product._id).update(cleanup)
+  }
+  return { _id: id }
+}
+
+function sanitizeDateOverrides(value) {
+  if (!Array.isArray(value)) return []
+  return value.map((item) => ({
+    date: text(item && item.date),
+    maxOrders: integer(item && item.maxOrders),
+    maxUnits: integer(item && item.maxUnits),
+    closed: item && item.closed === true,
+    note: text(item && item.note).slice(0, 120)
+  })).filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.date)).slice(0, 120)
+}
+
+function sanitizeStudio(input) {
+  const name = text(input.name)
+  if (!name) throw new BusinessError('工作室名称不能为空')
+  return {
+    studioCode: text(input.studioCode).toUpperCase(),
+    name,
+    contactName: text(input.contactName),
+    phone: text(input.phone),
+    wechat: text(input.wechat),
+    wechatQrFileId: text(input.wechatQrFileId),
+    profileCoverFileId: text(input.profileCoverFileId),
+    logoFileId: text(input.logoFileId),
+    address: text(input.address),
+    supportsPickup: input.supportsPickup !== false,
+    pickupName: text(input.pickupName),
+    pickupAddress: text(input.pickupAddress),
+    pickupPhone: text(input.pickupPhone),
+    pickupHours: text(input.pickupHours),
+    pickupNotice: text(input.pickupNotice).slice(0, 300),
+    enabled: input.enabled !== false,
+    defaultDailyOrderLimit: Math.max(1, integer(input.defaultDailyOrderLimit, 10)),
+    defaultDailyUnitLimit: Math.max(1, integer(input.defaultDailyUnitLimit, 20)),
+    dateOverrides: sanitizeDateOverrides(input.dateOverrides),
+    note: text(input.note).slice(0, 500),
+    sort: integer(input.sort, 100)
+  }
+}
+
+function orderCapacityUnits(order) {
+  const direct = integer(order.capacityUnits || order.productionUnits)
+  if (direct > 0) return direct
+  return Math.max(1, (Array.isArray(order.items) ? order.items : []).reduce((sum, item) => (
+    sum + Math.max(1, integer(item.productionUnits, 1)) * Math.max(1, integer(item.quantity, 1))
+  ), 0))
+}
+
+function capacityRule(studio, date) {
+  const override = (Array.isArray(studio.dateOverrides) ? studio.dateOverrides : []).find((item) => text(item.date) === date)
+  return {
+    closed: override ? override.closed === true : false,
+    maxOrders: Math.max(1, integer(override && override.maxOrders, integer(studio.defaultDailyOrderLimit, 10))),
+    maxUnits: Math.max(1, integer(override && override.maxUnits, integer(studio.defaultDailyUnitLimit, 20))),
+    note: text(override && override.note)
+  }
+}
+
+function chinaDateString(value = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(value)
+}
+
+async function studioCapacityRows(studio, days = 21, orderRows = null) {
+  const orders = Array.isArray(orderRows) ? orderRows : await safeGetAll(COLLECTIONS.orders)
+  const rows = []
+  const now = new Date()
+  for (let i=0;i<days;i+=1) {
+    const date = chinaDateString(new Date(now.getTime()+i*86400000))
+    const rule = capacityRule(studio, date)
+    const active = orders.filter((order) => text(order.assignedStudioId) === text(studio._id) && text(order.deliveryDate || order.requestedDeliveryDate) === date && !['cancelled','refunded'].includes(text(order.status)))
+    const usedUnits = active.reduce((sum, order) => sum + orderCapacityUnits(order), 0)
+    rows.push({ date, ...rule, usedOrders: active.length, usedUnits, remainingOrders: Math.max(0, rule.maxOrders-active.length), remainingUnits: Math.max(0, rule.maxUnits-usedUnits) })
+  }
+  return rows
+}
+
+async function listStudios() {
+  const [items, orders] = await Promise.all([
+    safeGetAll(COLLECTIONS.studios),
+    safeGetAll(COLLECTIONS.orders)
+  ])
+  const urlMap = await resolveFileUrls(items, [
+    'wechatQrFileId',
+    'profileCoverFileId',
+    'logoFileId'
+  ])
+  const result=[]
+  for (const item of items.sort((a,b)=>integer(b.sort)-integer(a.sort))) {
+    result.push({
+      ...item,
+      wechatQrUrl: urlMap[text(item.wechatQrFileId)] || '',
+      profileCoverUrl: urlMap[text(item.profileCoverFileId)] || '',
+      logoUrl: urlMap[text(item.logoFileId)] || '',
+      capacityRows: await studioCapacityRows(item, 14, orders)
+    })
+  }
+  return { items: result, total: result.length, collectionReady: await collectionExists(COLLECTIONS.studios) }
+}
+
+async function saveStudio(event, adminContext) {
+  await assertCollectionExists(COLLECTIONS.studios)
+  const input = event.studio || {}
+  const data = sanitizeStudio(input)
+  const id = text(input._id) || createId('studio')
+  let existing=null
+  try { existing = firstDocument(await db.collection(COLLECTIONS.studios).doc(id).get()) } catch(error) {}
+  data.studioCode = data.studioCode || text(existing && existing.studioCode) || defaultBusinessCode('STD', id)
+  await assertUniqueCode(COLLECTIONS.studios, 'studioCode', data.studioCode, id)
+  const document={...data,createdAt:existing&&existing.createdAt||new Date(),updatedAt:new Date(),updatedBy:adminContext.identity.uid}
+  await db.collection(COLLECTIONS.studios).doc(id).set(document)
+  return { _id:id, ...document, capacityRows: await studioCapacityRows({_id:id,...document},14) }
+}
+
+async function deleteStudio(event) {
+  const id=text(event.id)
+  if(!id) throw new BusinessError('缺少工作室 ID')
+  const orders=await safeGetAll(COLLECTIONS.orders)
+  if(orders.some((item)=>text(item.assignedStudioId)===id && !['completed','cancelled','refunded'].includes(text(item.status)))) {
+    throw new BusinessError('该工作室仍有未完成订单，不能删除')
+  }
+  await db.collection(COLLECTIONS.studios).doc(id).remove()
+  return {_id:id}
+}
+
+async function listStudioOrders(event) {
+  const studioId=text(event.studioId)
+  const status=text(event.status)
+  const items=await safeGetAll(COLLECTIONS.orders)
+  const filtered=items.filter((item)=>{
+    if (studioId) {
+      const assignedStudioId = text(item.assignedStudioId)
+      const suggestedStudioId = text(item.suggestedStudioId)
+      if (assignedStudioId && assignedStudioId !== studioId) return false
+      if (!assignedStudioId && suggestedStudioId && suggestedStudioId !== studioId) return false
+      if (!assignedStudioId && !suggestedStudioId && !['pendingConfirm','pendingPayment','making'].includes(text(item.status))) return false
+    }
+    if(status && status!=='all') {
+      if(status==='pendingPayment') {
+        if(!['pendingConfirm','pendingPayment'].includes(text(item.status))) return false
+      } else if(text(item.status)!==status) return false
+    }
+    return ['pendingConfirm','pendingPayment','making','delivering'].includes(text(item.status))
+  }).sort((a,b)=>dateValue(a.createdAt)-dateValue(b.createdAt))
+  const urlMap=await resolveFileUrls(filtered.flatMap((order)=>Array.isArray(order.items)?order.items:[]),['coverFileId'])
+  return {items:filtered.map((item)=>({...orderView(item,urlMap),capacityUnits:orderCapacityUnits(item),assignedStudioId:text(item.assignedStudioId),assignedStudioName:text(item.assignedStudioName)})),total:filtered.length}
+}
+
+async function assertStudioCapacity(studio, deliveryDate, order, excludeOrderId='') {
+  const rule=capacityRule(studio,deliveryDate)
+  if(rule.closed) throw new BusinessError(`${deliveryDate} 工作室已设置为不接单${rule.note?`：${rule.note}`:''}`,'STUDIO_CLOSED')
+  const orders=await safeGetAll(COLLECTIONS.orders)
+  const active=orders.filter((item)=>text(item._id)!==excludeOrderId && text(item.assignedStudioId)===text(studio._id) && text(item.deliveryDate||item.requestedDeliveryDate)===deliveryDate && !['cancelled','refunded'].includes(text(item.status)))
+  const usedUnits=active.reduce((sum,item)=>sum+orderCapacityUnits(item),0)
+  const units=orderCapacityUnits(order)
+  if(active.length+1>rule.maxOrders || usedUnits+units>rule.maxUnits) {
+    throw new BusinessError(`${deliveryDate} 产能不足：剩余 ${Math.max(0,rule.maxOrders-active.length)} 单 / ${Math.max(0,rule.maxUnits-usedUnits)} 产能单位`,'CAPACITY_EXCEEDED')
+  }
+  return {rule,units,usedOrders:active.length,usedUnits}
+}
+
+async function studioAcceptOrder(event, adminContext) {
+  const id=text(event.id); const studioId=text(event.studioId)
+  if(!studioId) throw new BusinessError('请选择履约工作室')
+  const order=await requireOrder(id); assertOrderStatus(order,['pendingConfirm','pendingPayment','making'])
+  const studio=firstDocument(await db.collection(COLLECTIONS.studios).doc(studioId).get())
+  if(!studio || studio.enabled===false) throw new BusinessError('工作室不存在或已停用')
+  const deliveryDate=validateDeliveryScheduleDate(event.deliveryDate || order.requestedDeliveryDate || order.deliveryDate)
+  const deliverySlot=validateDeliveryScheduleSlot(event.deliverySlot || order.requestedDeliverySlot || order.deliverySlot)
+  const capacity=await assertStudioCapacity({_id:studioId,...studio},deliveryDate,order,id)
+  const nextStatus = text(order.status) === 'making' ? 'making' : 'pendingPayment'
+  await db.collection(COLLECTIONS.orders).doc(id).update({
+    status:nextStatus,statusLabel:ORDER_STATUS_META[nextStatus].label,
+    assignedStudioId:studioId,assignedStudioName:text(studio.name),capacityUnits:capacity.units,
+    deliveryDate,deliverySlot,confirmedDeliveryDate:deliveryDate,confirmedDeliverySlot:deliverySlot,
+    deliveryScheduleStatus:'confirmed',deliveryScheduleStatusLabel:'时间已确认',deliveryConfirmed:true,
+    deliveryFeePending:false,amountPending:false,
+    merchantNote:text(event.note),confirmedAt:order.confirmedAt||new Date(),updatedAt:new Date(),updatedBy:adminContext.identity.uid
+  })
+  await appendOrderLog({orderId:id,orderNo:order.orderNo,status:nextStatus,title:'工作室已接单',note:`${text(studio.name)} · ${deliveryDate} ${deliverySlot} · 占用 ${capacity.units} 个产能单位`,adminContext})
+  return {_id:id,status:nextStatus,assignedStudioId:studioId,capacityUnits:capacity.units,totalAmountFen:integer(order.totalAmountFen)}
+}
+
+async function studioStartMaking(event, adminContext) {
+  const id=text(event.id); const order=await requireOrder(id)
+  assertOrderStatus(order,['pendingPayment','making'])
+  if(!text(order.assignedStudioId)) throw new BusinessError('订单尚未分配工作室')
+  if(text(order.status)==='making') return {_id:id,status:'making'}
+  await db.collection(COLLECTIONS.orders).doc(id).update({status:'making',statusLabel:ORDER_STATUS_META.making.label,paymentStatus:text(event.paymentStatus,'offlinePaid'),paidAt:new Date(),makingAt:new Date(),updatedAt:new Date(),updatedBy:adminContext.identity.uid})
+  await appendOrderLog({orderId:id,orderNo:order.orderNo,status:'making',title:'工作室确认开始制作',note:text(event.note,'款项与制作安排已确认'),adminContext})
+  return {_id:id,status:'making'}
+}
+
 async function dashboard() {
-  const [products, banners, atlas, calendarOverrides, orders, users, quoteRequests] = await Promise.all([
+  const [products, banners, campaigns, studios, calendarOverrides, orders, users, quoteRequests] = await Promise.all([
     safeGetAll(COLLECTIONS.products),
     safeGetAll(COLLECTIONS.banners),
-    safeGetAll(COLLECTIONS.atlas),
+    safeGetAll(COLLECTIONS.festivalCampaigns),
+    safeGetAll(COLLECTIONS.studios),
     safeGetAll(COLLECTIONS.calendarEvents),
     safeGetAll(COLLECTIONS.orders),
     safeGetAll(COLLECTIONS.users),
@@ -1744,18 +2152,20 @@ async function dashboard() {
 
   return {
     productCount: products.length,
-    onSaleProducts: products.filter((item) => item.onSale === true).length,
+    onSaleProducts: products.filter((item) => productWindowStatus(item).active).length,
     soldOutProducts: products.filter((item) => number(item.stock) === 0).length,
     lowStockCount: products.filter((item) => number(item.stock) <= 5).length,
     featuredProducts: products.filter((item) => item.featured === true).length,
     enabledBanners: banners.filter((item) => item.enabled === true).length,
-    atlasCount: atlas.length,
+    festivalCampaignCount: campaigns.length,
+    activeFestivalCampaignCount: campaigns.filter((item) => campaignView(item, products).statusTone === 'success').length,
+    studioCount: studios.length,
     calendarEventCount: mergeCalendarEvents(calendarOverrides)
       .filter((item) => item.enabled !== false).length,
     customerCount: users.length,
     orderCount: orders.length,
-    pendingConfirmOrders: orders.filter((item) => item.status === 'pendingConfirm').length,
-    pendingPaymentOrders: orders.filter((item) => item.status === 'pendingPayment').length,
+    pendingConfirmOrders: 0,
+    pendingPaymentOrders: orders.filter((item) => ['pendingConfirm', 'pendingPayment'].includes(item.status)).length,
     makingOrders: orders.filter((item) => item.status === 'making').length,
     deliveringOrders: orders.filter((item) => item.status === 'delivering').length,
     completedOrders: orders.filter((item) => item.status === 'completed').length,
@@ -1791,9 +2201,15 @@ exports.main = async (event = {}) => {
       case 'listBanners': return success(await listBanners())
       case 'saveBanner': return success(await saveBanner(event, adminContext))
       case 'deleteBanner': return success(await deleteBanner(event))
-      case 'listAtlas': return success(await listAtlas())
-      case 'saveAtlas': return success(await saveAtlas(event, adminContext))
-      case 'deleteAtlas': return success(await deleteAtlas(event))
+      case 'listFestivalCampaigns': return success(await listFestivalCampaigns())
+      case 'saveFestivalCampaign': return success(await saveFestivalCampaign(event, adminContext))
+      case 'deleteFestivalCampaign': return success(await deleteFestivalCampaign(event, adminContext))
+      case 'listStudios': return success(await listStudios())
+      case 'saveStudio': return success(await saveStudio(event, adminContext))
+      case 'deleteStudio': return success(await deleteStudio(event))
+      case 'listStudioOrders': return success(await listStudioOrders(event))
+      case 'studioAcceptOrder': return success(await studioAcceptOrder(event, adminContext))
+      case 'studioStartMaking': return success(await studioStartMaking(event, adminContext))
       case 'listCalendarEvents': return success(await listCalendarEvents())
       case 'saveCalendarEvent': return success(await saveCalendarEvent(event, adminContext))
       case 'deleteCalendarEvent': return success(await deleteCalendarEvent(event))

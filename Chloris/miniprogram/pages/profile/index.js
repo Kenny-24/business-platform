@@ -2,19 +2,24 @@ const { getLayoutMetrics } = require('../../utils/layout')
 const { getProfileOverview } = require('../../services/profile-overview')
 const {
   ORDER_STATUS_ITEMS,
-  ASSET_ITEMS,
-  SERVICE_ITEMS
+  SERVICE_GRID_ITEMS
 } = require('../../data/profile-config')
+
+const FALLBACK_MERCHANT = {
+  name: 'Chloris 花艺',
+  wechat: '',
+  wechatQrUrl: '',
+  profileCoverUrl: '/images/brand/profile-cover.jpg',
+  logoUrl: '/images/brand/chloris-loading-logo.png'
+}
 
 function buildLayout() {
   const metrics = getLayoutMetrics()
   const width = Number(metrics.windowWidth || 375)
-
   return {
-    contentHeight: metrics.contentHeight,
-    horizontalPadding: width <= 350 ? 14 : width >= 768 ? 30 : 18,
-    avatarSize: width <= 350 ? 64 : width >= 768 ? 86 : 74,
-    wideLayout: width >= 720,
+    contentHeight: metrics.windowHeight,
+    horizontalPadding: Number(metrics.horizontalPadding || (width <= 350 ? 14 : width >= 768 ? 30 : 17)),
+    wideLayout: Boolean(metrics.isWideScreen || width >= 720),
     compactLayout: width <= 350
   }
 }
@@ -22,19 +27,24 @@ function buildLayout() {
 function serviceValue(key, overview) {
   if (key === 'addresses') {
     const count = Number(overview.counts.addresses || 0)
-    return count > 0 ? `${count}个` : '未添加'
+    return count > 0 ? `${count}` : ''
   }
 
   if (key === 'importantDates') {
     const count = Number(overview.counts.importantDates || 0)
-    return count > 0 ? `${count}个` : '未添加'
+    return count > 0 ? `${count}` : ''
   }
 
   if (key === 'quoteRequests') {
     const pending = Number(overview.counts.quotePendingDecision || 0)
     const total = Number(overview.counts.quoteRequests || 0)
-    if (pending > 0) return `${pending}条待确认`
-    return total > 0 ? `${total}条记录` : '暂无'
+    if (pending > 0) return `${pending}`
+    return total > 0 ? `${total}` : ''
+  }
+
+  if (key === 'coupons') {
+    const count = Number(overview.assets.coupons || 0)
+    return count > 0 ? `${count}` : ''
   }
 
   return ''
@@ -42,20 +52,20 @@ function serviceValue(key, overview) {
 
 Page({
   data: {
-    contentHeight: 520,
-    horizontalPadding: 18,
-    avatarSize: 74,
+    contentHeight: 667,
+    horizontalPadding: 17,
     wideLayout: false,
     compactLayout: false,
     loading: true,
     loggedIn: false,
+    showWechatQr: false,
     profile: {
       nickname: 'Chloris 用户',
       avatarUrl: '',
       description: '欢迎回到 Chloris'
     },
+    merchant: FALLBACK_MERCHANT,
     orderItems: [],
-    assetItems: [],
     serviceItems: []
   },
 
@@ -89,13 +99,10 @@ Page({
           showCount: count > 0
         }
       })
-      const assetItems = ASSET_ITEMS.map((item) => ({
+      const serviceItems = SERVICE_GRID_ITEMS.map((item) => ({
         ...item,
-        value: Number(overview.assets[item.key] || 0)
-      }))
-      const serviceItems = SERVICE_ITEMS.map((item) => ({
-        ...item,
-        value: serviceValue(item.key, overview)
+        value: serviceValue(item.key, overview),
+        showValue: Boolean(serviceValue(item.key, overview))
       }))
 
       this.setData({
@@ -105,8 +112,14 @@ Page({
           ...overview.profile,
           description: '欢迎回到 Chloris'
         },
+        merchant: {
+          name: String(overview.merchant && overview.merchant.name || FALLBACK_MERCHANT.name),
+          wechat: String(overview.merchant && overview.merchant.wechat || ''),
+          wechatQrUrl: String(overview.merchant && overview.merchant.wechatQrUrl || ''),
+          profileCoverUrl: String(overview.merchant && overview.merchant.profileCoverUrl || FALLBACK_MERCHANT.profileCoverUrl),
+          logoUrl: String(overview.merchant && overview.merchant.logoUrl || FALLBACK_MERCHANT.logoUrl)
+        },
         orderItems,
-        assetItems,
         serviceItems
       })
     } catch (error) {
@@ -140,22 +153,50 @@ Page({
     })
   },
 
-  openAsset(event) {
-    const key = String(event.currentTarget.dataset.key || '')
-
-    if (key === 'favorites') {
-      wx.navigateTo({ url: '/pages/atlas/index?tab=favorites' })
+  openMerchantWechat() {
+    const merchant = this.data.merchant || {}
+    if (!merchant.wechatQrUrl && !merchant.wechat) {
+      wx.showToast({
+        title: '商家微信暂未配置',
+        icon: 'none'
+      })
       return
     }
 
-    const messages = {
-      points: '积分可在结算页查看可抵扣金额',
-      coupons: '当前暂无可用优惠券'
+    this.setData({ showWechatQr: true })
+  },
+
+  closeMerchantWechat() {
+    this.setData({ showWechatQr: false })
+  },
+
+  stopPropagation() {},
+
+  previewWechatQr() {
+    const url = String(this.data.merchant.wechatQrUrl || '')
+    if (!url) return
+
+    wx.previewImage({
+      current: url,
+      urls: [url]
+    })
+  },
+
+  copyMerchantWechat() {
+    const wechat = String(this.data.merchant.wechat || '').trim()
+    if (!wechat) {
+      wx.showToast({
+        title: '商家微信号暂未填写',
+        icon: 'none'
+      })
+      return
     }
 
-    wx.showToast({
-      title: messages[key] || '暂无可用内容',
-      icon: 'none'
+    wx.setClipboardData({
+      data: wechat,
+      success() {
+        wx.showToast({ title: '微信号已复制', icon: 'success' })
+      }
     })
   },
 
@@ -174,6 +215,19 @@ Page({
 
     if (key === 'quoteRequests') {
       wx.navigateTo({ url: '/pages/quote-list/index' })
+      return
+    }
+
+    if (key === 'flowerCare') {
+      wx.navigateTo({ url: '/pages/flower-care/index' })
+      return
+    }
+
+    if (key === 'coupons') {
+      wx.showToast({
+        title: '当前暂无可用优惠券',
+        icon: 'none'
+      })
     }
   }
 })

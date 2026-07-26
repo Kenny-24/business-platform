@@ -13,8 +13,8 @@ function buildLayout() {
 
   return {
     contentHeight: metrics.contentHeight,
-    horizontalPadding: width <= 350 ? 14 : width >= 768 ? 28 : 18,
-    wideLayout: width >= 720
+    horizontalPadding: Number(metrics.horizontalPadding || (width <= 350 ? 14 : width >= 768 ? 28 : 18)),
+    wideLayout: Boolean(metrics.isWideScreen || width >= 720)
   }
 }
 

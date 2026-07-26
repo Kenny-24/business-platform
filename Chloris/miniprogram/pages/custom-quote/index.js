@@ -14,6 +14,7 @@ Page({
     submitting: false,
     contactName: '',
     contactPhone: '',
+    contactWechat: '',
     message: ''
   },
 
@@ -21,7 +22,8 @@ Page({
     const user = getCachedUser() || {}
     this.setData({
       contactName: user.contactName || user.nickname || '',
-      contactPhone: user.contactPhone || ''
+      contactPhone: user.contactPhone || '',
+      contactWechat: user.contactWechat || ''
     })
   },
 
@@ -61,6 +63,7 @@ Page({
 
     const contactName = String(this.data.contactName || '').trim()
     const contactPhone = String(this.data.contactPhone || '').replace(/\s+/g, '')
+    const contactWechat = String(this.data.contactWechat || '').trim()
 
     if (!this.data.imagePaths.length) {
       wx.showToast({ title: '请至少上传1张参考图', icon: 'none' })
@@ -90,6 +93,7 @@ Page({
         images: fileIDs,
         contactName,
         contactPhone,
+        contactWechat,
         message: this.data.message
       })
 

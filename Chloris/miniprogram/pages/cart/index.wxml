@@ -1,7 +1,20 @@
-<view class="safe-page cart-page {{wideLayout ? 'cart-page--wide' : ''}} {{compactLayout ? 'cart-page--compact' : ''}}">
+<view class="safe-page cart-page {{wideLayout ? 'cart-page--wide' : ''}} {{compactLayout ? 'cart-page--compact' : ''}} {{narrowLayout ? 'cart-page--narrow' : ''}}">
   <app-nav title="购物车" solid></app-nav>
 
-  <scroll-view class="cart-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}" refresher-enabled="{{true}}" refresher-threshold="120" refresher-background="#fafbf8" refresher-triggered="{{refresherTriggered}}" bindrefresherrefresh="onCartRefresh" bindrefresherrestore="onCartRefreshRestore" bindrefresherabort="onCartRefreshAbort">
+  <scroll-view
+    class="cart-scroll"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    refresher-enabled="{{true}}"
+    refresher-threshold="120"
+    refresher-background="#f7f6f3"
+    refresher-triggered="{{refresherTriggered}}"
+    bindrefresherrefresh="onCartRefresh"
+    bindrefresherrestore="onCartRefreshRestore"
+    bindrefresherabort="onCartRefreshAbort"
+  >
     <view class="cart-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
       <block wx:if="{{cart.length}}">
         <view class="cart-head">
@@ -12,167 +25,144 @@
           <view class="cart-head__edit" bindtap="toggleEdit" role="button">{{editing ? '完成' : '编辑'}}</view>
         </view>
 
-        <view class="cart-assurance">
-          <text class="cart-assurance__title">下单前提示</text>
-          <text class="cart-assurance__body">提交订单后，商家会再次确认花材库存、制作时间与配送日期；需要替换主花材时会先与你沟通。</text>
+        <view class="product-list">
+          <view wx:for="{{cart}}" wx:key="id" class="product-row {{item.invalid ? 'product-row--invalid' : ''}}">
+            <view class="product-row__select">
+              <view class="select-dot {{item.selected ? 'select-dot--active' : ''}} {{item.invalid ? 'select-dot--disabled' : ''}}" data-id="{{item.id}}" bindtap="toggleItem" role="button">
+                <text wx:if="{{item.selected}}">✓</text>
+              </view>
+            </view>
+
+            <image wx:if="{{item.image}}" class="product-row__image" style="width: {{productImageSize}}px; height: {{productImageSize}}px;" src="{{item.image}}" mode="aspectFill" lazy-load data-id="{{item.id}}" catchtap="openProductDetail" role="button"></image>
+            <view wx:else class="product-row__image product-row__placeholder" style="width: {{productImageSize}}px; height: {{productImageSize}}px;" data-id="{{item.id}}" catchtap="openProductDetail" role="button">CHLORIS</view>
+
+            <view class="product-row__content">
+              <view class="product-row__top">
+                <text class="product-row__name">{{item.name}}</text>
+                <view wx:if="{{editing}}" class="product-row__delete" data-id="{{item.id}}" bindtap="removeOne" role="button">删除</view>
+              </view>
+              <view class="product-row__price-line">
+                <text class="product-row__price">¥{{item.priceText}}</text>
+                <text class="product-row__unit">/{{item.unit}}</text>
+                <text wx:if="{{item.priceChanged}}" class="product-row__updated">价格已更新</text>
+              </view>
+              <text wx:if="{{item.invalid}}" class="product-row__message product-row__message--invalid">{{item.invalidReason}}</text>
+              <text wx:elif="{{item.lowStock}}" class="product-row__message">仅剩{{item.stock}}{{item.unit}}</text>
+              <view class="product-row__bottom">
+                <text class="product-row__subtotal">小计 ¥{{item.subtotalText}}</text>
+                <view class="stepper">
+                  <view class="stepper__button" data-id="{{item.id}}" data-delta="-1" bindtap="changeQty" role="button">−</view>
+                  <text class="stepper__number">{{item.quantity}}</text>
+                  <view class="stepper__button" data-id="{{item.id}}" data-delta="1" bindtap="changeQty" role="button">＋</view>
+                </view>
+              </view>
+            </view>
+          </view>
         </view>
 
-        <view class="cart-layout">
-          <view class="cart-products">
-            <view wx:for="{{cart}}" wx:key="id" class="cart-product {{item.invalid ? 'cart-product--invalid' : ''}}">
-              <view class="cart-product__select">
-                <view class="select-dot {{item.selected ? 'select-dot--active' : ''}} {{item.invalid ? 'select-dot--disabled' : ''}}" data-id="{{item.id}}" bindtap="toggleItem" role="button">
-                  <text wx:if="{{item.selected}}">✓</text>
-                </view>
-              </view>
+        <view class="section-heading">
+          <view>
+            <text class="section-heading__title">订单安排</text>
+            <text class="section-heading__subtitle">选择配送方式与时间</text>
+          </view>
+          <text class="section-heading__hint">直接结算付款</text>
+        </view>
 
-              <image wx:if="{{item.image}}" class="cart-product__image" style="width: {{productImageSize}}px; height: {{productImageSize}}px;" src="{{item.image}}" mode="aspectFill" lazy-load></image>
-              <view wx:else class="cart-product__image cart-product__placeholder" style="width: {{productImageSize}}px; height: {{productImageSize}}px;">CHLORIS</view>
-
-              <view class="cart-product__info">
-                <view class="cart-product__title-row">
-                  <text class="cart-product__name">{{item.name}}</text>
-                  <view wx:if="{{editing}}" class="cart-product__delete" data-id="{{item.id}}" bindtap="removeOne" role="button">删除</view>
-                </view>
-
-                <view class="cart-product__price-row">
-                  <text class="cart-product__price">¥{{item.priceText}}</text>
-                  <text class="cart-product__unit">/{{item.unit}}</text>
-                  <text wx:if="{{item.priceChanged}}" class="cart-product__updated">价格已更新</text>
-                </view>
-
-                <text wx:if="{{item.invalid}}" class="cart-product__message cart-product__message--invalid">{{item.invalidReason}}</text>
-                <text wx:elif="{{item.lowStock}}" class="cart-product__message">仅剩{{item.stock}}{{item.unit}}</text>
-
-                <view class="cart-product__action-row">
-                  <view class="cart-product__subtotal">
-                    <text class="cart-product__subtotal-label">小计</text>
-                    <text class="cart-product__subtotal-value">¥{{item.subtotalText}}</text>
-                  </view>
-
-                  <view class="stepper">
-                    <view class="stepper__button" data-id="{{item.id}}" data-delta="-1" bindtap="changeQty" role="button">−</view>
-                    <text class="stepper__number">{{item.quantity}}</text>
-                    <view class="stepper__button" data-id="{{item.id}}" data-delta="1" bindtap="changeQty" role="button">＋</view>
-                  </view>
-                </view>
-              </view>
+        <view class="fulfillment-selector">
+          <view wx:for="{{deliveryOptions}}" wx:key="id" class="fulfillment-option {{selectedDeliveryId === item.id ? 'fulfillment-option--active' : ''}}" data-id="{{item.id}}" bindtap="selectDeliveryMethod" role="button">
+            <view class="fulfillment-option__radio">
+              <view wx:if="{{selectedDeliveryId === item.id}}" class="fulfillment-option__radio-core"></view>
+            </view>
+            <view class="fulfillment-option__copy">
+              <text class="fulfillment-option__name">{{item.name}}</text>
+              <text class="fulfillment-option__description">{{item.shortDescription || item.description}}</text>
             </view>
           </view>
+        </view>
 
-          <view class="cart-side">
-            <view class="cart-card option-card">
-              <view class="option-item" bindtap="chooseDelivery" role="button">
-                <view class="option-item__copy">
-                  <text class="option-item__title">收货方式</text>
-                  <text class="option-item__description">{{selectedDelivery.description}}</text>
-                </view>
-                <view class="option-item__right">
-                  <text class="option-item__value">{{selectedDelivery.name}}</text>
-                  <view class="option-item__arrow"></view>
-                </view>
-              </view>
-
-              <picker mode="date" value="{{selectedDeliveryDate}}" start="{{minDeliveryDate}}" end="{{maxDeliveryDate}}" bindchange="changeExpectedDeliveryDate">
-                <view class="option-item">
-                  <view class="option-item__copy">
-                    <view class="option-item__title-row">
-                      <text class="option-item__title">预期送达日期</text>
-                      <text wx:if="{{sameDaySelected}}" class="option-item__badge">当天可选</text>
-                    </view>
-                    <text class="option-item__description">支持当天与未来30天预定，最终以商家确认结果为准</text>
-                  </view>
-                  <view class="option-item__right">
-                    <text class="option-item__value option-item__value--emphasis">{{selectedDeliveryDateText}}</text>
-                    <view class="option-item__arrow"></view>
-                  </view>
-                </view>
-              </picker>
-
-              <picker mode="selector" range="{{deliverySlots}}" value="{{deliverySlotIndex}}" bindchange="changeExpectedDeliverySlot">
-                <view class="option-item">
-                  <view class="option-item__copy">
-                    <text class="option-item__title">预期送达时段</text>
-                    <text class="option-item__description">当天配送是否可实现，由商家结合制作与运力确认</text>
-                  </view>
-                  <view class="option-item__right">
-                    <text class="option-item__value option-item__value--emphasis">{{selectedDeliverySlot}}</text>
-                    <view class="option-item__arrow"></view>
-                  </view>
-                </view>
-              </picker>
-
-              <view class="option-item" bindtap="choosePackaging" role="button">
-                <view class="option-item__copy">
-                  <text class="option-item__title">包装方式</text>
-                  <text class="option-item__description">{{selectedPackaging.description}}</text>
-                </view>
-                <view class="option-item__right">
-                  <text class="option-item__value">{{selectedPackaging.name}}</text>
-                  <text class="option-item__fee">{{packagingFeeText}}</text>
-                  <view class="option-item__arrow"></view>
-                </view>
-              </view>
-
-              <view class="option-item" bindtap="openPoints" role="button">
-                <view class="option-item__copy">
-                  <text class="option-item__title">积分抵扣</text>
-                  <text class="option-item__description">抵扣金额在结算页计算</text>
-                </view>
-                <view class="option-item__right">
-                  <text class="option-item__value">{{pointsText}}</text>
-                  <view class="option-item__arrow"></view>
-                </view>
-              </view>
+        <view class="arrangement-list">
+          <view wx:if="{{selectedDeliveryId === 'delivery'}}" class="arrangement-row" bindtap="chooseAddress" role="button">
+            <view class="arrangement-row__icon arrangement-row__icon--location"></view>
+            <view class="arrangement-row__copy">
+              <text class="arrangement-row__title">收货地址</text>
+              <text wx:if="{{address}}" class="arrangement-row__description">{{address.receiverName}} · {{address.phoneMasked || address.phone}}</text>
+              <text wx:if="{{address}}" class="arrangement-row__address">{{address.fullAddress}}</text>
+              <text wx:else class="arrangement-row__placeholder">请选择收货地址</text>
             </view>
-
-            <scroll-view class="packaging-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-              <view class="packaging-gallery">
-                <view
-                  wx:for="{{packagingOptions}}"
-                  wx:key="id"
-                  class="packaging-card {{selectedPackagingId === item.id ? 'packaging-card--active' : ''}}"
-                  data-id="{{item.id}}"
-                  bindtap="selectPackagingCard"
-                  role="button"
-                >
-                  <image class="packaging-card__image" src="{{item.image}}" mode="aspectFill" lazy-load></image>
-                  <view class="packaging-card__body">
-                    <view class="packaging-card__title-row">
-                      <text class="packaging-card__name">{{item.name}}</text>
-                      <text class="packaging-card__fee">{{item.feeLabel}}</text>
-                    </view>
-                    <text class="packaging-card__desc">{{item.description}}</text>
-                  </view>
-                </view>
-              </view>
-            </scroll-view>
-
-            <view class="cart-card fee-card">
-              <text class="fee-card__title">费用明细</text>
-
-              <view class="fee-row">
-                <text>商品金额</text>
-                <text>¥{{goodsTotalText}}</text>
-              </view>
-              <view class="fee-row">
-                <text>包装费用</text>
-                <text>{{packagingFeeText}}</text>
-              </view>
-              <view class="fee-row">
-                <text>配送费用</text>
-                <text>{{deliveryFeeText}}</text>
-              </view>
-
-              <view class="fee-line"></view>
-
-              <view class="fee-row fee-row--total">
-                <text>当前合计</text>
-                <text>¥{{totalText}}</text>
-              </view>
-            </view>
-            <view class="cart-aftercare">如收货状态或配送存在异常，请保留商品照片和订单信息，及时联系客服处理。</view>
+            <view class="arrangement-row__arrow"></view>
           </view>
+
+          <view wx:else class="arrangement-row" bindtap="choosePickupLocation" role="button">
+            <view class="arrangement-row__icon arrangement-row__icon--store"></view>
+            <view class="arrangement-row__copy">
+              <text class="arrangement-row__title">自提门店</text>
+              <text wx:if="{{pickupLocation}}" class="arrangement-row__description">{{pickupLocation.name}}</text>
+              <text wx:if="{{pickupLocation}}" class="arrangement-row__address">{{pickupLocation.address}} · {{pickupLocation.businessHours}}</text>
+              <text wx:else class="arrangement-row__placeholder">请选择自提门店</text>
+            </view>
+            <view class="arrangement-row__arrow"></view>
+          </view>
+
+          <view class="arrangement-row arrangement-row--time" bindtap="openDeliveryTimePicker" role="button">
+            <view class="arrangement-row__icon arrangement-row__icon--time"></view>
+            <view class="arrangement-row__copy">
+              <view class="arrangement-row__title-line">
+                <text class="arrangement-row__title">{{selectedDeliveryId === 'pickup' ? '预约自提时间' : '预期送达时间'}}</text>
+                <text wx:if="{{sameDaySelected}}" class="arrangement-row__badge">当天可选</text>
+              </view>
+              <text class="arrangement-row__value">{{selectedDeliveryTimeText}}</text>
+            </view>
+            <view class="arrangement-row__arrow"></view>
+          </view>
+        </view>
+
+        <view class="section-heading section-heading--message">
+          <view>
+            <text class="section-heading__title">贺卡与留言</text>
+            <text class="section-heading__subtitle">可不填写</text>
+          </view>
+          <text class="section-heading__hint">选填</text>
+        </view>
+
+        <view class="message-list">
+          <view class="message-field">
+            <view class="message-field__head">
+              <text class="message-field__label">贺卡内容</text>
+              <text class="message-field__count">{{cardMessage.length}}/120</text>
+            </view>
+            <textarea class="message-field__input" value="{{cardMessage}}" maxlength="120" auto-height placeholder="写下想对收花人说的话" bindinput="updateCardMessage"></textarea>
+          </view>
+
+          <view class="message-field">
+            <view class="message-field__head">
+              <text class="message-field__label">买家留言</text>
+              <text class="message-field__count">{{buyerMessage.length}}/200</text>
+            </view>
+            <textarea class="message-field__input" value="{{buyerMessage}}" maxlength="200" auto-height placeholder="颜色偏好、花材替换或其他要求" bindinput="updateBuyerMessage"></textarea>
+          </view>
+        </view>
+
+        <view class="section-heading section-heading--fees">
+          <view>
+            <text class="section-heading__title">费用明细</text>
+            <text class="section-heading__subtitle">已选 {{selectedItemCount}} 件商品</text>
+          </view>
+        </view>
+
+        <view class="fee-list">
+          <view class="fee-row">
+            <text class="fee-row__label">商品金额</text>
+            <text class="fee-row__value">¥{{goodsTotalText}}</text>
+          </view>
+          <view class="fee-row">
+            <text class="fee-row__label">{{selectedDeliveryId === 'pickup' ? '自提费用' : '配送费用'}}</text>
+            <text class="fee-row__value fee-row__value--muted">{{deliveryFeeText}}</text>
+          </view>
+        </view>
+
+        <view class="aftercare-note">
+          <text class="aftercare-note__title">售后说明</text>
+          <text class="aftercare-note__body">如收货状态或配送存在异常，请保留商品照片和订单信息，并及时联系商家处理。</text>
         </view>
 
         <view class="cart-bottom-space"></view>
@@ -189,12 +179,9 @@
 
   <view wx:if="{{cart.length}}" class="checkout-bar">
     <view class="checkout-all" bindtap="toggleAll" role="button">
-      <view class="select-dot {{allSelected ? 'select-dot--active' : ''}}">
-        <text wx:if="{{allSelected}}">✓</text>
-      </view>
+      <view class="select-dot {{allSelected ? 'select-dot--active' : ''}}"><text wx:if="{{allSelected}}">✓</text></view>
       <text class="checkout-all__text">全选</text>
     </view>
-
     <view class="checkout-total">
       <view class="checkout-total__line">
         <text class="checkout-total__label">合计</text>
@@ -203,7 +190,31 @@
       </view>
       <text class="checkout-total__hint">{{checkoutHint}}</text>
     </view>
+    <view class="checkout-button {{selectedCount <= 0 || submitting ? 'checkout-button--disabled' : ''}} {{editing ? 'checkout-button--delete' : ''}}" bindtap="checkout" role="button">{{checkoutButtonText}}</view>
+  </view>
 
-    <view class="checkout-button {{selectedCount <= 0 ? 'checkout-button--disabled' : ''}} {{editing ? 'checkout-button--delete' : ''}}" bindtap="checkout" role="button">{{checkoutButtonText}}</view>
+  <view wx:if="{{deliveryPickerVisible}}" class="delivery-time-mask" bindtap="closeDeliveryTimePicker">
+    <view class="delivery-time-sheet" catchtap="stopDeliveryPickerTap">
+      <view class="delivery-time-sheet__head">
+        <text class="delivery-time-sheet__title">{{selectedDeliveryId === 'pickup' ? '选择自提时间' : '选择配送时间'}}</text>
+        <view class="delivery-time-sheet__close" bindtap="closeDeliveryTimePicker" role="button"></view>
+      </view>
+      <view class="delivery-time-columns" style="height: {{deliveryPickerHeight}}px;">
+        <scroll-view class="delivery-time-column delivery-time-column--dates" style="height: {{deliveryPickerHeight}}px;" scroll-y enhanced enable-flex bounces show-scrollbar="{{false}}" scroll-with-animation>
+          <view wx:for="{{deliveryPickerDates}}" wx:key="value" class="delivery-date-option {{item.selected ? 'delivery-date-option--active' : ''}}" data-value="{{item.value}}" bindtap="selectPickerDate" role="button">
+            <text class="delivery-date-option__label">{{item.label || item.value}}</text>
+          </view>
+        </scroll-view>
+        <scroll-view class="delivery-time-column delivery-time-column--slots" style="height: {{deliveryPickerHeight}}px;" scroll-y enhanced enable-flex bounces show-scrollbar="{{false}}" scroll-with-animation>
+          <view wx:for="{{deliveryPickerSlots}}" wx:key="value" class="delivery-slot-option {{item.selected ? 'delivery-slot-option--active' : ''}}" data-value="{{item.value}}" bindtap="selectPickerSlot" role="button">
+            <text class="delivery-slot-option__label">{{item.label || item.value}}</text>
+            <view wx:if="{{item.selected}}" class="delivery-slot-option__check">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+      <view class="delivery-time-sheet__foot">
+        <view class="delivery-time-sheet__button" bindtap="confirmDeliveryTimePicker" role="button">完成</view>
+      </view>
+    </view>
   </view>
 </view>

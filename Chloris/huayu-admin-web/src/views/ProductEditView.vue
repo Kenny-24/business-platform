@@ -110,22 +110,6 @@
             </el-form-item>
           </div>
 
-          <el-form-item label="关联购买图鉴品种">
-            <el-select
-              v-model="form.atlasIds"
-              multiple
-              filterable
-              clearable
-              placeholder="选择本商品包含的花材品种"
-            >
-              <el-option
-                v-for="item in atlasOptions"
-                :key="item._id"
-                :label="`${item.name} · ${item.category || '花材'}`"
-                :value="item._id"
-              />
-            </el-select>
-          </el-form-item>
         </el-card>
 
         <el-card shadow="never" class="panel-card">
@@ -159,7 +143,7 @@
         <el-card shadow="never" class="panel-card">
           <div class="section-title">详情图片</div>
           <div class="form-tip detail-media-tip">
-            商品详情以图片展示为主。建议上传 3–6 张不同角度、局部花材和包装细节图；简单花束只上传图片即可。
+            商品详情以图片展示为主。建议上传 3–6 张不同角度和局部花材图片；简单商品只上传图片即可。
           </div>
 
           <div class="gallery-editor-grid">
@@ -203,6 +187,64 @@
               folder="products/video-posters"
             />
           </div>
+        </el-card>
+
+        <el-card shadow="never" class="panel-card">
+          <div class="section-title">商业运营设置</div>
+
+          <div class="form-grid form-grid--two">
+            <el-form-item label="销售模式">
+              <el-radio-group v-model="form.salesMode">
+                <el-radio-button value="spot">现货销售</el-radio-button>
+                <el-radio-button value="preorder">预约销售</el-radio-button>
+              </el-radio-group>
+              <div class="form-tip">现货最早可选择下单后 2 小时；预约商品按预售配送区间下单。</div>
+            </el-form-item>
+            <el-form-item label="履约工作室">
+              <el-select v-model="form.studioId" clearable placeholder="未指定时由接单后台分配">
+                <el-option v-for="item in studioOptions" :key="item._id" :label="item.name" :value="item._id" />
+              </el-select>
+            </el-form-item>
+          </div>
+
+          <div class="form-grid form-grid--two">
+            <el-form-item label="节日 / 预售活动">
+              <el-select v-model="form.festivalCampaignId" clearable placeholder="例如情人节预定">
+                <el-option v-for="item in campaignOptions" :key="item._id" :label="`${item.name} · ${item.statusLabel}`" :value="item._id" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="单件产能单位">
+              <el-input-number v-model="form.productionUnits" :min="1" :max="20" controls-position="right" />
+              <div class="form-tip">用于工作室每日产能校验；普通花束建议 1，复杂定制可设 2–5。</div>
+            </el-form-item>
+          </div>
+
+          <div v-if="form.salesMode === 'preorder'" class="form-grid form-grid--two">
+            <el-form-item label="预约开放时间">
+              <el-date-picker v-model="preorderRange" type="datetimerange" value-format="YYYY-MM-DD HH:mm:ss" range-separator="至" start-placeholder="开始预约" end-placeholder="停止预约" />
+            </el-form-item>
+            <el-form-item label="允许配送日期">
+              <el-date-picker v-model="deliveryRange" type="daterange" value-format="YYYY-MM-DD" range-separator="至" start-placeholder="配送开始" end-placeholder="配送结束" />
+            </el-form-item>
+          </div>
+
+          <div v-if="form.salesMode === 'preorder'" class="form-grid form-grid--two">
+            <el-form-item label="预约截止时间">
+              <el-date-picker v-model="form.reservationDeadlineAt" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="超过后不再接受预约" />
+            </el-form-item>
+            <el-form-item label="预约限量">
+              <el-input-number v-model="form.reservationQuota" :min="0" controls-position="right" />
+              <div class="form-tip">填 0 表示仅受商品库存和活动总量限制。</div>
+            </el-form-item>
+          </div>
+
+          <div class="setting-row">
+            <div><strong>限时推出</strong><span>到达开始时间自动展示，结束后自动下架</span></div>
+            <el-switch v-model="form.limitedTimeEnabled" />
+          </div>
+          <el-form-item v-if="form.limitedTimeEnabled" label="限时销售窗口">
+            <el-date-picker v-model="limitedRange" type="datetimerange" value-format="YYYY-MM-DD HH:mm:ss" range-separator="至" start-placeholder="自动上架" end-placeholder="自动下架" />
+          </el-form-item>
         </el-card>
 
         <el-card shadow="never" class="panel-card">
@@ -259,8 +301,12 @@ const route = useRoute()
 const router = useRouter()
 const formRef = ref()
 const saving = ref(false)
-const atlasOptions = ref([])
+const campaignOptions = ref([])
+const studioOptions = ref([])
 const isEdit = computed(() => Boolean(route.params.id))
+const limitedRange = computed({ get: () => form.saleStartAt && form.saleEndAt ? [form.saleStartAt, form.saleEndAt] : [], set: (value) => { form.saleStartAt = value?.[0] || ''; form.saleEndAt = value?.[1] || '' } })
+const preorderRange = computed({ get: () => form.preorderStartAt && form.preorderEndAt ? [form.preorderStartAt, form.preorderEndAt] : [], set: (value) => { form.preorderStartAt = value?.[0] || ''; form.preorderEndAt = value?.[1] || '' } })
+const deliveryRange = computed({ get: () => form.deliveryStartDate && form.deliveryEndDate ? [form.deliveryStartDate, form.deliveryEndDate] : [], set: (value) => { form.deliveryStartDate = value?.[0] || ''; form.deliveryEndDate = value?.[1] || '' } })
 
 const form = reactive({
   _id: '',
@@ -277,7 +323,19 @@ const form = reactive({
   sceneTags: [],
   colorTags: [],
   searchKeywords: [],
-  atlasIds: [],
+  salesMode: 'spot',
+  limitedTimeEnabled: false,
+  saleStartAt: '',
+  saleEndAt: '',
+  festivalCampaignId: '',
+  preorderStartAt: '',
+  preorderEndAt: '',
+  deliveryStartDate: '',
+  deliveryEndDate: '',
+  reservationDeadlineAt: '',
+  reservationQuota: 0,
+  productionUnits: 1,
+  studioId: '',
   coverFileId: '',
   imageUrl: '',
   galleryFileIds: [''],
@@ -343,20 +401,24 @@ function removeGallerySlot(index) {
   }
 }
 
-async function loadAtlasOptions() {
+async function loadCommercialOptions() {
   try {
-    const result = await adminApi.listAtlas()
-    atlasOptions.value = (result.items || []).filter((item) => item.published !== false)
+    const [campaigns, studios] = await Promise.all([
+      adminApi.listFestivalCampaigns(),
+      adminApi.listStudios()
+    ])
+    campaignOptions.value = campaigns.items || []
+    studioOptions.value = (studios.items || []).filter((item) => item.enabled !== false)
   } catch (error) {
-    feedback.error(error, '图鉴选项加载失败')
+    feedback.error(error, '商业运营选项加载失败')
   }
 }
 
-async function loadProduct() {
-  if (!isEdit.value) return
+async function loadProduct(productId = String(route.params.id || '')) {
+  if (!productId) return
 
   try {
-    const item = await adminApi.getProduct(String(route.params.id))
+    const item = await adminApi.getProduct(productId)
     const media = normalizeMediaArrays(item.galleryFileIds, item.galleryUrls)
 
     Object.assign(form, {
@@ -365,7 +427,8 @@ async function loadProduct() {
       sceneTags: item.sceneTags || [],
       colorTags: item.colorTags || [],
       searchKeywords: item.searchKeywords || [],
-      atlasIds: item.atlasIds || [],
+      salesMode: item.salesMode || 'spot',
+      productionUnits: Number(item.productionUnits || 1),
       galleryFileIds: media.nextIds,
       galleryUrls: media.nextUrls,
       videoFileId: item.videoFileId || '',
@@ -400,7 +463,8 @@ async function save() {
     })
 
     feedback.success('商品已保存')
-    router.replace(`/products/${saved._id}`)
+    await router.replace(`/products/${saved._id}`)
+    await loadProduct(saved._id)
   } catch (error) {
     feedback.error(error, '保存商品失败')
   } finally {
@@ -409,7 +473,7 @@ async function save() {
 }
 
 onMounted(async () => {
-  await Promise.all([loadAtlasOptions(), loadProduct()])
+  await Promise.all([loadCommercialOptions(), loadProduct()])
 })
 </script>
 

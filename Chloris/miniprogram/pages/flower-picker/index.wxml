@@ -89,7 +89,7 @@
     <view wx:else class="result-empty">暂时没有完全匹配的商品，请调整价格、对象或颜色偏好。</view>
 
     <view class="result-note">
-      下单后会再次确认花材库存、制作时间与配送日期；需要替换主花材时会先与你沟通。
+      选好商品、收货方式与预约时间后即可付款；需要替换主要花材时会先与你沟通。
     </view>
 
     <view class="picker-bottom-space"></view>

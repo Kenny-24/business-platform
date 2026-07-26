@@ -86,7 +86,7 @@
     <view class="promise-strip">
       <view class="promise-item">
         <text class="promise-item__mark">01</text>
-        <text>下单后确认库存</text>
+        <text>下单后直接付款</text>
       </view>
       <view class="promise-item">
         <text class="promise-item__mark">02</text>
@@ -165,7 +165,7 @@
       </view>
 
       <view class="home-section">
-        <section-title title="节日提醒" showMore="{{false}}"></section-title>
+        <section-title title="节日提醒" compact="{{true}}" showMore="{{false}}"></section-title>
         <view
           wx:if="{{upcomingEvent}}"
           class="festival festival--{{upcomingEvent.region}}"
@@ -199,7 +199,7 @@
       </view>
 
       <view class="home-section">
-        <section-title title="鲜花护理" showMore="{{false}}"></section-title>
+        <section-title title="鲜花护理" compact="{{true}}" showMore="{{false}}"></section-title>
         <view class="care-grid">
           <view
             class="care-card"
@@ -216,40 +216,6 @@
           </view>
         </view>
         <section-more target="care" bind:more="openSectionMore"></section-more>
-      </view>
-
-      <view class="home-section">
-        <section-title title="图鉴" showMore="{{false}}"></section-title>
-        <view class="atlas-grid">
-          <view
-            class="atlas-card"
-            wx:for="{{atlasItems}}"
-            wx:key="id"
-            data-id="{{item.id}}"
-            bindtap="openAtlasItem"
-            role="button"
-          >
-            <image
-              wx:if="{{item.image}}"
-              class="atlas-card__image"
-              src="{{item.image}}"
-              mode="aspectFill"
-              lazy-load
-            ></image>
-            <view wx:else class="atlas-card__image atlas-card__placeholder">
-              CHLORIS
-            </view>
-            <view class="atlas-card__shade"></view>
-            <view class="atlas-card__copy">
-              <text class="atlas-card__name">{{item.name}}</text>
-              <text class="atlas-card__latin">
-                {{item.latin || item.latinName}}
-              </text>
-              <text class="atlas-card__meaning">{{item.meaning}}</text>
-            </view>
-          </view>
-        </view>
-        <section-more target="atlas" bind:more="openSectionMore"></section-more>
       </view>
 
       <view class="service-note">

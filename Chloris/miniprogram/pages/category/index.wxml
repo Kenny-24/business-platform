@@ -90,6 +90,7 @@
             wx:for="{{products}}"
             wx:key="id"
           >
+            <view wx:if="{{item.salesMode === 'preorder' || item.limitedTimeEnabled}}" class="category-product__badge">{{item.salesMode === 'preorder' ? '预约' : '限时'}}</view>
             <image
               wx:if="{{item.image}}"
               class="category-product__image"

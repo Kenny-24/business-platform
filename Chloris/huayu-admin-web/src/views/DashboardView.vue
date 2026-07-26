@@ -57,7 +57,7 @@
         </div>
 
         <div class="dashboard-order-note">
-          当前订单流程支持商家确认、线下收款、制作、配送与完成。微信支付和自动库存锁定尚未接入。
+          顾客提交订单后直接进入待付款，无需商家确认。微信支付接口尚未接入时，仍由后台人工确认收款。
         </div>
       </el-card>
 
@@ -167,8 +167,8 @@
             <strong>{{ data.featuredProducts || 0 }}</strong>
           </div>
           <div class="content-summary__item">
-            <span>图鉴内容</span>
-            <strong>{{ data.atlasCount || 0 }}</strong>
+            <span>节日预售活动</span>
+            <strong>{{ data.festivalCampaignCount || 0 }}</strong>
           </div>
         </div>
 
@@ -179,8 +179,8 @@
           <RouterLink to="/orders">
             处理订单
           </RouterLink>
-          <RouterLink to="/atlas">
-            管理图鉴
+          <RouterLink to="/festival-campaigns">
+            管理预售活动
           </RouterLink>
           <RouterLink to="/quote-requests">
             处理图片报价
@@ -211,7 +211,9 @@ const data = reactive({
   lowStockCount: 0,
   featuredProducts: 0,
   enabledBanners: 0,
-  atlasCount: 0,
+  festivalCampaignCount: 0,
+  activeFestivalCampaignCount: 0,
+  studioCount: 0,
   customerCount: 0,
   orderCount: 0,
   pendingConfirmOrders: 0,
@@ -234,14 +236,9 @@ const completedRevenue = computed(() => {
 
 const metrics = computed(() => [
   {
-    label: '待确认订单',
-    value: data.pendingConfirmOrders,
-    note: '需要尽快确认库存与配送'
-  },
-  {
     label: '待付款订单',
     value: data.pendingPaymentOrders,
-    note: '已确认，等待顾客付款'
+    note: '顾客下单后可直接付款'
   },
   {
     label: '制作中',
@@ -261,11 +258,6 @@ const metrics = computed(() => [
 ])
 
 const orderStatus = computed(() => [
-  {
-    label: '待确认',
-    value: data.pendingConfirmOrders,
-    path: '/orders?status=pendingConfirm'
-  },
   {
     label: '待付款',
     value: data.pendingPaymentOrders,

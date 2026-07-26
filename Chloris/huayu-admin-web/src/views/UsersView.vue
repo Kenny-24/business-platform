@@ -81,21 +81,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          prop="points"
-          label="积分"
-          width="100"
-          align="right"
-        />
-
-        <el-table-column
-          label="注册时间"
-          min-width="170"
-        >
-          <template #default="{ row }">
-            {{ formatDateTime(row.createdAtText) }}
-          </template>
-        </el-table-column>
 
         <el-table-column
           label="状态"

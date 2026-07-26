@@ -1,6 +1,6 @@
 {
   "name": "adminApi",
-  "version": "3.0.0",
+  "version": "6.13.0",
   "description": "Chloris Web 商户管理端统一管理员 API",
   "main": "index.js",
   "dependencies": {

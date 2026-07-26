@@ -73,8 +73,9 @@ const menu = [
   { path: '/products', label: '商品管理' },
   { path: '/inventory', label: '库存管理' },
   { path: '/banners', label: '横幅管理' },
-  { path: '/calendar-events', label: '节日与活动' },
-  { path: '/atlas', label: '图鉴管理' },
+  { path: '/festival-campaigns', label: '节日预售与限时活动' },
+  { path: '/studio-operations', label: '工作室合作后台' },
+  { path: '/calendar-events', label: '日历节日提醒' },
   { path: '/data-import', label: '数据导入' }
 ]
 

@@ -1,37 +1,43 @@
-<view class="safe-page product-detail-page">
-  <app-nav title="商品详情" showBack solid></app-nav>
-
+<view class="product-detail-page">
   <flower-loader wx:if="{{loading}}" overlay text="正在准备商品详情…"></flower-loader>
 
   <view wx:elif="{{loadFailed}}" class="detail-error">
+    <view class="detail-floating-back" style="top: {{backTop}}px;" bindtap="goBack" role="button" aria-label="返回">
+      <view class="detail-floating-back__icon"></view>
+    </view>
     <text class="detail-error__title">商品详情暂时无法加载</text>
     <view class="detail-error__button" bindtap="loadProduct" role="button">重新加载</view>
   </view>
 
   <block wx:elif="{{product}}">
-    <view class="detail-media">
-      <video
-        wx:if="{{product.videoUrl}}"
-        class="detail-video"
-        src="{{product.videoUrl}}"
-        poster="{{product.videoPosterUrl}}"
-        controls
-        object-fit="cover"
-        show-center-play-btn
-        enable-progress-gesture
-      ></video>
+    <view class="detail-hero">
+      <view class="detail-floating-back" style="top: {{backTop}}px;" bindtap="goBack" role="button" aria-label="返回">
+        <view class="detail-floating-back__icon"></view>
+      </view>
 
       <swiper
-        wx:if="{{product.galleryUrls.length}}"
-        class="detail-swiper {{product.videoUrl ? 'detail-swiper--after-video' : ''}}"
-        circular="{{product.galleryUrls.length > 1}}"
+        wx:if="{{product.mediaTotal}}"
+        class="detail-hero__swiper"
+        circular="{{product.mediaTotal > 1}}"
         bindchange="onMediaChange"
       >
+        <swiper-item wx:if="{{product.videoUrl}}">
+          <video
+            class="detail-hero__video"
+            src="{{product.videoUrl}}"
+            poster="{{product.videoPosterUrl}}"
+            controls
+            object-fit="contain"
+            show-center-play-btn
+            enable-progress-gesture
+          ></video>
+        </swiper-item>
+
         <swiper-item wx:for="{{product.galleryUrls}}" wx:key="*this">
           <image
-            class="detail-swiper__image"
+            class="detail-hero__image"
             src="{{item}}"
-            mode="aspectFill"
+            mode="aspectFit"
             lazy-load="{{index > 0}}"
             data-src="{{item}}"
             bindtap="previewImage"
@@ -39,67 +45,97 @@
         </swiper-item>
       </swiper>
 
-      <view wx:if="{{product.galleryUrls.length > 1}}" class="detail-media__count">
-        {{mediaIndex + 1}} / {{product.galleryUrls.length}}
+      <view wx:else class="detail-hero__placeholder">CHLORIS</view>
+
+      <view wx:if="{{product.mediaTotal > 1}}" class="detail-hero__dots">
+        <view
+          wx:for="{{product.mediaDots}}"
+          wx:key="*this"
+          class="detail-hero__dot {{mediaIndex === item ? 'detail-hero__dot--active' : ''}}"
+        ></view>
       </view>
-      <view wx:if="{{!product.videoUrl && !product.galleryUrls.length}}" class="detail-media__placeholder">CHLORIS</view>
     </view>
 
-    <view class="detail-content">
-      <view class="detail-main-card">
-        <view class="detail-name-row">
-          <view class="detail-name-copy">
-            <text class="detail-type">{{product.typeLabel}}</text>
-            <text class="detail-name">{{product.name}}</text>
-            <text wx:if="{{product.subtitle}}" class="detail-subtitle">{{product.subtitle}}</text>
-          </view>
-          <view class="detail-stock {{product.stock <= 5 ? 'detail-stock--low' : ''}}">
-            {{product.stock > 0 ? '当前可售' : '已售罄'}}
-          </view>
+    <view class="detail-summary">
+      <view class="detail-summary__meta">
+        <view class="detail-summary__badges">
+          <text class="detail-badge">{{product.salesModeLabel}}</text>
+          <text wx:if="{{product.limitedTimeEnabled}}" class="detail-badge">限时推出</text>
         </view>
-
-        <view class="detail-price-row">
-          <text class="detail-price__currency">¥</text>
-          <text class="detail-price__amount">{{product.priceText}}</text>
-          <text class="detail-price__unit">/{{product.unit}}</text>
+        <view class="detail-sku" bindtap="copySku" role="button">
+          <text>{{product.skuText}}</text>
+          <view class="detail-copy-icon"></view>
         </view>
+      </view>
 
-        <view class="detail-tags">
-          <text wx:for="{{product.colorTags}}" wx:key="*this" class="detail-tag">{{item}}</text>
-          <text wx:for="{{product.sceneTags}}" wx:key="*this" class="detail-tag detail-tag--soft">{{item}}</text>
+      <text class="detail-summary__title">{{product.name}}</text>
+
+      <view class="detail-summary__price">
+        <text class="detail-summary__currency">¥</text>
+        <text>{{product.priceText}}</text>
+      </view>
+
+      <text class="detail-summary__description">{{product.detailDescription}}</text>
+
+      <view wx:if="{{product.preorderDeliveryText || product.reservationDeadlineText || product.limitedWindowText}}" class="detail-operation-note">
+        <text wx:if="{{product.preorderDeliveryText}}" class="detail-operation-note__line">预约配送：{{product.preorderDeliveryText}}</text>
+        <text wx:if="{{product.reservationDeadlineText}}" class="detail-operation-note__line">预约截止：{{product.reservationDeadlineText}}</text>
+        <text wx:if="{{product.limitedWindowText}}" class="detail-operation-note__line">限时销售：{{product.limitedWindowText}}</text>
+      </view>
+    </view>
+
+    <view class="detail-accordion">
+      <view class="detail-section">
+        <view class="detail-section__head" data-key="features" bindtap="toggleSection" role="button">
+          <text>详细特征</text>
+          <text class="detail-section__symbol">{{expandedSection === 'features' ? '−' : '+'}}</text>
+        </view>
+        <view wx:if="{{expandedSection === 'features'}}" class="detail-section__body">
+          <text wx:if="{{product.sizeDescription}}" class="detail-section__paragraph">{{product.sizeDescription}}</text>
+          <text class="detail-section__paragraph">{{product.flowerMaterialInfo}}</text>
+          <view wx:if="{{product.colorTags.length || product.sceneTags.length}}" class="detail-section__tags">
+            <text wx:for="{{product.colorTags}}" wx:key="*this" class="detail-section__tag">{{item}}</text>
+            <text wx:for="{{product.sceneTags}}" wx:key="*this" class="detail-section__tag">{{item}}</text>
+          </view>
         </view>
       </view>
 
       <view class="detail-section">
-        <view class="detail-section__head" data-key="materials" bindtap="toggleSection" role="button">
-          <text>花材说明</text>
-          <view class="detail-chevron {{expandedSection === 'materials' ? 'detail-chevron--open' : ''}}"></view>
+        <view class="detail-section__head" data-key="delivery" bindtap="toggleSection" role="button">
+          <text>配送服务</text>
+          <text class="detail-section__symbol">{{expandedSection === 'delivery' ? '−' : '+'}}</text>
         </view>
-        <text wx:if="{{expandedSection === 'materials'}}" class="detail-section__body">{{product.flowerMaterialInfo}}</text>
+        <view wx:if="{{expandedSection === 'delivery'}}" class="detail-section__body">
+          <text class="detail-section__paragraph">{{product.deliveryDescription}}</text>
+        </view>
+      </view>
+
+      <view class="detail-section">
+        <view class="detail-section__head" data-key="payment" bindtap="toggleSection" role="button">
+          <text>支付方式</text>
+          <text class="detail-section__symbol">{{expandedSection === 'payment' ? '−' : '+'}}</text>
+        </view>
+        <view wx:if="{{expandedSection === 'payment'}}" class="detail-section__body">
+          <text class="detail-section__paragraph">{{product.paymentDescription}}</text>
+        </view>
       </view>
 
       <view class="detail-section">
         <view class="detail-section__head" data-key="care" bindtap="toggleSection" role="button">
           <text>护理建议</text>
-          <view class="detail-chevron {{expandedSection === 'care' ? 'detail-chevron--open' : ''}}"></view>
+          <text class="detail-section__symbol">{{expandedSection === 'care' ? '−' : '+'}}</text>
         </view>
-        <text wx:if="{{expandedSection === 'care'}}" class="detail-section__body">{{product.careDescription}}</text>
+        <view wx:if="{{expandedSection === 'care'}}" class="detail-section__body">
+          <text class="detail-section__paragraph">{{product.careDescription}}</text>
+        </view>
       </view>
-
-      <view class="detail-bottom-space"></view>
     </view>
 
+    <view class="detail-bottom-space"></view>
+
     <view class="detail-action-bar">
-      <button class="detail-action-icon" open-type="contact" show-message-card="{{true}}">
-        <image src="/images/icons/profile/customerService.png" mode="aspectFit"></image>
-        <text>客服</text>
-      </button>
-      <view class="detail-action-icon" bindtap="openCart" role="button">
-        <image src="/images/icons/cart-active.png" mode="aspectFit"></image>
-        <text>购物车</text>
-      </view>
-      <view class="detail-action-button detail-action-button--light" bindtap="addProduct" role="button">加入购物车</view>
-      <view class="detail-action-button" bindtap="buyNow" role="button">立即购买</view>
+      <view class="detail-action-button detail-action-button--light" bindtap="addProduct" role="button">加入购物袋</view>
+      <view class="detail-action-button" bindtap="buyNow" role="button">{{product.salesMode === 'preorder' ? '立即预订' : '立即购买'}}</view>
     </view>
   </block>
 </view>

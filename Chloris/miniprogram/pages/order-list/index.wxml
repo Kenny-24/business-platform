@@ -23,7 +23,10 @@
               <text class="order-card__number">{{item.orderNo}}</text>
               <text class="order-card__time">{{item.createdAtText}}</text>
             </view>
-            <text class="order-card__status order-card__status--{{item.status}}">{{item.statusLabel}}</text>
+            <view class="order-card__status order-card__status--{{item.status}}">
+              <view class="order-card__status-dot"></view>
+              <text class="order-card__status-text">{{item.statusLabel}}</text>
+            </view>
           </view>
 
           <view wx:if="{{item.firstItem}}" class="order-card__product">
@@ -41,7 +44,7 @@
           </view>
 
           <view class="order-card__footer">
-            <text>{{item.statusDescription}}</text>
+            <text class="order-card__footer-text">{{item.statusDescription}}</text>
             <view class="order-card__detail"><text>查看详情</text><view class="order-card__chevron"></view></view>
           </view>
         </view>

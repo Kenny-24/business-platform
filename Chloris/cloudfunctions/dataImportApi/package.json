@@ -1,6 +1,6 @@
 {
   "name": "dataImportApi",
-  "version": "4.3.0",
+  "version": "6.13.0",
   "description": "Chloris 数据导入、校验、记录与安全回滚 API",
   "main": "index.js",
   "dependencies": {

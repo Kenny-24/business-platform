@@ -2,7 +2,7 @@
   width: 100%;
   min-height: 100vh;
   padding-bottom: 0;
-  background: #fafbf8;
+  background: #f7f7f5;
 }
 
 .result-content {
@@ -23,40 +23,40 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #edf3e9;
-  color: #617148;
+  background: #f6f6f4;
+  color: #292929;
   font-size: 43rpx;
   font-weight: 700;
 }
 
 .result-title {
   margin-top: 25rpx;
-  color: #2f342d;
+  color: #292929;
   font-size: 30rpx;
   font-weight: 700;
 }
 
 .result-description {
   margin-top: 10rpx;
-  color: #7e857b;
-  font-size: 18rpx;
+  color: #777772;
+  font-size: 24rpx;
 }
 
 .result-number {
   margin-top: 18rpx;
-  color: #9aa097;
-  font-size: 15rpx;
+  color: #9b9b96;
+  font-size: 22rpx;
 }
 
 .result-notice {
   max-width: 620rpx;
   margin-top: 28rpx;
   padding: 17rpx 20rpx;
-  border: 1rpx solid #e0e6dc;
-  border-radius: 14rpx;
-  background: #f1f5ee;
-  color: #727a6f;
-  font-size: 15rpx;
+  border: 1rpx solid #eeeeeb;
+  border-radius: 6rpx;
+  background: #f6f6f4;
+  color: #777772;
+  font-size: 22rpx;
   line-height: 1.65;
 }
 
@@ -74,7 +74,7 @@
   box-sizing: border-box;
   border-top: 1rpx solid rgba(74, 68, 58, 0.08);
   background: rgba(250, 251, 248, 0.98);
-  box-shadow: 0 -10rpx 30rpx rgba(55, 50, 42, 0.07);
+  box-shadow: none;
 }
 
 .result-fixed-bar__inner {
@@ -93,11 +93,20 @@
   border-radius: 39rpx;
   background: #ffffff;
   color: #697167;
-  font-size: 20rpx;
+  font-size: 26rpx;
 }
 
 .result-button--primary {
-  border-color: #6f8050;
-  background: #6f8050;
+  border-color: #111111;
+  background: #111111;
   color: #ffffff;
 }
+
+/* V6.14 unified luxury-neutral visual layer */
+.result-page { background:#fff; }
+.result-mark { border:2rpx solid #111; background:#111; color:#fff; }
+.result-title { color:#171717; font-family:inherit; font-weight:650; }
+.result-notice { border:1rpx solid #eeeeeb; border-radius:0; background:#f6f6f4; color:#5b5b56; }
+.result-fixed-bar { border-top:1rpx solid #eeeeeb; background:rgba(255,255,255,.98); box-shadow:none; }
+.result-button { border:2rpx solid #111; border-radius:999rpx; background:#fff; color:#111; }
+.result-button--primary { background:#111; color:#fff; }

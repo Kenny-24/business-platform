@@ -1,10 +1,5 @@
 const ORDER_STATUS_ITEMS = [
   {
-    key: 'pendingConfirm',
-    label: '待确认',
-    icon: '/images/icons/profile/pendingConfirm.png'
-  },
-  {
     key: 'pendingPayment',
     label: '待付款',
     icon: '/images/icons/profile/pendingPayment.png'
@@ -27,40 +22,47 @@ const ORDER_STATUS_ITEMS = [
 ]
 
 const ASSET_ITEMS = [
-  { key: 'points', label: '积分' },
-  { key: 'coupons', label: '优惠券' },
-  { key: 'favorites', label: '收藏' }
+  { key: 'coupons', label: '优惠券' }
 ]
 
-const SERVICE_ITEMS = [
+const SERVICE_GRID_ITEMS = [
   {
-    key: 'addresses',
-    label: '收货地址',
-    description: '管理配送联系人与地址',
-    icon: '/images/icons/profile/addresses.png'
+    key: 'quoteRequests',
+    label: '定制报价',
+    icon: '/images/icons/profile/quoteRequests.png'
   },
   {
     key: 'importantDates',
     label: '我的 BIG DAY',
-    description: '记录生日、纪念日和重要时刻',
     icon: '/images/icons/profile/importantDates.png'
   },
   {
-    key: 'quoteRequests',
-    label: '定制报价',
-    description: '查看报价、确认方案与订单',
-    icon: '/images/icons/profile/quoteRequests.png'
+    key: 'addresses',
+    label: '收货地址',
+    icon: '/images/icons/profile/addresses.png'
   },
   {
     key: 'customerService',
-    label: '客服',
-    description: '订单、配送与定制问题',
+    label: '联系客服',
     icon: '/images/icons/profile/customerService.png'
+  },
+  {
+    key: 'coupons',
+    label: '优惠券',
+    icon: '/images/icons/profile/coupons.png'
+  },
+  {
+    key: 'flowerCare',
+    label: '鲜花护理',
+    icon: '/images/icons/profile/flowerCare.png'
   }
 ]
+
+const SERVICE_ITEMS = SERVICE_GRID_ITEMS
 
 module.exports = {
   ORDER_STATUS_ITEMS,
   ASSET_ITEMS,
-  SERVICE_ITEMS
+  SERVICE_ITEMS,
+  SERVICE_GRID_ITEMS
 }

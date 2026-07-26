@@ -126,7 +126,7 @@
           <view
             wx:for="{{filterOptions}}"
             wx:key="value"
-            class="filter-chip filter-chip--festival {{activeFilter === item.value ? 'filter-chip--active' : ''}}"
+            class="filter-chip filter-chip--festival filter-chip--{{item.value}} {{activeFilter === item.value ? 'filter-chip--active' : ''}}"
             data-value="{{item.value}}"
             bindtap="selectMonthFilter"
             role="button"
@@ -158,32 +158,56 @@
       <view wx:else class="section-empty section-empty--festival">本月没有此分类的节日</view>
     </view>
 
-    <view class="section-block">
-      <view class="section-head">
-        <view class="big-day-title"><text class="big-day-title__cn">我的</text><text class="big-day-title__en">BIG DAY</text></view>
-        <view class="text-action" bindtap="openAddDate" role="button">添加</view>
-      </view>
-
-      <view wx:if="{{upcomingPersonalDates.length}}" class="personal-list">
-        <view class="personal-row" wx:for="{{upcomingPersonalDates}}" wx:key="id">
-          <view class="personal-date">
-            <text>{{item.dateLabel}}</text>
-            <text>{{item.countdownLabel}}</text>
+    <view class="section-block section-block--big-day">
+      <view class="section-head big-day-head">
+        <view class="big-day-heading">
+          <view class="big-day-title">
+            <text class="big-day-title__cn">我的</text>
+            <text class="big-day-title__en">BIG DAY</text>
           </view>
-          <view class="personal-main" data-id="{{item.id}}" bindtap="editPersonalDate" role="button">
-            <text class="personal-name">{{item.title}}</text>
-            <text class="personal-note">{{item.reminderLabel}}</text>
-          </view>
-          <view class="personal-delete" data-id="{{item.id}}" bindtap="deletePersonalDate" role="button">删除</view>
+          <text class="big-day-title__sub">记录值得提前准备与表达心意的日子</text>
+        </view>
+        <view class="big-day-add" bindtap="openAddDate" role="button">
+          <text class="big-day-add__plus">＋</text>
+          <text>添加</text>
         </view>
       </view>
 
-      <view wx:else class="add-date-card" bindtap="openAddDate" role="button">
+      <view wx:if="{{upcomingPersonalDates.length}}" class="personal-cards">
+        <view class="personal-card" wx:for="{{upcomingPersonalDates}}" wx:key="id">
+          <view class="personal-card__main" data-id="{{item.id}}" bindtap="editPersonalDate" role="button">
+            <view class="personal-date-card">
+              <text class="personal-date-card__date">{{item.dateLabel}}</text>
+              <text class="personal-date-card__countdown">{{item.countdownLabel}}</text>
+            </view>
+
+            <view class="personal-content">
+              <text class="personal-name">{{item.title}}</text>
+              <text wx:if="{{item.note}}" class="personal-message">{{item.note}}</text>
+              <text wx:else class="personal-message personal-message--muted">为这一天提前准备一束花</text>
+              <view class="personal-reminder">
+                <view class="personal-reminder__dot"></view>
+                <text>{{item.reminderLabel}}</text>
+              </view>
+            </view>
+
+            <view class="personal-edit-arrow"></view>
+          </view>
+
+          <view class="personal-card__footer">
+            <text class="personal-repeat">{{item.repeatYearly === false ? '单次提醒' : '每年重复'}}</text>
+            <view class="personal-delete" data-id="{{item.id}}" bindtap="deletePersonalDate" role="button">删除</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="add-date-card add-date-card--refined" bindtap="openAddDate" role="button">
         <view class="add-date-icon">＋</view>
-        <view>
+        <view class="add-date-copy">
           <text class="add-date-title">添加我的 BIG DAY</text>
-          <text class="add-date-sub">生日、纪念日和想送花的日子</text>
+          <text class="add-date-sub">生日、纪念日和每一个值得送花的日子</text>
         </view>
+        <view class="add-date-arrow"></view>
       </view>
     </view>
   </view>

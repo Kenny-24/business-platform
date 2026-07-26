@@ -2,7 +2,7 @@
   width: 100%;
   min-height: 100vh;
   padding: 0 26rpx calc(48rpx + env(safe-area-inset-bottom));
-  background: #fafbf8;
+  background: #f7f7f5;
 }
 
 .page-content {
@@ -14,8 +14,8 @@
 .calendar-panel,
 .section-block,
 .ordinary-card {
-  border: 1rpx solid #e6e9e2;
-  border-radius: 20rpx;
+  border: 1rpx solid #eeeeeb;
+  border-radius: 0;
   background: #ffffff;
 }
 
@@ -62,14 +62,14 @@
 }
 
 .month-title {
-  color: #292d27;
+  color: #171717;
   font-size: 29rpx;
   font-weight: 600;
 }
 
 .today-link {
   margin-top: 7rpx;
-  color: #6f8152;
+  color: #111111;
   font-size: 18rpx;
 }
 
@@ -79,8 +79,8 @@
   justify-content: center;
   gap: 26rpx;
   min-height: 50rpx;
-  border-top: 1rpx solid #f0f2ed;
-  border-bottom: 1rpx solid #f0f2ed;
+  border-top: 1rpx solid #f6f6f4;
+  border-bottom: 1rpx solid #f6f6f4;
   color: #848981;
   font-size: 18rpx;
 }
@@ -104,17 +104,17 @@
 
 .legend-dot--domestic,
 .day-marker--domestic {
-  background: #d66d73;
+  background: #111111;
 }
 
 .legend-dot--international,
 .day-marker--international {
-  background: #6682b8;
+  background: #5b5b56;
 }
 
 .legend-dot--personal,
 .day-marker--personal {
-  background: #6f8152;
+  background: #111111;
 }
 
 
@@ -127,7 +127,7 @@
 
 .week-cell {
   padding: 17rpx 0 12rpx;
-  color: #92978f;
+  color: #8d8d88;
   font-size: 19rpx;
   text-align: center;
 }
@@ -140,7 +140,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #30342e;
+  color: #171717;
 }
 
 .day-cell--muted {
@@ -165,8 +165,8 @@
 }
 
 .day-number--selected {
-  border-color: #65764c;
-  background: #65764c;
+  border-color: #292929;
+  background: #292929;
   color: #ffffff;
   font-weight: 600;
 }
@@ -196,14 +196,14 @@
 }
 
 .selected-date {
-  color: #292d27;
+  color: #171717;
   font-size: 31rpx;
   font-weight: 600;
 }
 
 .selected-summary {
   margin-top: 7rpx;
-  color: #868b83;
+  color: #8d8d88;
   font-size: 20rpx;
 }
 
@@ -225,7 +225,7 @@
   overflow: hidden;
   padding: 22rpx 22rpx 20rpx;
   border: 1rpx solid #e5e8e1;
-  border-radius: 18rpx;
+  border-radius: 0;
   background: #ffffff;
 }
 
@@ -239,15 +239,15 @@
 }
 
 .event-card--domestic::before {
-  background: #d66d73;
+  background: #111111;
 }
 
 .event-card--international::before {
-  background: #6682b8;
+  background: #5b5b56;
 }
 
 .event-card--personal::before {
-  background: #6f8152;
+  background: #111111;
 }
 
 .event-card__top {
@@ -260,7 +260,7 @@
   height: 38rpx;
   align-items: center;
   padding: 0 14rpx;
-  border-radius: 20rpx;
+  border-radius: 0;
   font-size: 17rpx;
 }
 
@@ -275,7 +275,7 @@
 }
 
 .event-tag--personal {
-  background: #edf2e8;
+  background: #f6f6f4;
   color: #5d7045;
 }
 
@@ -288,7 +288,7 @@
 .event-title {
   display: block;
   margin-top: 13rpx;
-  color: #292d27;
+  color: #171717;
   font-size: 27rpx;
   font-weight: 600;
 }
@@ -307,8 +307,8 @@
   align-items: center;
   margin-top: 15rpx;
   padding: 0 18rpx;
-  border-radius: 24rpx;
-  background: #eef2e9;
+  border-radius: 0;
+  background: #f6f6f4;
   color: #5c6e44;
   font-size: 19rpx;
 }
@@ -330,7 +330,7 @@
 
 .ordinary-sub {
   margin-top: 8rpx;
-  color: #92978f;
+  color: #8d8d88;
   font-size: 19rpx;
   line-height: 1.55;
 }
@@ -352,13 +352,13 @@
 }
 
 .section-title {
-  color: #292d27;
+  color: #171717;
   font-size: 25rpx;
   font-weight: 600;
 }
 
 .section-note {
-  color: #9a9f97;
+  color: #9b9b96;
   font-size: 17rpx;
 }
 
@@ -384,7 +384,7 @@
   width: 218rpx;
   margin-right: 14rpx;
   overflow: hidden;
-  border: 1rpx solid #e6e9e2;
+  border: 1rpx solid #eeeeeb;
   border-radius: 15rpx;
   background: #ffffff;
 }
@@ -409,7 +409,7 @@
   display: block;
   margin: 12rpx 12rpx 0;
   overflow: hidden;
-  color: #30342e;
+  color: #171717;
   font-size: 21rpx;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -435,7 +435,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #6f8152;
+  background: #111111;
   color: #ffffff;
   font-size: 26rpx;
 }
@@ -452,7 +452,7 @@
   padding: 0 20rpx;
   border: 1rpx solid #e1e5de;
   border-radius: 25rpx;
-  color: #777d74;
+  color: #777772;
   font-size: 19rpx;
 }
 
@@ -466,7 +466,7 @@
 .month-event-list,
 .personal-list {
   margin-top: 13rpx;
-  border-top: 1rpx solid #eef0ec;
+  border-top: 1rpx solid #f6f6f4;
 }
 
 .month-event-row,
@@ -474,7 +474,7 @@
   display: flex;
   min-height: 86rpx;
   align-items: center;
-  border-bottom: 1rpx solid #eef0ec;
+  border-bottom: 1rpx solid #f6f6f4;
 }
 
 .month-event-row:last-child,
@@ -507,7 +507,7 @@
 
 .month-event-name,
 .personal-name {
-  color: #30342e;
+  color: #171717;
   font-size: 21rpx;
   font-weight: 600;
 }
@@ -515,7 +515,7 @@
 .month-event-title,
 .personal-note {
   margin-top: 5rpx;
-  color: #969b93;
+  color: #9b9b96;
   font-size: 17rpx;
 }
 
@@ -539,7 +539,7 @@
 
 .section-empty {
   padding: 34rpx 0 20rpx;
-  color: #a0a59d;
+  color: #9b9b96;
   font-size: 19rpx;
   text-align: center;
 }
@@ -593,14 +593,14 @@
 }
 
 .add-date-title {
-  color: #30342e;
+  color: #171717;
   font-size: 22rpx;
   font-weight: 600;
 }
 
 .add-date-sub {
   margin-top: 7rpx;
-  color: #969b93;
+  color: #9b9b96;
   font-size: 18rpx;
 }
 
@@ -638,7 +638,7 @@
 }
 
 .sheet-title {
-  color: #292d27;
+  color: #171717;
   font-size: 28rpx;
   font-weight: 600;
 }
@@ -649,7 +649,7 @@
   height: 48rpx;
   align-items: center;
   justify-content: center;
-  color: #868b83;
+  color: #8d8d88;
   font-size: 36rpx;
 }
 
@@ -686,9 +686,9 @@
 .form-textarea {
   width: 100%;
   border: 1rpx solid #e0e4dc;
-  border-radius: 14rpx;
-  background: #fbfcfa;
-  color: #30342e;
+  border-radius: 6rpx;
+  background: #f7f7f5;
+  color: #171717;
   font-size: 20rpx;
 }
 
@@ -713,8 +713,8 @@
   height: 12rpx;
   flex: 0 0 12rpx;
   margin-left: 12rpx;
-  border-top: 2rpx solid #8d928a;
-  border-right: 2rpx solid #8d928a;
+  border-top: 2rpx solid #8d8d88;
+  border-right: 2rpx solid #8d8d88;
   transform: rotate(45deg);
 }
 
@@ -739,8 +739,8 @@
   align-items: center;
   justify-content: center;
   margin-top: 10rpx;
-  border-radius: 16rpx;
-  background: #65764c;
+  border-radius: 6rpx;
+  background: #292929;
   color: #ffffff;
   font-size: 22rpx;
   font-weight: 600;
@@ -784,7 +784,7 @@
 }
 
 .ordinary-card {
-  background: linear-gradient(135deg, #f7f5ef, #ffffff);
+  background: #f6f6f4;
 }
 
 
@@ -856,9 +856,9 @@
 
 .month-event-board {
   overflow: hidden;
-  border: 1rpx solid #eef1eb;
-  border-radius: 18rpx;
-  background: linear-gradient(180deg, #fcfdfb 0%, #ffffff 100%);
+  border: 1rpx solid #f6f6f4;
+  border-radius: 0;
+  background: #f6f6f4;
 }
 
 .month-event-list--carded {
@@ -888,7 +888,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 14rpx;
-  border-radius: 14rpx;
+  border-radius: 6rpx;
   background: #f7f9f4;
   box-sizing: border-box;
 }
@@ -912,7 +912,7 @@
   justify-content: center;
   padding: 0 14rpx;
   margin-left: 0;
-  border-radius: 20rpx;
+  border-radius: 0;
   font-size: 17rpx;
   font-weight: 600;
   box-sizing: border-box;
@@ -963,21 +963,21 @@
 /* 商家活动日 */
 .legend-dot--merchant,
 .day-marker--merchant {
-  background: #d39a4b;
+  background: #5b5b56;
 }
 
 .event-card--merchant {
   border-color: #eadfcb;
-  background: linear-gradient(135deg, #fffdf8 0%, #fffaf0 100%);
+  background: #f6f6f4;
 }
 
 .event-card--merchant::before {
-  background: #d39a4b;
+  background: #5b5b56;
 }
 
 .event-tag--merchant {
-  background: #fff0d8;
-  color: #a96d20;
+  background: #f6f6f4;
+  color: #5b5b56;
 }
 
 .event-activity-time {
@@ -986,7 +986,7 @@
   gap: 12rpx;
   margin-top: 13rpx;
   padding: 14rpx 16rpx;
-  border-radius: 14rpx;
+  border-radius: 6rpx;
   background: #fff6e8;
 }
 
@@ -1006,6 +1006,608 @@
 }
 
 .month-event-region--badge.month-event-region--merchant {
-  background: #fff0d8;
-  color: #a96d20;
+  background: #f6f6f4;
+  color: #5b5b56;
+}
+
+/* V6.14 unified luxury-neutral visual layer */
+.calendar-page { background:#f7f7f5; }
+.calendar-panel,.section-block,.ordinary-card,.event-card,.recommend-card,.month-event-board,.personal-row,.add-date-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.month-header,.week-row,.section-head { border-bottom:1rpx solid #eeeeeb; }
+.month-title,.section-title,.ordinary-title,.event-title,.month-event-name,.personal-name { color:#171717; font-family:inherit; font-weight:650; }
+.month-arrow { border:1rpx solid #deded9; border-radius:50%; background:#fff; }
+.today-link,.text-action,.add-small { color:#111; }
+.day-number--today { border:1rpx solid #111; color:#111; }
+.day-number--selected { background:#111; color:#fff; }
+.legend-dot,.day-marker { background:#777772 !important; }
+.event-tag,.month-event-region,.filter-chip { border:1rpx solid #deded9; border-radius:999rpx; background:#fff; color:#5b5b56; }
+.filter-chip--active { border-color:#111; background:#111; color:#fff; }
+.recommend-image,.recommend-placeholder { background:#f3f3f1; }
+.recommend-price { color:#171717; }
+.recommend-add { border:1rpx solid #111; background:#111; color:#fff; }
+.sheet { border-radius:0; background:#fff; box-shadow:none; }
+.form-input,.form-textarea,.picker-value { border:1rpx solid #eeeeeb; border-radius:0; background:#f6f6f4; }
+.sheet-save { border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; }
+
+/* V6.14.1 日历分类识别与 BIG DAY 版式优化 */
+
+/* 四类事件使用稳定且互不混淆的颜色系统 */
+.legend-dot--domestic,
+.day-marker--domestic {
+  background: #b4515b !important;
+}
+
+.legend-dot--international,
+.day-marker--international {
+  background: #4f6fa8 !important;
+}
+
+.legend-dot--merchant,
+.day-marker--merchant {
+  background: #a2742d !important;
+}
+
+.legend-dot--personal,
+.day-marker--personal {
+  background: #60784d !important;
+}
+
+.event-card--domestic::before {
+  background: #b4515b;
+}
+
+.event-card--international::before {
+  background: #4f6fa8;
+}
+
+.event-card--merchant::before {
+  background: #a2742d;
+}
+
+.event-card--personal::before {
+  background: #60784d;
+}
+
+.event-tag--domestic,
+.month-event-region--badge.month-event-region--domestic {
+  border-color: #efd7da;
+  background: #faecee;
+  color: #a84852;
+}
+
+.event-tag--international,
+.month-event-region--badge.month-event-region--international {
+  border-color: #d5e0f1;
+  background: #edf2fa;
+  color: #47679e;
+}
+
+.event-tag--merchant,
+.month-event-region--badge.month-event-region--merchant {
+  border-color: #eadbc3;
+  background: #faf3e7;
+  color: #956824;
+}
+
+.event-tag--personal,
+.month-event-region--badge.month-event-region--personal {
+  border-color: #d8e3d0;
+  background: #eef4ea;
+  color: #577043;
+}
+
+.filter-chip--all.filter-chip--active {
+  border-color: #111111;
+  background: #111111;
+  color: #ffffff;
+}
+
+.filter-chip--domestic {
+  border-color: #efd7da;
+  color: #a84852;
+}
+
+.filter-chip--domestic.filter-chip--active {
+  border-color: #b4515b;
+  background: #b4515b;
+  color: #ffffff;
+}
+
+.filter-chip--international {
+  border-color: #d5e0f1;
+  color: #47679e;
+}
+
+.filter-chip--international.filter-chip--active {
+  border-color: #4f6fa8;
+  background: #4f6fa8;
+  color: #ffffff;
+}
+
+.filter-chip--merchant {
+  border-color: #eadbc3;
+  color: #956824;
+}
+
+.filter-chip--merchant.filter-chip--active {
+  border-color: #a2742d;
+  background: #a2742d;
+  color: #ffffff;
+}
+
+.filter-chip--personal {
+  border-color: #d8e3d0;
+  color: #577043;
+}
+
+.filter-chip--personal.filter-chip--active {
+  border-color: #60784d;
+  background: #60784d;
+  color: #ffffff;
+}
+
+/* BIG DAY 独立信息卡布局 */
+.section-block--big-day {
+  padding: 0;
+  overflow: hidden;
+}
+
+.big-day-head {
+  min-height: 116rpx;
+  margin-bottom: 0;
+  padding: 24rpx 24rpx 22rpx;
+  border-bottom: 1rpx solid #eeeeeb;
+}
+
+.big-day-heading {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.big-day-title {
+  display: flex;
+  align-items: baseline;
+}
+
+.big-day-title__cn {
+  color: #171717;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.big-day-title__en {
+  margin-left: 12rpx;
+  color: #60784d;
+  font-family: Georgia, serif;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+}
+
+.big-day-title__sub {
+  display: block;
+  margin-top: 8rpx;
+  color: #92928d;
+  font-size: 17rpx;
+  line-height: 1.45;
+}
+
+.big-day-add {
+  display: inline-flex;
+  height: 54rpx;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-left: 18rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #111111;
+  border-radius: 999rpx;
+  color: #111111;
+  font-size: 18rpx;
+  font-weight: 600;
+}
+
+.big-day-add__plus {
+  margin-right: 5rpx;
+  font-size: 24rpx;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.personal-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  padding: 20rpx 20rpx 22rpx;
+  background: #f7f7f5;
+}
+
+.personal-card {
+  overflow: hidden;
+  border: 1rpx solid #e7e7e3;
+  background: #ffffff;
+}
+
+.personal-card__main {
+  display: flex;
+  min-height: 142rpx;
+  align-items: center;
+  padding: 20rpx;
+}
+
+.personal-date-card {
+  display: flex;
+  width: 122rpx;
+  min-height: 94rpx;
+  flex: 0 0 122rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 5rpx solid #60784d;
+  background: #f2f5ef;
+}
+
+.personal-date-card__date {
+  color: #242621;
+  font-size: 21rpx;
+  font-weight: 650;
+}
+
+.personal-date-card__countdown {
+  margin-top: 7rpx;
+  color: #60784d;
+  font-size: 16rpx;
+  font-weight: 600;
+}
+
+.personal-content {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0 18rpx;
+}
+
+.personal-name {
+  display: block;
+  overflow: hidden;
+  color: #171717;
+  font-size: 23rpx;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personal-message {
+  display: block;
+  margin-top: 7rpx;
+  overflow: hidden;
+  color: #686863;
+  font-size: 17rpx;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personal-message--muted {
+  color: #a0a09b;
+}
+
+.personal-reminder {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+  color: #777772;
+  font-size: 16rpx;
+}
+
+.personal-reminder__dot {
+  width: 8rpx;
+  height: 8rpx;
+  margin-right: 8rpx;
+  border-radius: 50%;
+  background: #60784d;
+}
+
+.personal-edit-arrow,
+.add-date-arrow {
+  width: 13rpx;
+  height: 13rpx;
+  flex: 0 0 13rpx;
+  border-top: 2rpx solid #858580;
+  border-right: 2rpx solid #858580;
+  transform: rotate(45deg);
+}
+
+.personal-card__footer {
+  display: flex;
+  min-height: 56rpx;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20rpx;
+  border-top: 1rpx solid #f0f0ed;
+  background: #fbfbfa;
+}
+
+.personal-repeat {
+  color: #969691;
+  font-size: 16rpx;
+}
+
+.personal-delete {
+  margin-left: 0;
+  padding: 10rpx 0 10rpx 22rpx;
+  color: #a34f57;
+  font-size: 17rpx;
+}
+
+.add-date-card--refined {
+  min-height: 130rpx;
+  margin: 20rpx;
+  padding: 20rpx;
+  border: 1rpx dashed #d9ddd4;
+  background: #fbfbfa;
+}
+
+.add-date-card--refined .add-date-icon {
+  width: 64rpx;
+  height: 64rpx;
+  flex: 0 0 64rpx;
+  margin-right: 18rpx;
+  border-color: #60784d;
+  color: #60784d;
+}
+
+.add-date-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.add-date-card--refined .add-date-title {
+  font-size: 22rpx;
+}
+
+.add-date-card--refined .add-date-sub {
+  line-height: 1.45;
+  white-space: normal;
+}
+
+@media (max-width: 420px) {
+  .big-day-head {
+    padding-right: 20rpx;
+    padding-left: 20rpx;
+  }
+
+  .big-day-title__sub {
+    max-width: 430rpx;
+  }
+
+  .personal-cards {
+    padding-right: 16rpx;
+    padding-left: 16rpx;
+  }
+
+  .personal-card__main {
+    padding: 18rpx 16rpx;
+  }
+
+  .personal-date-card {
+    width: 110rpx;
+    flex-basis: 110rpx;
+  }
+
+  .personal-content {
+    padding-right: 12rpx;
+    padding-left: 14rpx;
+  }
+}
+
+.month-event-region--badge {
+  min-width: auto;
+  padding-right: 16rpx;
+  padding-left: 16rpx;
+  white-space: nowrap;
+}
+
+/* V6.16.4：BIG DAY 紧凑排版与标签字号优化 */
+.legend-row {
+  gap: 20rpx;
+  font-size: 16rpx;
+}
+
+.legend-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 6rpx;
+}
+
+.event-tag {
+  height: 34rpx;
+  padding: 0 12rpx;
+  font-size: 15rpx;
+}
+
+.filter-chip,
+.filter-chip--festival {
+  height: 48rpx;
+  padding: 0 18rpx;
+  font-size: 17rpx;
+}
+
+.month-event-region--badge {
+  min-width: 68rpx;
+  height: 36rpx;
+  padding: 0 12rpx;
+  font-size: 15rpx;
+}
+
+.section-block--big-day {
+  border-radius: 0;
+}
+
+.big-day-head {
+  min-height: 100rpx;
+  padding: 20rpx 22rpx 18rpx;
+}
+
+.big-day-title__cn {
+  font-size: 25rpx;
+}
+
+.big-day-title__en {
+  margin-left: 10rpx;
+  font-size: 16rpx;
+  letter-spacing: 2rpx;
+}
+
+.big-day-title__sub {
+  margin-top: 6rpx;
+  font-size: 15rpx;
+  line-height: 1.4;
+}
+
+.big-day-add {
+  height: 46rpx;
+  margin-left: 14rpx;
+  padding: 0 15rpx;
+  font-size: 16rpx;
+}
+
+.big-day-add__plus {
+  margin-right: 4rpx;
+  font-size: 20rpx;
+}
+
+.personal-cards {
+  gap: 12rpx;
+  padding: 16rpx 16rpx 18rpx;
+}
+
+.personal-card {
+  border-radius: 18rpx;
+}
+
+.personal-card__main {
+  min-height: 116rpx;
+  padding: 16rpx;
+}
+
+.personal-date-card {
+  width: 108rpx;
+  min-height: 82rpx;
+  flex-basis: 108rpx;
+  padding: 8rpx 6rpx;
+  border-left-width: 4rpx;
+  border-radius: 10rpx;
+  box-sizing: border-box;
+}
+
+.personal-date-card__date {
+  font-size: 18rpx;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.personal-date-card__countdown {
+  margin-top: 5rpx;
+  font-size: 14rpx;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.personal-content {
+  padding: 0 14rpx;
+}
+
+.personal-name {
+  font-size: 20rpx;
+  line-height: 1.35;
+}
+
+.personal-message {
+  margin-top: 5rpx;
+  font-size: 15rpx;
+  line-height: 1.4;
+}
+
+.personal-reminder {
+  margin-top: 8rpx;
+  font-size: 14rpx;
+}
+
+.personal-reminder__dot {
+  width: 7rpx;
+  height: 7rpx;
+  margin-right: 7rpx;
+}
+
+.personal-edit-arrow {
+  width: 11rpx;
+  height: 11rpx;
+  flex-basis: 11rpx;
+}
+
+.personal-card__footer {
+  min-height: 48rpx;
+  padding: 0 16rpx;
+}
+
+.personal-repeat {
+  font-size: 14rpx;
+}
+
+.personal-delete {
+  padding: 8rpx 0 8rpx 18rpx;
+  font-size: 15rpx;
+}
+
+.add-date-card--refined {
+  min-height: 112rpx;
+  margin: 16rpx;
+  padding: 18rpx;
+}
+
+.add-date-card--refined .add-date-icon {
+  width: 56rpx;
+  height: 56rpx;
+  flex-basis: 56rpx;
+  margin-right: 14rpx;
+  font-size: 24rpx;
+}
+
+.add-date-card--refined .add-date-title {
+  font-size: 19rpx;
+}
+
+.add-date-card--refined .add-date-sub {
+  margin-top: 5rpx;
+  font-size: 15rpx;
+}
+
+@media (max-width: 420px) {
+  .legend-row {
+    gap: 14rpx;
+    font-size: 15rpx;
+  }
+
+  .big-day-head {
+    padding-right: 16rpx;
+    padding-left: 16rpx;
+  }
+
+  .personal-cards {
+    padding-right: 12rpx;
+    padding-left: 12rpx;
+  }
+
+  .personal-card__main {
+    padding: 14rpx;
+  }
+
+  .personal-date-card {
+    width: 100rpx;
+    flex-basis: 100rpx;
+  }
+
+  .personal-content {
+    padding-right: 10rpx;
+    padding-left: 12rpx;
+  }
 }

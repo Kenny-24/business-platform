@@ -4,6 +4,7 @@ const {
   respondQuoteRequest,
   listAddresses
 } = require('../../services/user-service')
+const { getCheckoutOptions } = require('../../services/order-service')
 
 const DELIVERY_SLOTS = [
   '09:00-12:00',
@@ -40,9 +41,9 @@ function buildLayout(hasBottomAction = false) {
   return {
     contentHeight: metrics.contentHeight,
     scrollHeight: Math.max(260, metrics.contentHeight - bottomActionHeight),
-    horizontalPadding: width <= 350 ? 14 : width >= 768 ? 28 : 18,
-    compactLayout: width <= 350,
-    wideLayout: width >= 720,
+    horizontalPadding: Number(metrics.horizontalPadding || (width <= 350 ? 14 : width >= 768 ? 28 : 18)),
+    compactLayout: Boolean(metrics.isSmallScreen || width <= 350),
+    wideLayout: Boolean(metrics.isWideScreen || width >= 720),
     bottomActionHeight
   }
 }
@@ -97,6 +98,14 @@ Page({
     addressLoading: false,
     addressOptions: [],
     selectedAddress: null,
+    deliveryMethodId: 'delivery',
+    deliveryMethods: [
+      { id: 'delivery', name: '配送到家' },
+      { id: 'pickup', name: '到店自取' }
+    ],
+    pickupLocations: [],
+    pickupLocationId: '',
+    selectedPickupLocation: null,
     deliverySlots: DELIVERY_SLOTS,
     selectedDeliverySlot: DELIVERY_SLOTS[0],
     minDeliveryDate: '',
@@ -244,15 +253,19 @@ Page({
     wx.showLoading({ title: '正在读取地址', mask: true })
 
     try {
-      const result = await listAddresses()
-      const options = (result.items || []).map(buildAddressOption).filter((row) => row.id)
+      const [addressResult, checkoutOptions] = await Promise.all([
+        listAddresses(),
+        getCheckoutOptions([])
+      ])
+      const options = (addressResult.items || []).map(buildAddressOption).filter((row) => row.id)
+      const pickupLocations = checkoutOptions.pickupLocations || []
       wx.hideLoading()
 
-      if (!options.length) {
+      if (!options.length && !pickupLocations.length) {
         wx.showModal({
-          title: '请先添加收货地址',
-          content: '生成定制订单前，需要选择收货地址和期望配送时间。',
-          confirmText: '去添加',
+          title: '暂无可用收货方式',
+          content: '请先添加收货地址，或联系商家开通到店自取。',
+          confirmText: '去添加地址',
           cancelText: '稍后',
           success: (modalResult) => {
             if (modalResult.confirm) wx.navigateTo({ url: '/pages/address-list/index' })
@@ -261,11 +274,17 @@ Page({
         return
       }
 
+      const deliveryMethodId = options.length ? 'delivery' : 'pickup'
       const defaultIndex = Math.max(0, options.findIndex((row) => row.isDefault))
+      const selectedPickupLocation = pickupLocations[0] || null
       this.setData({
         deliveryEditorVisible: true,
+        deliveryMethodId,
         addressOptions: options,
-        selectedAddress: options[defaultIndex],
+        selectedAddress: options[defaultIndex] || null,
+        pickupLocations,
+        pickupLocationId: selectedPickupLocation && selectedPickupLocation.id || '',
+        selectedPickupLocation,
         selectedDeliverySlot: DELIVERY_SLOTS[0],
         'deliveryForm.addressIndex': defaultIndex,
         'deliveryForm.deliverySlotIndex': 0
@@ -284,6 +303,28 @@ Page({
   },
 
   preventEditorClose() {},
+
+  selectQuoteDeliveryMethod(event) {
+    const deliveryMethodId = String(event.currentTarget.dataset.id || 'delivery')
+    if (deliveryMethodId === 'delivery' && !this.data.addressOptions.length) {
+      wx.showToast({ title: '请先添加收货地址', icon: 'none' })
+      return
+    }
+    if (deliveryMethodId === 'pickup' && !this.data.pickupLocations.length) {
+      wx.showToast({ title: '暂时没有可用的自提门店', icon: 'none' })
+      return
+    }
+    this.setData({ deliveryMethodId })
+  },
+
+  onPickupLocationChange(event) {
+    const index = Number(event.detail.value || 0)
+    const selectedPickupLocation = this.data.pickupLocations[index] || null
+    this.setData({
+      pickupLocationId: selectedPickupLocation && selectedPickupLocation.id || '',
+      selectedPickupLocation
+    })
+  },
 
   onAddressChange(event) {
     const index = Number(event.detail.value || 0)
@@ -317,8 +358,12 @@ Page({
     const slot = this.data.deliverySlots[Number(form.deliverySlotIndex || 0)]
     const deliveryDate = String(form.requestedDeliveryDate || '')
 
-    if (!address || !address.id) {
+    if (this.data.deliveryMethodId === 'delivery' && (!address || !address.id)) {
       wx.showToast({ title: '请选择收货地址', icon: 'none' })
+      return
+    }
+    if (this.data.deliveryMethodId === 'pickup' && !this.data.pickupLocationId) {
+      wx.showToast({ title: '请选择自提门店', icon: 'none' })
       return
     }
     if (!deliveryDate) {
@@ -334,14 +379,16 @@ Page({
     const priceText = (quotedPriceFen / 100).toFixed(2).replace(/\.00$/, '')
     wx.showModal({
       title: '确认生成订单',
-      content: `报价 ¥${priceText}，期望于 ${deliveryDate} ${slot} 配送。商家确认时间后即可按流程付款。`,
+      content: `报价 ¥${priceText}，期望于 ${deliveryDate} ${slot} ${this.data.deliveryMethodId === 'pickup' ? '到店自取' : '配送'}。确认报价后即可进入付款。`,
       confirmText: '确认生成',
       cancelText: '再检查',
       confirmColor: '#6f7d55',
       success: (result) => {
         if (!result.confirm) return
         this.submitDecision('accept', {
-          addressId: address.id,
+          deliveryMethodId: this.data.deliveryMethodId,
+          addressId: this.data.deliveryMethodId === 'delivery' && address ? address.id : '',
+          pickupLocationId: this.data.deliveryMethodId === 'pickup' ? this.data.pickupLocationId : '',
           requestedDeliveryDate: deliveryDate,
           requestedDeliverySlot: slot,
           requestedDeliveryNote: String(form.requestedDeliveryNote || '').trim()

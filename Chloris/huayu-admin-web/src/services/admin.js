@@ -41,16 +41,40 @@ export const adminApi = {
     return callAdmin('deleteBanner', { id })
   },
 
-  listAtlas() {
-    return callAdmin('listAtlas')
+  listFestivalCampaigns() {
+    return callAdmin('listFestivalCampaigns')
   },
 
-  saveAtlas(item) {
-    return callAdmin('saveAtlas', { item })
+  saveFestivalCampaign(campaign) {
+    return callAdmin('saveFestivalCampaign', { campaign })
   },
 
-  deleteAtlas(id) {
-    return callAdmin('deleteAtlas', { id })
+  deleteFestivalCampaign(id) {
+    return callAdmin('deleteFestivalCampaign', { id })
+  },
+
+  listStudios() {
+    return callAdmin('listStudios')
+  },
+
+  saveStudio(studio) {
+    return callAdmin('saveStudio', { studio })
+  },
+
+  deleteStudio(id) {
+    return callAdmin('deleteStudio', { id })
+  },
+
+  listStudioOrders(filters = {}) {
+    return callAdmin('listStudioOrders', filters)
+  },
+
+  studioAcceptOrder(id, payload = {}) {
+    return callAdmin('studioAcceptOrder', { id, ...payload })
+  },
+
+  studioStartMaking(id, payload = {}) {
+    return callAdmin('studioStartMaking', { id, ...payload })
   },
 
   listCalendarEvents() {

@@ -21,7 +21,7 @@
 .quote-intro__eyebrow {
   color: #748060;
   font-family: Georgia, serif;
-  font-size: 14rpx;
+  font-size: 20rpx;
   letter-spacing: 3rpx;
 }
 
@@ -36,7 +36,7 @@
 .quote-intro__sub {
   margin-top: 10rpx;
   color: #7f8077;
-  font-size: 19rpx;
+  font-size: 26rpx;
   line-height: 1.72;
 }
 
@@ -44,14 +44,14 @@
   margin-top: 16rpx;
   padding: 22rpx;
   border: 1rpx solid var(--line);
-  border-radius: 22rpx;
+  border-radius: 0;
   background: #ffffff;
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .quote-card__title {
-  color: #35312f;
-  font-size: 22rpx;
+  color: #292929;
+  font-size: 28rpx;
   font-weight: 600;
 }
 
@@ -88,7 +88,7 @@
   border-radius: 50%;
   background: rgba(33, 30, 28, 0.56);
   color: #ffffff;
-  font-size: 27rpx;
+  font-size: 30rpx;
 }
 
 .quote-add {
@@ -100,7 +100,7 @@
 }
 
 .quote-add__plus {
-  color: #758060;
+  color: #292929;
   font-size: 48rpx;
   line-height: 1;
 }
@@ -108,13 +108,13 @@
 .quote-add__text {
   margin-top: 8rpx;
   color: #89837c;
-  font-size: 17rpx;
+  font-size: 24rpx;
 }
 
 .quote-card__hint {
   margin-top: 12rpx;
   color: #97918a;
-  font-size: 16rpx;
+  font-size: 22rpx;
   line-height: 1.6;
 }
 
@@ -123,11 +123,11 @@
   width: 100%;
   margin-top: 13rpx;
   padding: 17rpx 18rpx;
-  border: 1rpx solid #ebe6de;
-  border-radius: 16rpx;
+  border: 1rpx solid #eeeeeb;
+  border-radius: 6rpx;
   background: #fcfbf8;
   color: #37312d;
-  font-size: 18rpx;
+  font-size: 24rpx;
   box-sizing: border-box;
 }
 
@@ -145,27 +145,27 @@
   margin-top: 16rpx;
   padding: 22rpx;
   border: 1rpx solid #e2e7dc;
-  border-radius: 20rpx;
-  background: #f2f5ee;
+  border-radius: 0;
+  background: #f6f6f4;
 }
 
 .quote-notice__title {
   color: #4f5b3d;
-  font-size: 21rpx;
+  font-size: 26rpx;
   font-weight: 600;
 }
 
 .quote-notice__line {
   margin-top: 8rpx;
   color: #6b7461;
-  font-size: 17rpx;
+  font-size: 24rpx;
 }
 
 .quote-contact-note {
   display: block;
   margin-top: 12rpx;
   color: #8b857e;
-  font-size: 16rpx;
+  font-size: 22rpx;
   line-height: 1.65;
 }
 
@@ -183,7 +183,7 @@
   box-sizing: border-box;
   border-top: 1rpx solid rgba(74, 68, 58, 0.08);
   background: rgba(251, 250, 247, 0.98);
-  box-shadow: 0 -10rpx 30rpx rgba(55, 50, 42, 0.07);
+  box-shadow: none;
 }
 
 .quote-fixed-bar__inner {
@@ -198,8 +198,8 @@
   border-radius: 999rpx;
   background: var(--primary);
   color: #ffffff;
-  font-size: 21rpx;
-  box-shadow: 0 10rpx 26rpx rgba(74, 87, 53, 0.13);
+  font-size: 26rpx;
+  box-shadow: none;
 }
 
 .quote-submit--disabled {
@@ -216,3 +216,15 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* V6.14 unified luxury-neutral visual layer */
+.edit-page,.profile-edit-page,.quote-page { background:#f7f7f5; }
+.edit-card,.profile-edit-card,.quote-card,.quote-notice { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.form-row,.profile-form-row { border-bottom:1rpx solid #eeeeeb; }
+.form-row__label,.profile-form-row__label,.quote-card__title { color:#171717; font-weight:650; }
+.form-row__input,.form-row__textarea,.profile-form-row__input,.quote-input,.quote-textarea { border:1rpx solid #eeeeeb; border-radius:0; background:#f6f6f4; }
+.label-option { border:1rpx solid #deded9; border-radius:999rpx; background:#fff; color:#5b5b56; }
+.label-option--active { border-color:#111; background:#111; color:#fff; }
+.avatar-visual,.quote-image-card,.quote-add { border:1rpx solid #eeeeeb; border-radius:0; background:#f3f3f1; }
+.edit-fixed-bar,.profile-edit-fixed-bar,.quote-fixed-bar { border-top:1rpx solid #eeeeeb; background:rgba(255,255,255,.98); box-shadow:none; }
+.edit-submit,.profile-edit-submit,.quote-submit { border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; }

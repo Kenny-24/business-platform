@@ -23,17 +23,18 @@
 
   <view class="quote-card">
     <text class="quote-card__title">2. 留下可联系信息</text>
-    <text class="quote-contact-note">联系人和手机号为必填项，将与当前用户账号及本次需求一起保存，方便商户后续确认报价。</text>
+    <text class="quote-contact-note">联系人和手机号为必填项，微信号可选填。相关信息会与本次需求一起保存，方便商户后续确认报价。</text>
     <input class="quote-input" data-field="contactName" value="{{contactName}}" maxlength="24" placeholder="联系人" bindinput="updateField" />
     <input class="quote-input" data-field="contactPhone" value="{{contactPhone}}" type="number" maxlength="11" placeholder="联系电话" bindinput="updateField" />
-    <textarea class="quote-textarea" data-field="message" value="{{message}}" maxlength="300" auto-height placeholder="例如：预算、喜欢的色系、送达时间、是否需要类似包装等" bindinput="updateField"></textarea>
+    <input class="quote-input" data-field="contactWechat" value="{{contactWechat}}" maxlength="40" placeholder="微信号（选填）" bindinput="updateField" />
+    <textarea class="quote-textarea" data-field="message" value="{{message}}" maxlength="300" auto-height placeholder="例如：预算、喜欢的色系、送达时间、花材偏好等" bindinput="updateField"></textarea>
   </view>
 
   <view class="quote-notice">
     <text class="quote-notice__title">商户处理流程</text>
     <text class="quote-notice__line">① 提交图片与联系方式</text>
     <text class="quote-notice__line">② 商户查看并确认是否可做</text>
-    <text class="quote-notice__line">③ 通过预留手机号或客服渠道回复报价</text>
+    <text class="quote-notice__line">③ 通过预留手机号、微信号或客服渠道回复报价</text>
   </view>
 
   <view class="quote-bottom-space"></view>

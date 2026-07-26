@@ -1,37 +1,17 @@
-const PACKAGING_OPTIONS = [
-  {
-    id: 'basic',
-    name: '基础包装',
-    description: '简约牛皮纸，适合日常购买',
-    feeFen: 0,
-    enabled: true,
-    sort: 100
-  },
-  {
-    id: 'cream',
-    name: '奶油雾面包装',
-    description: '柔和轻礼感，适合送礼',
-    feeFen: 1200,
-    enabled: true,
-    sort: 90
-  },
-  {
-    id: 'giftBox',
-    name: '礼盒包装',
-    description: '礼盒呈现，更有仪式感',
-    feeFen: 2800,
-    enabled: true,
-    sort: 80
-  }
-]
-
 const DELIVERY_METHODS = [
   {
     id: 'delivery',
     name: '配送到家',
-    description: '目前仅支持线上下单配送，地址与配送时间在结算页确认',
+    description: '填写收货地址并选择配送日期与时段',
     feeFen: 0,
-    feePending: true
+    feePending: false
+  },
+  {
+    id: 'pickup',
+    name: '到店自取',
+    description: '选择合作工作室，并按预约时间到店取花',
+    feeFen: 0,
+    feePending: false
   }
 ]
 
@@ -44,8 +24,8 @@ const DELIVERY_SLOTS = [
 
 const STATUS_META = {
   pendingConfirm: {
-    label: '待确认',
-    description: '商家正在确认花材库存与配送时间'
+    label: '待付款',
+    description: '历史订单状态已自动按待付款处理'
   },
   pendingPayment: {
     label: '待付款',
@@ -78,7 +58,6 @@ const STATUS_META = {
 }
 
 module.exports = {
-  PACKAGING_OPTIONS,
   DELIVERY_METHODS,
   DELIVERY_SLOTS,
   STATUS_META

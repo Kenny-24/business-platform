@@ -2,8 +2,8 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  padding-bottom: 0;
-  background: linear-gradient(180deg, #f8f4f1 0, #fafbf8 360rpx, #fafbf8 100%);
+  background: #f6f6f4;
+  color: #1f211e;
 }
 
 .profile-scroll {
@@ -15,6 +15,7 @@
   width: 100%;
   min-height: 100%;
   padding-top: 18rpx;
+  box-sizing: border-box;
 }
 
 .identity-card {
@@ -22,27 +23,31 @@
   width: 100%;
   min-width: 0;
   align-items: center;
+  margin-bottom: 20rpx;
   padding: 24rpx;
+  box-sizing: border-box;
   border: 1rpx solid #e7dfd8;
-  border-radius: 26rpx;
-  background: linear-gradient(135deg, #f6ece8 0%, #f6f7f1 100%);
-  box-shadow: 0 10rpx 30rpx rgba(67, 56, 49, 0.05);
+  border-radius: 0;
+  background: #f6f6f4;
+  box-shadow: none;
 }
 
 .identity-card__avatar {
-  display: block;
-  flex: 0 0 auto;
+  display: flex;
+  width: 92rpx;
+  height: 92rpx;
+  flex: 0 0 92rpx;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   border: 4rpx solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
+  box-sizing: border-box;
   background: #e5e5dd;
-  box-shadow: 0 5rpx 18rpx rgba(50, 46, 40, 0.08);
+  box-shadow: none;
 }
 
 .identity-card__avatar--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: #6b7651;
   font-family: Georgia, serif;
   font-size: 32rpx;
@@ -73,80 +78,65 @@
 .identity-card__description {
   margin-top: 7rpx;
   color: #84847d;
-  font-size: 17rpx;
+  font-size: 24rpx;
 }
 
-.row-arrow {
-  display: flex;
-  width: 42rpx;
-  height: 42rpx;
-  flex: 0 0 42rpx;
-  align-items: center;
-  justify-content: center;
-  margin-left: 8rpx;
+.identity-card__arrow {
+  width: 13rpx;
+  height: 13rpx;
+  flex: 0 0 13rpx;
+  margin: 0 10rpx 0 14rpx;
+  border-top: 2rpx solid #8d8d88;
+  border-right: 2rpx solid #8d8d88;
+  transform: rotate(45deg);
 }
 
-.row-arrow__shape {
-  width: 12rpx;
-  height: 12rpx;
-  border-top: 2rpx solid #8d9188;
-  border-right: 2rpx solid #8d9188;
-  transform: rotate(45deg) translate(-2rpx, 2rpx);
-}
-
-.row-arrow--small {
-  width: 32rpx;
-  height: 32rpx;
-  flex: 0 0 32rpx;
-  margin-left: 3rpx;
-}
-
-.row-arrow--small .row-arrow__shape {
-  width: 10rpx;
-  height: 10rpx;
-}
-
-.profile-card {
+.section-card,
+.merchant-card,
+.service-card {
   width: 100%;
-  margin-top: 16rpx;
-  overflow: visible;
-  border: 1rpx solid #e7e5df;
-  border-radius: 24rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #dfe2dd;
   background: #ffffff;
-  box-shadow: 0 8rpx 26rpx rgba(55, 50, 42, 0.035);
 }
 
-.card-head {
+.section-card__head {
   display: flex;
-  min-height: 76rpx;
+  min-height: 106rpx;
   align-items: center;
   justify-content: space-between;
-  padding: 16rpx 22rpx 10rpx;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+  border-bottom: 1rpx solid #e8eae7;
 }
 
-.card-head--plain { justify-content: flex-start; }
-
-.card-head__title {
-  color: #2e312c;
-  font-size: 24rpx;
-  font-weight: 700;
-  line-height: 1.3;
+.section-card__title {
+  color: #222420;
+  font-size: 30rpx;
+  font-weight: 650;
+  letter-spacing: 1rpx;
 }
 
-.card-head__more {
-  display: flex;
-  min-height: 42rpx;
-  align-items: center;
-  padding-left: 12rpx;
-  color: #92968e;
-  font-size: 16rpx;
+.section-card__arrow {
+  width: 15rpx;
+  height: 15rpx;
+  border-top: 2rpx solid #8d8d88;
+  border-right: 2rpx solid #8d8d88;
+  transform: rotate(45deg);
+}
+
+.section-card__arrow--muted {
+  margin-left: 12rpx;
+  border-color: #a8aba5;
 }
 
 .order-grid {
   display: flex;
   width: 100%;
   align-items: flex-start;
-  padding: 12rpx 8rpx 26rpx;
+  justify-content: space-between;
+  padding: 34rpx 10rpx 38rpx;
+  box-sizing: border-box;
 }
 
 .order-entry {
@@ -162,34 +152,23 @@
 .order-entry__icon-wrap {
   position: relative;
   display: flex;
-  width: 64rpx;
-  height: 64rpx;
+  width: 68rpx;
+  height: 68rpx;
   align-items: center;
   justify-content: center;
-  overflow: visible;
 }
 
 .order-entry__icon {
-  display: flex;
-  width: 58rpx;
-  height: 58rpx;
-  align-items: center;
-  justify-content: center;
-  border: 1rpx solid #dce1d7;
-  border-radius: 18rpx;
-  background: #f8faf6;
+  display: block;
+  width: 50rpx;
+  height: 50rpx;
+  filter: grayscale(1) brightness(0.48);
 }
 
-.order-entry__icon-image {
-  width: 37rpx;
-  height: 37rpx;
-}
-
-.order-entry__badge {
+.order-entry__badge,
+.service-entry__badge {
   position: absolute;
   z-index: 2;
-  top: -4rpx;
-  right: -7rpx;
   display: flex;
   min-width: 28rpx;
   height: 28rpx;
@@ -199,35 +178,104 @@
   box-sizing: border-box;
   border: 3rpx solid #ffffff;
   border-radius: 999rpx;
-  background: #718251;
+  background: #6f7d58;
   color: #ffffff;
-  font-size: 12rpx;
+  font-size: 20rpx;
   font-weight: 600;
   line-height: 1;
-  text-align: center;
+}
+
+.order-entry__badge {
+  top: -2rpx;
+  right: -1rpx;
 }
 
 .order-entry__label {
   display: block;
   max-width: 100%;
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   overflow: hidden;
-  color: #666c62;
-  font-size: 15rpx;
-  line-height: 1.3;
+  color: #6e716c;
+  font-size: 24rpx;
+  line-height: 1.25;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.asset-grid {
+.merchant-card {
   display: flex;
-  width: 100%;
-  align-items: stretch;
-  padding: 6rpx 8rpx 24rpx;
+  min-height: 150rpx;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 22rpx 30rpx;
 }
 
-.asset-entry {
+.merchant-card__logo-shell {
+  display: flex;
+  width: 84rpx;
+  height: 84rpx;
+  flex: 0 0 84rpx;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #e9e4dc;
+}
+
+.merchant-card__logo {
+  display: block;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+}
+
+.merchant-card__copy {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin-left: 25rpx;
+}
+
+.merchant-card__title,
+.merchant-card__sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-card__title {
+  color: #30322f;
+  font-size: 28rpx;
+  font-weight: 550;
+}
+
+.merchant-card__sub {
+  margin-top: 8rpx;
+  color: #989b95;
+  font-size: 22rpx;
+}
+
+.merchant-card__action {
+  flex: 0 0 auto;
+  margin-left: 18rpx;
+  color: #4e514c;
+  font-size: 28rpx;
+  white-space: nowrap;
+}
+
+.service-card {
+  margin-top: 20rpx;
+  padding: 16rpx 4rpx 26rpx;
+}
+
+.service-grid {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.service-entry {
   position: relative;
   display: flex;
   width: 33.333%;
@@ -236,216 +284,48 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12rpx 4rpx;
-}
-
-.asset-entry + .asset-entry::before {
-  position: absolute;
-  top: 10rpx;
-  bottom: 10rpx;
-  left: 0;
-  width: 1rpx;
-  background: #ecefe9;
-  content: "";
-}
-
-.asset-entry__value {
-  color: #596943;
-  font-size: 31rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.asset-entry__label {
-  margin-top: 7rpx;
-  color: #8d9289;
-  font-size: 15rpx;
-}
-
-.service-card {
-  overflow: hidden;
-}
-
-.service-entry {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  min-height: 94rpx;
-  grid-template-columns: 44rpx minmax(0, 1fr) auto 32rpx;
-  align-items: center;
-  margin: 0;
-  padding: 0 22rpx;
+  padding: 35rpx 8rpx 30rpx;
   box-sizing: border-box;
-  border: 0;
-  border-top: 1rpx solid #ecefe9;
-  border-radius: 0;
-  background: #ffffff;
-  color: inherit;
-  line-height: normal;
-  text-align: left;
 }
 
-.service-entry::after { border: 0; }
+.service-entry__icon-wrap {
+  position: relative;
+  display: flex;
+  width: 70rpx;
+  height: 70rpx;
+  align-items: center;
+  justify-content: center;
+}
 
 .service-entry__icon {
   display: block;
-  width: 40rpx;
-  height: 40rpx;
+  width: 51rpx;
+  height: 51rpx;
+  filter: grayscale(1) brightness(0.48);
 }
 
-.service-entry__copy {
-  min-width: 0;
-  margin-left: 15rpx;
-}
-
-.service-entry__label,
-.service-entry__description {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.service-entry__badge {
+  top: -3rpx;
+  right: -4rpx;
 }
 
 .service-entry__label {
-  color: #343832;
-  font-size: 21rpx;
-  font-weight: 500;
-  line-height: 1.3;
-}
-
-.service-entry__description {
-  margin-top: 5rpx;
-  color: #9a9e96;
-  font-size: 14rpx;
-  line-height: 1.3;
-}
-
-.service-entry__value {
-  max-width: 130rpx;
-  margin-left: 12rpx;
+  display: block;
+  max-width: 100%;
+  margin-top: 13rpx;
   overflow: hidden;
-  color: #93988f;
-  font-size: 15rpx;
-  line-height: 1.2;
+  color: #474a45;
+  font-size: 26rpx;
+  line-height: 1.3;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.profile-slogan {
-  display: block;
-  padding: 28rpx 0 4rpx;
-  color: #afb3ac;
-  font-size: 14rpx;
-  text-align: center;
-}
-
-.profile-bottom-space {
-  height: calc(108rpx + env(safe-area-inset-bottom));
-}
-
-.profile-page--wide .profile-content {
-  max-width: 1120rpx;
-  margin: 0 auto;
-}
-
-.profile-page--compact .identity-card { padding: 19rpx; }
-.profile-page--compact .identity-card__copy { margin-left: 13rpx; }
-.profile-page--compact .identity-card__name { font-size: 25rpx; }
-.profile-page--compact .order-entry__icon-wrap { width: 58rpx; height: 58rpx; }
-.profile-page--compact .order-entry__icon { width: 52rpx; height: 52rpx; }
-.profile-page--compact .order-entry__icon-image { width: 33rpx; height: 33rpx; }
-.profile-page--compact .order-entry__badge { right: -5rpx; }
-
-/* ===== 我的页订单图标与客服行对齐修正 ===== */
-.order-grid {
-  padding-top: 10rpx;
-  padding-bottom: 28rpx;
-}
-
-.order-entry__icon-wrap {
-  position: relative;
-  display: flex;
-  width: 68rpx;
-  height: 62rpx;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-}
-
-.order-entry__icon-image {
-  display: block;
-  width: 46rpx;
-  height: 46rpx;
-}
-
-.order-entry__badge {
-  position: absolute;
-  z-index: 3;
-  top: -3rpx;
-  right: -1rpx;
-  display: flex;
-  min-width: 28rpx;
-  height: 28rpx;
-  align-items: center;
-  justify-content: center;
-  padding: 0 7rpx;
-  box-sizing: border-box;
-  border: 3rpx solid #ffffff;
-  border-radius: 999rpx;
-  background: #718251;
-  color: #ffffff;
-  font-size: 12rpx;
-  font-weight: 600;
-  line-height: 28rpx;
-  text-align: center;
-}
-
-.order-entry__label {
-  margin-top: 8rpx;
-}
-
-.service-entry {
-  position: relative;
-  display: grid;
-  grid-template-columns: 44rpx minmax(0, 1fr) auto 32rpx;
-  align-items: center;
-  justify-items: stretch;
-  min-height: 94rpx;
-  padding: 0 22rpx;
-  text-align: left;
-}
-
-.service-entry__icon {
-  justify-self: start;
-}
-
-.service-entry__copy {
-  justify-self: stretch;
-  margin-left: 15rpx;
-  text-align: left;
-}
-
-.service-entry__label,
-.service-entry__description {
-  text-align: left;
-}
-
-.service-entry__value {
-  justify-self: end;
-  text-align: right;
-}
-
-.service-entry .row-arrow {
-  justify-self: end;
 }
 
 .service-entry__contact-hit {
   position: absolute;
   z-index: 5;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -460,43 +340,256 @@
   border: 0;
 }
 
-.profile-page--compact .order-entry__icon-wrap {
-  width: 62rpx;
-  height: 58rpx;
+.profile-slogan {
+  display: block;
+  padding: 31rpx 0 5rpx;
+  color: #a7aaa4;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+  text-align: center;
 }
 
-.profile-page--compact .order-entry__icon-image {
-  width: 41rpx;
-  height: 41rpx;
+.profile-bottom-space {
+  height: calc(116rpx + env(safe-area-inset-bottom));
 }
 
-.profile-page--compact .order-entry__badge {
-  right: -1rpx;
+.wechat-modal {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 34rpx;
+  box-sizing: border-box;
+  background: rgba(19, 20, 18, 0.58);
 }
 
-
-/* V6.5 订单状态图标：无外框、细线、尺寸更清晰 */
-.order-entry__icon-wrap {
-  width: 76rpx;
-  height: 70rpx;
+.wechat-modal__panel {
+  width: 100%;
+  max-width: 610rpx;
+  padding: 34rpx 34rpx 31rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  box-shadow: none;
 }
 
-.order-entry__icon-image {
-  width: 54rpx;
-  height: 54rpx;
+.wechat-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
-.order-entry__badge {
-  top: -1rpx;
-  right: 0;
+.wechat-modal__eyebrow,
+.wechat-modal__title,
+.wechat-modal__merchant-name,
+.wechat-modal__merchant-wechat,
+.wechat-modal__hint {
+  display: block;
 }
 
-.profile-page--compact .order-entry__icon-wrap {
-  width: 68rpx;
-  height: 64rpx;
+.wechat-modal__eyebrow {
+  color: #8d8d88;
+  font-family: Georgia, serif;
+  font-size: 20rpx;
+  letter-spacing: 3rpx;
 }
 
-.profile-page--compact .order-entry__icon-image {
-  width: 49rpx;
-  height: 49rpx;
+.wechat-modal__title {
+  margin-top: 9rpx;
+  color: #20221f;
+  font-size: 30rpx;
+  font-weight: 650;
 }
+
+.wechat-modal__close {
+  position: relative;
+  width: 50rpx;
+  height: 50rpx;
+  flex: 0 0 50rpx;
+}
+
+.wechat-modal__close-line {
+  position: absolute;
+  top: 24rpx;
+  left: 9rpx;
+  width: 32rpx;
+  height: 2rpx;
+  background: #565a54;
+}
+
+.wechat-modal__close-line--one {
+  transform: rotate(45deg);
+}
+
+.wechat-modal__close-line--two {
+  transform: rotate(-45deg);
+}
+
+.wechat-modal__merchant {
+  display: flex;
+  align-items: center;
+  margin-top: 30rpx;
+  padding: 18rpx 20rpx;
+  background: #f6f6f4;
+}
+
+.wechat-modal__merchant-logo {
+  width: 72rpx;
+  height: 72rpx;
+  flex: 0 0 72rpx;
+  border-radius: 50%;
+}
+
+.wechat-modal__merchant-copy {
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.wechat-modal__merchant-name {
+  overflow: hidden;
+  color: #333630;
+  font-size: 28rpx;
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wechat-modal__merchant-wechat {
+  margin-top: 7rpx;
+  overflow: hidden;
+  color: #858a81;
+  font-size: 22rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wechat-modal__qr-shell {
+  display: flex;
+  width: 390rpx;
+  height: 390rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 30rpx auto 0;
+  padding: 18rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #e3e5e1;
+  background: #ffffff;
+}
+
+.wechat-modal__qr {
+  width: 100%;
+  height: 100%;
+}
+
+.wechat-modal__qr-empty {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f5;
+  color: #91958e;
+  font-size: 24rpx;
+}
+
+.wechat-modal__qr-empty image {
+  width: 180rpx;
+  margin-bottom: 22rpx;
+  opacity: 0.7;
+}
+
+.wechat-modal__hint {
+  margin-top: 20rpx;
+  color: #92968f;
+  font-size: 22rpx;
+  text-align: center;
+}
+
+.wechat-modal__copy {
+  display: flex;
+  width: 100%;
+  height: 78rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25rpx;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #1f211e;
+  color: #ffffff;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+}
+
+.wechat-modal__copy::after {
+  border: 0;
+}
+
+.profile-page--wide .profile-content {
+  max-width: 1120rpx;
+  margin: 0 auto;
+}
+
+.profile-page--compact .section-card__head {
+  min-height: 94rpx;
+  padding: 0 25rpx;
+}
+
+.profile-page--compact .order-grid {
+  padding-right: 4rpx;
+  padding-left: 4rpx;
+}
+
+.profile-page--compact .order-entry__icon-wrap,
+.profile-page--compact .service-entry__icon-wrap {
+  width: 61rpx;
+  height: 61rpx;
+}
+
+.profile-page--compact .order-entry__icon,
+.profile-page--compact .service-entry__icon {
+  width: 45rpx;
+  height: 45rpx;
+}
+
+.profile-page--compact .order-entry__label,
+.profile-page--compact .service-entry__label {
+  font-size: 22rpx;
+}
+
+.profile-page--compact .merchant-card {
+  padding-right: 23rpx;
+  padding-left: 23rpx;
+}
+
+.profile-page--compact .merchant-card__action {
+  font-size: 26rpx;
+}
+
+.profile-page--compact .wechat-modal__qr-shell {
+  width: 330rpx;
+  height: 330rpx;
+}
+
+/* V6.14 unified luxury-neutral visual layer */
+.profile-page { background:#f7f7f5; }
+.identity-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.identity-card__avatar,.identity-card__avatar--placeholder { border:1rpx solid #eeeeeb; background:#f3f3f1; color:#171717; }
+.identity-card__name { color:#171717; font-family:inherit; font-weight:650; }
+.identity-card__description { color:#777772; }
+.section-card,.merchant-card,.service-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
+.section-card__head { border-bottom:1rpx solid #eeeeeb; }
+.section-card__title,.merchant-card__title { color:#171717; font-family:inherit; font-weight:650; }
+.order-entry__icon-wrap,.service-entry__icon-wrap,.merchant-card__logo-shell { border-radius:50%; background:#f6f6f4; }
+.order-entry__icon,.service-entry__icon,.merchant-card__logo { filter:grayscale(1) contrast(1.15); }
+.order-entry__badge,.service-entry__badge { border:2rpx solid #fff; background:#111; color:#fff; }
+.merchant-card__action { color:#111; font-weight:650; }
+.profile-slogan { color:#8d8d88; }
+.wechat-modal { background:rgba(0,0,0,.48); }
+.wechat-modal__panel { border-radius:0; background:#fff; box-shadow:none; }
+.wechat-modal__eyebrow { color:#777772; }
+.wechat-modal__title { color:#171717; font-family:inherit; font-weight:650; }
+.wechat-modal__merchant-logo,.wechat-modal__qr-shell { border:1rpx solid #eeeeeb; background:#f6f6f4; }
+.wechat-modal__copy { border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; }

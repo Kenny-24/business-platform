@@ -31,7 +31,7 @@
     <div v-if="readiness?.missingCodeTotal > 0" class="legacy-code-alert">
       <div>
         <strong>旧数据中有 {{ readiness.missingCodeTotal }} 条缺少业务编码</strong>
-        <span>图鉴编码、商品 SKU 和横幅编码是批量更新的唯一依据。可以自动补全，也可以在各管理页面手工填写更易读的编码。</span>
+        <span>商品 SKU 和横幅编码是批量更新的唯一依据。可以自动补全，也可以在各管理页面手工填写更易读的编码。</span>
       </div>
       <el-button :loading="backfillLoading" @click="backfillCodes">自动补全旧编码</el-button>
     </div>
@@ -40,7 +40,7 @@
       <div class="import-section-head">
         <div>
           <strong>1. 选择导入类型</strong>
-          <span>正式导入顺序：图鉴 → 商品 → 横幅 → 节日</span>
+          <span>正式导入顺序：商品 → 横幅 → 节日</span>
         </div>
         <a class="master-template-link" href="/import-templates/Chloris 数据导入总模板.xlsx" download>
           下载总模板
@@ -125,7 +125,7 @@
 
             <el-form-item label="图片完整性">
               <el-switch v-model="requireImages" :disabled="!schema.imageFileNameField" @change="clearValidation" />
-              <div class="form-tip">开启后，新建图鉴、商品或横幅必须匹配图片或填写 FileID。</div>
+              <div class="form-tip">开启后，新建商品或横幅必须匹配图片或填写 FileID。</div>
             </el-form-item>
 
             <el-form-item label="导入备注">
@@ -312,7 +312,7 @@ import { uploadImportAsset } from '../services/cloudbase'
 import { schemaFor, templateOptions, normalizeWorkbookRows } from '../data/import-schemas'
 
 const typeOptions = templateOptions()
-const importType = ref('atlas')
+const importType = ref('products')
 const duplicateMode = ref('upsert')
 const requireImages = ref(true)
 const note = ref('')
@@ -620,7 +620,7 @@ async function loadReadiness() {
 async function backfillCodes() {
   try {
     await ElMessageBox.confirm(
-      '系统只会为缺少编码的旧图鉴、商品和横幅生成编码，不会修改已有编码。确定继续吗？',
+      '系统只会为缺少编码的旧商品和横幅生成编码，不会修改已有编码。确定继续吗？',
       '自动补全业务编码',
       {
         confirmButtonText: '开始补全',

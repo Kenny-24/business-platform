@@ -142,7 +142,8 @@ async function createQuoteRequest(payload = {}) {
   const nextUser = {
     ...cachedUser,
     contactName: String(payload.contactName || '').trim(),
-    contactPhone: String(payload.contactPhone || '').trim()
+    contactPhone: String(payload.contactPhone || '').trim(),
+    contactWechat: String(payload.contactWechat || '').trim()
   }
   initializedUser = nextUser
   writeStorage(USER_CACHE_KEY, nextUser)
@@ -243,52 +244,6 @@ async function getOverview() {
 }
 
 
-async function saveAtlasFavorites(ids) {
-  const result = await callCloudFunction(
-    'userApi',
-    'saveAtlasFavorites',
-    {
-      ids: Array.isArray(ids) ? ids : []
-    }
-  )
-
-  const cached = readStorage(OVERVIEW_CACHE_KEY, {}) || {}
-  const nextOverview = {
-    ...cached,
-    favoriteAtlasIds: result.favoriteAtlasIds || [],
-    assets: {
-      ...(cached.assets || {}),
-      favorites: Number(result.total || 0)
-    }
-  }
-
-  writeStorage(OVERVIEW_CACHE_KEY, nextOverview)
-  return result
-}
-
-async function setAtlasFavorite(atlasId, favorite) {
-  const result = await callCloudFunction(
-    'userApi',
-    'setAtlasFavorite',
-    {
-      atlasId,
-      favorite: favorite === true
-    }
-  )
-
-  const cached = readStorage(OVERVIEW_CACHE_KEY, {}) || {}
-  const nextOverview = {
-    ...cached,
-    favoriteAtlasIds: result.favoriteAtlasIds || [],
-    assets: {
-      ...(cached.assets || {}),
-      favorites: Number(result.total || 0)
-    }
-  }
-
-  writeStorage(OVERVIEW_CACHE_KEY, nextOverview)
-  return result
-}
 
 function getCachedUser() {
   return initializedUser || readStorage(USER_CACHE_KEY, null)
@@ -317,8 +272,6 @@ module.exports = {
   deleteAddress,
   setDefaultAddress,
   getOverview,
-  saveAtlasFavorites,
-  setAtlasFavorite,
   getCachedUser,
   getCachedOverview
 }

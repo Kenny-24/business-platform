@@ -26,7 +26,7 @@
         </el-avatar>
         <div>
           <h2>{{ user.nickname || 'Chloris 用户' }}</h2>
-          <p>{{ user.memberLevelLabel }} · {{ user.points || 0 }} 积分</p>
+          <p>{{ user.memberLevelLabel }}</p>
           <small>用户 ID：{{ user._id }}</small>
         </div>
       </section>

@@ -1,4 +1,4 @@
-<view class="safe-page profile-page {{wideLayout ? 'profile-page--wide' : ''}} {{compactLayout ? 'profile-page--compact' : ''}}">
+<view class="profile-page {{wideLayout ? 'profile-page--wide' : ''}} {{compactLayout ? 'profile-page--compact' : ''}}">
   <app-nav title="我的" solid></app-nav>
 
   <scroll-view
@@ -18,35 +18,23 @@
         <image
           wx:if="{{profile.avatarUrl}}"
           class="identity-card__avatar"
-          style="width: {{avatarSize}}px; height: {{avatarSize}}px;"
           src="{{profile.avatarUrl}}"
           mode="aspectFill"
         ></image>
-        <view
-          wx:else
-          class="identity-card__avatar identity-card__avatar--placeholder"
-          style="width: {{avatarSize}}px; height: {{avatarSize}}px;"
-        >C</view>
+        <view wx:else class="identity-card__avatar identity-card__avatar--placeholder">C</view>
 
         <view class="identity-card__copy">
           <text class="identity-card__name">{{profile.nickname}}</text>
           <text class="identity-card__description">{{profile.description}}</text>
         </view>
 
-        <view class="row-arrow">
-          <view class="row-arrow__shape"></view>
-        </view>
+        <view class="identity-card__arrow"></view>
       </view>
 
-      <view class="profile-card order-card">
-        <view class="card-head">
-          <text class="card-head__title">我的订单</text>
-          <view class="card-head__more" bindtap="openAllOrders" role="button">
-            <text>全部订单</text>
-            <view class="row-arrow row-arrow--small">
-              <view class="row-arrow__shape"></view>
-            </view>
-          </view>
+      <view class="section-card order-card">
+        <view class="section-card__head" bindtap="openAllOrders" role="button">
+          <text class="section-card__title">我的订单</text>
+          <view class="section-card__arrow"></view>
         </view>
 
         <view class="order-grid">
@@ -59,7 +47,7 @@
             role="button"
           >
             <view class="order-entry__icon-wrap">
-              <image class="order-entry__icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+              <image class="order-entry__icon" src="{{item.icon}}" mode="aspectFit"></image>
               <text wx:if="{{item.showCount}}" class="order-entry__badge">{{item.count > 99 ? '99+' : item.count}}</text>
             </view>
             <text class="order-entry__label">{{item.label}}</text>
@@ -67,47 +55,33 @@
         </view>
       </view>
 
-      <view class="profile-card asset-card">
-        <view class="card-head card-head--plain">
-          <text class="card-head__title">我的资产</text>
+      <view class="merchant-card" bindtap="openMerchantWechat" role="button">
+        <view class="merchant-card__logo-shell">
+          <image class="merchant-card__logo" src="{{merchant.logoUrl}}" mode="aspectFit"></image>
         </view>
-        <view class="asset-grid">
-          <view
-            wx:for="{{assetItems}}"
-            wx:key="key"
-            class="asset-entry"
-            data-key="{{item.key}}"
-            bindtap="openAsset"
-            role="button"
-          >
-            <text class="asset-entry__value">{{item.value}}</text>
-            <text class="asset-entry__label">{{item.label}}</text>
-          </view>
+        <view class="merchant-card__copy">
+          <text class="merchant-card__title">商家微信</text>
+          <text class="merchant-card__sub">{{merchant.name || 'Chloris 花艺'}}</text>
         </view>
+        <text class="merchant-card__action">添加微信</text>
+        <view class="section-card__arrow section-card__arrow--muted"></view>
       </view>
 
-      <view class="profile-card service-card">
-        <view class="card-head card-head--plain">
-          <text class="card-head__title">常用服务</text>
-        </view>
-
-        <block wx:for="{{serviceItems}}" wx:key="key">
+      <view class="service-card">
+        <view class="service-grid">
           <view
+            wx:for="{{serviceItems}}"
+            wx:key="key"
             class="service-entry"
             data-key="{{item.key}}"
             bindtap="openService"
             role="button"
           >
-            <image class="service-entry__icon" src="{{item.icon}}" mode="aspectFit"></image>
-            <view class="service-entry__copy">
-              <text class="service-entry__label">{{item.label}}</text>
-              <text class="service-entry__description">{{item.description}}</text>
+            <view class="service-entry__icon-wrap">
+              <image class="service-entry__icon" src="{{item.icon}}" mode="aspectFit"></image>
+              <text wx:if="{{item.showValue}}" class="service-entry__badge">{{item.value}}</text>
             </view>
-            <text wx:if="{{item.key !== 'customerService'}}" class="service-entry__value">{{item.value}}</text>
-            <view wx:else class="service-entry__value"></view>
-            <view class="row-arrow row-arrow--small">
-              <view class="row-arrow__shape"></view>
-            </view>
+            <text class="service-entry__label">{{item.label}}</text>
 
             <button
               wx:if="{{item.key === 'customerService'}}"
@@ -117,11 +91,57 @@
               aria-label="联系客服"
             ></button>
           </view>
-        </block>
+        </view>
       </view>
 
       <text class="profile-slogan">Chloris · 把花送给每一个值得记住的时刻</text>
       <view class="profile-bottom-space"></view>
     </view>
   </scroll-view>
+
+  <view
+    wx:if="{{showWechatQr}}"
+    class="wechat-modal"
+    bindtap="closeMerchantWechat"
+    catchtouchmove="stopPropagation"
+  >
+    <view class="wechat-modal__panel" catchtap="stopPropagation">
+      <view class="wechat-modal__head">
+        <view>
+          <text class="wechat-modal__eyebrow">CHLORIS SERVICE</text>
+          <text class="wechat-modal__title">添加商家微信</text>
+        </view>
+        <view class="wechat-modal__close" bindtap="closeMerchantWechat" role="button">
+          <view class="wechat-modal__close-line wechat-modal__close-line--one"></view>
+          <view class="wechat-modal__close-line wechat-modal__close-line--two"></view>
+        </view>
+      </view>
+
+      <view class="wechat-modal__merchant">
+        <image class="wechat-modal__merchant-logo" src="{{merchant.logoUrl}}" mode="aspectFit"></image>
+        <view class="wechat-modal__merchant-copy">
+          <text class="wechat-modal__merchant-name">{{merchant.name || 'Chloris 花艺'}}</text>
+          <text class="wechat-modal__merchant-wechat">微信号：{{merchant.wechat || '请扫描二维码添加'}}</text>
+        </view>
+      </view>
+
+      <view class="wechat-modal__qr-shell">
+        <image
+          wx:if="{{merchant.wechatQrUrl}}"
+          class="wechat-modal__qr"
+          src="{{merchant.wechatQrUrl}}"
+          mode="aspectFit"
+          show-menu-by-longpress="{{true}}"
+          bindtap="previewWechatQr"
+        ></image>
+        <view wx:else class="wechat-modal__qr-empty">
+          <image src="/images/brand/chloris-loading-logo.png" mode="widthFix"></image>
+          <text>商家暂未上传微信二维码</text>
+        </view>
+      </view>
+
+      <text class="wechat-modal__hint">长按二维码识别，或点击放大查看</text>
+      <button class="wechat-modal__copy" bindtap="copyMerchantWechat">复制微信号</button>
+    </view>
+  </view>
 </view>

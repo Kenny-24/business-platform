@@ -67,6 +67,10 @@
             label="配送到家"
             value="delivery"
           />
+          <el-option
+            label="到店取货"
+            value="pickup"
+          />
         </el-select>
 
         <el-button
@@ -105,7 +109,7 @@
                 {{ row.address?.receiverName || row.customerNickname }}
               </strong>
               <span>
-                {{ row.address?.phoneMasked || '未填写手机号' }}
+                {{ row.deliveryMethodId === 'pickup' ? '顾客到店取货' : (row.address?.phoneMasked || '未填写手机号') }}
               </span>
             </div>
           </template>
@@ -151,7 +155,10 @@
           <template #default="{ row }">
             <div class="order-delivery-cell">
               <strong>{{ row.deliveryMethodName }}</strong>
-              <span>{{ row.requestedDeliveryDate || row.deliveryDate || '未填写日期' }} {{ row.requestedDeliverySlot || row.deliverySlot || '未填写时段' }}</span>
+              <span v-if="row.deliveryMethodId === 'pickup'">
+                {{ row.pickupLocation?.name || '未选择自提门店' }} · {{ row.requestedDeliveryDate || row.deliveryDate || '未填写日期' }} {{ row.requestedDeliverySlot || row.deliverySlot || '未填写时段' }}
+              </span>
+              <span v-else>{{ row.requestedDeliveryDate || row.deliveryDate || '未填写日期' }} {{ row.requestedDeliverySlot || row.deliverySlot || '未填写时段' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -164,9 +171,7 @@
           <template #default="{ row }">
             <div class="order-amount-cell">
               <strong>¥{{ row.totalAmountText }}</strong>
-              <span v-if="row.amountPending">
-                配送费待确认
-              </span>
+              <span v-if="row.paymentStatus === 'unpaid'">待付款</span>
             </div>
           </template>
         </el-table-column>
@@ -232,7 +237,6 @@ const loading = ref(false)
 const orders = ref([])
 const counts = reactive({
   all: 0,
-  pendingConfirm: 0,
   pendingPayment: 0,
   making: 0,
   delivering: 0,
@@ -247,7 +251,6 @@ const filters = reactive({
 })
 
 const statusOptions = [
-  { label: '待确认', value: 'pendingConfirm' },
   { label: '待付款', value: 'pendingPayment' },
   { label: '制作中', value: 'making' },
   { label: '配送中', value: 'delivering' },
@@ -259,7 +262,6 @@ const statusOptions = [
 
 const statusMetrics = computed(() => [
   { key: '', label: '全部订单', value: counts.all },
-  { key: 'pendingConfirm', label: '待确认', value: counts.pendingConfirm },
   { key: 'pendingPayment', label: '待付款', value: counts.pendingPayment },
   { key: 'making', label: '制作中', value: counts.making },
   { key: 'delivering', label: '配送中', value: counts.delivering },

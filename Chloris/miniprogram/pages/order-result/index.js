@@ -18,6 +18,14 @@ Page({
     })
   },
 
+  payNow() {
+    if (!this.data.id) return
+
+    wx.redirectTo({
+      url: `/pages/order-detail/index?id=${encodeURIComponent(this.data.id)}&autoPay=1`
+    })
+  },
+
   viewOrder() {
     if (!this.data.id) return
 

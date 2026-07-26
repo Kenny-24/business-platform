@@ -1,5 +1,9 @@
 Component({
   properties: {
+    compact: {
+      type: Boolean,
+      value: false
+    },
     title: String,
     subtitle: String,
     moreText: {
