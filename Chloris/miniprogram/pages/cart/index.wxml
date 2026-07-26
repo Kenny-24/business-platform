@@ -69,9 +69,9 @@
         </view>
 
         <view class="fulfillment-selector">
-          <view wx:for="{{deliveryOptions}}" wx:key="id" class="fulfillment-option {{selectedDeliveryId === item.id ? 'fulfillment-option--active' : ''}}" data-id="{{item.id}}" bindtap="selectDeliveryMethod" role="button">
-            <view class="fulfillment-option__radio">
-              <view wx:if="{{selectedDeliveryId === item.id}}" class="fulfillment-option__radio-core"></view>
+          <view wx:for="{{deliveryOptions}}" wx:key="id" class="fulfillment-option" data-id="{{item.id}}" bindtap="selectDeliveryMethod" role="button">
+            <view class="fulfillment-option__radio {{selectedDeliveryId === item.id ? 'fulfillment-option__radio--selected' : ''}}">
+              <text wx:if="{{selectedDeliveryId === item.id}}" class="fulfillment-option__check">✓</text>
             </view>
             <view class="fulfillment-option__copy">
               <text class="fulfillment-option__name">{{item.name}}</text>
@@ -116,29 +116,49 @@
           </view>
         </view>
 
-        <view class="section-heading section-heading--message">
-          <view>
-            <text class="section-heading__title">贺卡与留言</text>
-            <text class="section-heading__subtitle">可不填写</text>
-          </view>
-          <text class="section-heading__hint">选填</text>
-        </view>
-
         <view class="message-list">
-          <view class="message-field">
+          <view class="message-field {{cardMessage ? 'message-field--filled' : ''}}">
             <view class="message-field__head">
-              <text class="message-field__label">贺卡内容</text>
+              <view>
+                <text class="message-field__label">贺卡内容</text>
+                <text class="message-field__helper">随花束送给收花人</text>
+              </view>
+            </view>
+            <view class="message-field__box message-field__box--card">
+              <textarea
+                class="message-field__input message-field__input--card"
+                value="{{cardMessage}}"
+                maxlength="120"
+                auto-height
+                disable-default-padding
+                placeholder="输入想对收花人说的话"
+                placeholder-class="message-field__placeholder"
+                bindinput="updateCardMessage"
+              ></textarea>
               <text class="message-field__count">{{cardMessage.length}}/120</text>
             </view>
-            <textarea class="message-field__input" value="{{cardMessage}}" maxlength="120" auto-height placeholder="写下想对收花人说的话" bindinput="updateCardMessage"></textarea>
           </view>
 
-          <view class="message-field">
+          <view class="message-field {{buyerMessage ? 'message-field--filled' : ''}}">
             <view class="message-field__head">
-              <text class="message-field__label">买家留言</text>
+              <view>
+                <text class="message-field__label">买家留言</text>
+                <text class="message-field__helper">仅商家可见，用于制作与配送</text>
+              </view>
+            </view>
+            <view class="message-field__box message-field__box--buyer">
+              <textarea
+                class="message-field__input message-field__input--buyer"
+                value="{{buyerMessage}}"
+                maxlength="200"
+                fixed
+                disable-default-padding
+                placeholder="输入颜色偏好、花材替换或其他要求"
+                placeholder-class="message-field__placeholder"
+                bindinput="updateBuyerMessage"
+              ></textarea>
               <text class="message-field__count">{{buyerMessage.length}}/200</text>
             </view>
-            <textarea class="message-field__input" value="{{buyerMessage}}" maxlength="200" auto-height placeholder="颜色偏好、花材替换或其他要求" bindinput="updateBuyerMessage"></textarea>
           </view>
         </view>
 

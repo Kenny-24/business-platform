@@ -499,17 +499,23 @@
 }
 
 .message-list {
-  border-top: 1rpx solid #dedbd4;
-  border-bottom: 1rpx solid #dedbd4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18rpx;
 }
 
 .message-field {
-  padding: 18rpx 4rpx 20rpx;
-  border-bottom: 1rpx solid #e5e2dc;
+  padding: 20rpx;
+  border: 1rpx solid #dedad2;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 8rpx 22rpx rgba(36, 32, 27, 0.035);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.message-field:last-child {
-  border-bottom: 0;
+.message-field--filled {
+  border-color: #aaa399;
+  box-shadow: 0 8rpx 24rpx rgba(36, 32, 27, 0.06);
 }
 
 .message-field__head {
@@ -517,26 +523,105 @@
   justify-content: space-between;
 }
 
+.message-field__title-group {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.message-field__mark {
+  display: flex;
+  width: 48rpx;
+  height: 48rpx;
+  flex: 0 0 48rpx;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14rpx;
+  border-radius: 14rpx;
+  background: #171717;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.message-field__label,
+.message-field__helper {
+  display: block;
+}
+
 .message-field__label {
   color: #171717;
   font-size: 21rpx;
   font-weight: 700;
+  line-height: 1.35;
 }
 
-.message-field__count {
-  color: #aaa59e;
+.message-field__helper {
+  margin-top: 4rpx;
+  color: #908b83;
   font-size: 16rpx;
+  line-height: 1.4;
+}
+
+.message-field__optional {
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+  padding: 7rpx 12rpx;
+  border-radius: 999rpx;
+  background: #f1efe9;
+  color: #777168;
+  font-size: 15rpx;
+  line-height: 1;
+}
+
+.message-field__box {
+  position: relative;
+  margin-top: 16rpx;
+  padding: 18rpx 18rpx 42rpx;
+  border: 1rpx solid #e1ddd5;
+  border-radius: 16rpx;
+  background: #f7f6f3;
 }
 
 .message-field__input {
+  display: block;
   width: 100%;
-  min-height: 74rpx;
-  margin-top: 10rpx;
+  height: 112rpx;
+  min-height: 112rpx;
   padding: 0;
   background: transparent;
-  color: #33302c;
+  color: #282521;
   font-size: 19rpx;
   line-height: 1.65;
+  box-sizing: border-box;
+}
+
+.message-field__placeholder {
+  color: #aaa59d;
+}
+
+.message-field__count {
+  position: absolute;
+  right: 16rpx;
+  bottom: 12rpx;
+  color: #aaa59e;
+  font-size: 15rpx;
+  line-height: 1;
+}
+
+.cart-page--wide .message-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cart-page--compact .message-field {
+  padding: 17rpx;
+}
+
+.cart-page--compact .message-field__input {
+  height: 96rpx;
+  min-height: 96rpx;
+  font-size: 18rpx;
 }
 
 .fee-list {
@@ -918,4 +1003,208 @@
   color: #ffffff;
   font-size: 21rpx;
   font-weight: 600;
+}
+
+
+/* V6.18.2：轻量输入区与收货方式选择 */
+.fulfillment-selector {
+  gap: 12rpx;
+}
+
+.fulfillment-option,
+.fulfillment-option--active {
+  min-height: 94rpx;
+  align-items: flex-start;
+  padding: 16rpx 14rpx;
+  border: 1rpx solid #e3e0d9;
+  border-radius: 18rpx;
+  background: #ffffff;
+  color: inherit;
+  box-shadow: none;
+}
+
+.fulfillment-option__radio,
+.fulfillment-option--active .fulfillment-option__radio {
+  display: flex;
+  width: 28rpx;
+  height: 28rpx;
+  flex: 0 0 28rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rpx;
+  border: 1.5rpx solid #aaa59d;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.fulfillment-option__radio--selected {
+  border-color: #171717;
+  background: #171717;
+}
+
+.fulfillment-option__check {
+  color: #ffffff;
+  font-size: 17rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.fulfillment-option__copy {
+  margin-left: 11rpx;
+}
+
+.fulfillment-option__name,
+.fulfillment-option--active .fulfillment-option__name {
+  color: #1c1b19;
+  font-size: 21rpx;
+}
+
+.fulfillment-option__description,
+.fulfillment-option--active .fulfillment-option__description {
+  color: #8e8a83;
+  font-size: 16rpx;
+  line-height: 1.45;
+}
+
+.message-list {
+  display: block;
+  border-top: 1rpx solid #e2ded7;
+  border-bottom: 1rpx solid #e2ded7;
+}
+
+.message-field,
+.message-field--filled {
+  padding: 18rpx 4rpx 20rpx;
+  border: 0;
+  border-bottom: 1rpx solid #e7e3dc;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.message-field:last-child {
+  border-bottom: 0;
+}
+
+.message-field__head {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.message-field__title-group,
+.message-field__mark,
+.message-field__optional {
+  display: none;
+}
+
+.message-field__label {
+  color: #171717;
+  font-size: 20rpx;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.message-field__helper {
+  margin-top: 3rpx;
+  color: #99948d;
+  font-size: 15rpx;
+  line-height: 1.35;
+}
+
+.message-field__box {
+  position: relative;
+  margin-top: 10rpx;
+  padding: 12rpx 14rpx 30rpx;
+  border: 1rpx solid #e3dfd7;
+  border-radius: 13rpx;
+  background: #faf9f6;
+}
+
+.message-field--filled .message-field__box {
+  border-color: #c8c2b8;
+  background: #ffffff;
+}
+
+.message-field__input {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  color: #282521;
+  font-size: 18rpx;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.message-field__input--card {
+  height: auto;
+  min-height: 54rpx;
+}
+
+.message-field__input--buyer {
+  height: 68rpx;
+  min-height: 68rpx;
+}
+
+.message-field__placeholder {
+  color: #aaa59d;
+}
+
+.message-field__count {
+  right: 13rpx;
+  bottom: 9rpx;
+  color: #aaa59e;
+  font-size: 14rpx;
+}
+
+.cart-page--wide .message-list {
+  display: block;
+}
+
+.cart-page--compact .message-field {
+  padding: 16rpx 3rpx 18rpx;
+}
+
+.cart-page--compact .message-field__input--card {
+  height: auto;
+  min-height: 50rpx;
+}
+
+.cart-page--compact .message-field__input--buyer {
+  height: 62rpx;
+  min-height: 62rpx;
+}
+
+.cart-page--compact .message-field__input {
+  font-size: 17rpx;
+}
+
+
+/* V6.18.3 留言区域精简 */
+.message-list {
+  margin-top: 28rpx;
+}
+
+.message-field__box--buyer {
+  padding-top: 10rpx;
+  padding-bottom: 27rpx;
+}
+
+.message-field__input--buyer {
+  height: 50rpx;
+  min-height: 50rpx;
+}
+
+.cart-page--compact .message-list {
+  margin-top: 24rpx;
+}
+
+.cart-page--compact .message-field__box--buyer {
+  padding-top: 9rpx;
+  padding-bottom: 25rpx;
+}
+
+.cart-page--compact .message-field__input--buyer {
+  height: 46rpx;
+  min-height: 46rpx;
 }

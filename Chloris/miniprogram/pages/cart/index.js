@@ -12,7 +12,8 @@ const {
   DELIVERY_OPTIONS
 } = require('../../data/cart-options')
 const {
-  listAddresses
+  listAddresses,
+  getCachedAddresses
 } = require('../../services/user-service')
 const {
   getCheckoutOptions,
@@ -32,6 +33,8 @@ const CARD_MESSAGE_KEY =
   'chloris_cart_card_message_v1'
 const BUYER_MESSAGE_KEY =
   'chloris_cart_buyer_message_v1'
+const BACKGROUND_SYNC_INTERVAL = 2 * 60 * 1000
+const CHECKOUT_CONTEXT_INTERVAL = 60 * 1000
 
 const DELIVERY_SLOTS = [
   '09:00-12:00',
@@ -413,20 +416,45 @@ Page({
 
   onLoad() {
     try { wx.removeStorageSync('huayu_cart_packaging_v1') } catch (error) {}
+    this._pageActive = true
     this.updateLayout()
     this.setData({
       cardMessage: String(readStorage(CARD_MESSAGE_KEY, '') || ''),
       buyerMessage: String(readStorage(BUYER_MESSAGE_KEY, '') || '')
     })
     this.initializeOptions()
+    this.hydrateCachedAddress()
   },
 
   onShow() {
-    this.refreshFromStorage()
-    this.consumeSelectedAddress()
-    this.syncWithBackend().finally(() => {
-      this.scheduleCheckoutRefresh(0)
-    })
+    this._pageActive = true
+    const addressChanged = this.consumeSelectedAddress()
+    this.refreshFromStorage(false)
+
+    const runDeferred = () => {
+      if (!this._pageActive) return
+      this.scheduleCheckoutRefresh(addressChanged ? 30 : 120, addressChanged)
+      this.scheduleBackendSync(this._hasShown ? 420 : 260)
+      this._hasShown = true
+    }
+
+    if (typeof wx.nextTick === 'function') {
+      wx.nextTick(runDeferred)
+    } else {
+      setTimeout(runDeferred, 0)
+    }
+  },
+
+  onHide() {
+    this._pageActive = false
+    this.flushMessageDrafts()
+    this.clearPageTimers()
+  },
+
+  onUnload() {
+    this._pageActive = false
+    this.flushMessageDrafts()
+    this.clearPageTimers()
   },
 
   onResize() {
@@ -440,6 +468,7 @@ Page({
 
     try {
       await this.syncWithBackend(true)
+      await this.loadCheckoutContext(true)
     } catch (error) {
       console.error('购物车刷新失败：', error)
       wx.showToast({ title: '刷新失败，请稍后重试', icon: 'none' })
@@ -495,7 +524,21 @@ Page({
       sameDaySelected: selectedDeliveryDate === today
     })
 
-    this.refreshFromStorage()
+    this.refreshFromStorage(false)
+  },
+
+  hydrateCachedAddress() {
+    if (this.data.address) return
+
+    const cached = getCachedAddresses()
+    const items = Array.isArray(cached && cached.items) ? cached.items : []
+    const address = cached && cached.defaultAddress
+      ? cached.defaultAddress
+      : (items.find((item) => item && item.isDefault) || items[0] || null)
+
+    if (address && address._id) {
+      this.setData({ address })
+    }
   },
 
   prepareCart(source) {
@@ -552,7 +595,7 @@ Page({
     })
   },
 
-  refreshFromStorage() {
+  refreshFromStorage(scheduleCheckout = true) {
     const cart = this.prepareCart(
       getCart()
     )
@@ -639,7 +682,9 @@ Page({
         )
     })
 
-    this.scheduleCheckoutRefresh()
+    if (scheduleCheckout) {
+      this.scheduleCheckoutRefresh()
+    }
   },
 
   async syncWithBackend(
@@ -750,7 +795,7 @@ Page({
         })
 
       setCart(nextCart)
-      this.refreshFromStorage()
+      this.refreshFromStorage(false)
 
       this.setData({
         syncText:
@@ -997,27 +1042,62 @@ Page({
       }
     } catch (error) {}
 
-    if (!selected || !selected._id) return
+    if (!selected || !selected._id) return false
 
     this.setData({
       address: selected,
       preview: null
     })
-    this.refreshOrderPreview()
+    return true
   },
 
-  scheduleCheckoutRefresh(delay = 220) {
+  scheduleBackendSync(delay = 300) {
+    if (this._backendSyncTimer) clearTimeout(this._backendSyncTimer)
+
+    const now = Date.now()
+    if (this._lastBackendSyncAt && now - this._lastBackendSyncAt < BACKGROUND_SYNC_INTERVAL) {
+      return
+    }
+
+    this._backendSyncTimer = setTimeout(() => {
+      if (!this._pageActive) return
+      this._lastBackendSyncAt = Date.now()
+      this.syncWithBackend().catch((error) => {
+        console.error('购物车后台同步失败：', error)
+      })
+    }, Math.max(0, Number(delay) || 0))
+  },
+
+  scheduleCheckoutRefresh(delay = 220, forceRefresh = false) {
     if (this._checkoutTimer) {
       clearTimeout(this._checkoutTimer)
     }
 
     this._checkoutTimer = setTimeout(() => {
-      this.loadCheckoutContext()
+      if (!this._pageActive) return
+      this.loadCheckoutContext(forceRefresh)
     }, Math.max(0, Number(delay) || 0))
   },
 
-  async loadCheckoutContext() {
+  async loadCheckoutContext(forceRefresh = false) {
+    const now = Date.now()
     const items = this.getSelectedOrderItems()
+    const itemsSignature = items
+      .map((item) => `${item.productId}:${item.quantity}`)
+      .sort()
+      .join('|')
+    const hasContext = Array.isArray(this.data.checkoutOptions.deliveryMethods)
+      && this.data.checkoutOptions.deliveryMethods.length > 0
+    const canReuseContext = !forceRefresh
+      && hasContext
+      && this._lastCheckoutContextAt
+      && now - this._lastCheckoutContextAt < CHECKOUT_CONTEXT_INTERVAL
+      && this._checkoutItemsSignature === itemsSignature
+
+    if (canReuseContext) {
+      await this.refreshOrderPreview()
+      return
+    }
 
     if (!items.length) {
       this.setData({
@@ -1035,9 +1115,20 @@ Page({
     this.setData({ checkoutLoading: true })
 
     try {
+      const cachedAddresses = getCachedAddresses()
+      const hasCachedAddresses = Boolean(
+        cachedAddresses
+        && (
+          cachedAddresses.defaultAddress
+          || (Array.isArray(cachedAddresses.items) && cachedAddresses.items.length)
+        )
+      )
+      const addressesTask = !forceRefresh && hasCachedAddresses
+        ? Promise.resolve(cachedAddresses)
+        : listAddresses()
       const [optionsResult, addressesResult] = await Promise.all([
         getCheckoutOptions(items),
-        listAddresses()
+        addressesTask
       ])
 
       if (this._checkoutRequestId !== requestId) return
@@ -1104,6 +1195,8 @@ Page({
         checkoutLoading: false
       })
 
+      this._lastCheckoutContextAt = Date.now()
+      this._checkoutItemsSignature = itemsSignature
       await this.refreshOrderPreview()
     } catch (error) {
       if (this._checkoutRequestId !== requestId) return
@@ -1225,13 +1318,43 @@ Page({
   updateCardMessage(event) {
     const cardMessage = String(event.detail.value || '').slice(0, 120)
     this.setData({ cardMessage })
-    saveStorage(CARD_MESSAGE_KEY, cardMessage)
+    this.queueMessageDraftSave(CARD_MESSAGE_KEY, cardMessage)
   },
 
   updateBuyerMessage(event) {
     const buyerMessage = String(event.detail.value || '').slice(0, 200)
     this.setData({ buyerMessage })
-    saveStorage(BUYER_MESSAGE_KEY, buyerMessage)
+    this.queueMessageDraftSave(BUYER_MESSAGE_KEY, buyerMessage)
+  },
+
+  queueMessageDraftSave(key, value) {
+    if (!this._messageDrafts) this._messageDrafts = {}
+    this._messageDrafts[key] = value
+
+    if (this._messageSaveTimer) clearTimeout(this._messageSaveTimer)
+    this._messageSaveTimer = setTimeout(() => {
+      this.flushMessageDrafts()
+    }, 280)
+  },
+
+  flushMessageDrafts() {
+    if (this._messageSaveTimer) {
+      clearTimeout(this._messageSaveTimer)
+      this._messageSaveTimer = null
+    }
+
+    const drafts = this._messageDrafts || {}
+    Object.keys(drafts).forEach((key) => saveStorage(key, drafts[key]))
+    this._messageDrafts = {}
+  },
+
+  clearPageTimers() {
+    ;['_checkoutTimer', '_backendSyncTimer', '_messageSaveTimer'].forEach((key) => {
+      if (this[key]) {
+        clearTimeout(this[key])
+        this[key] = null
+      }
+    })
   },
 
 
