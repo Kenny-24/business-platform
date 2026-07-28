@@ -6,7 +6,6 @@
     "pages/cart/index",
     "pages/profile/index",
     "pages/flower-care/index",
-    "pages/flower-picker/index",
     "pages/product-detail/index",
     "pages/custom-quote/index",
     "pages/quote-list/index",
@@ -14,6 +13,7 @@
     "pages/address-list/index",
     "pages/address-edit/index",
     "pages/profile-edit/index",
+    "pages/order-confirm/index",
     "pages/order-list/index",
     "pages/order-detail/index",
     "pages/order-result/index"

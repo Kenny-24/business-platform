@@ -1,7 +1,0 @@
-{
-  "usingComponents": {
-    "app-nav": "/components/app-nav/index",
-    "product-card": "/components/product-card/index"
-  },
-  "backgroundTextStyle": "dark"
-}
