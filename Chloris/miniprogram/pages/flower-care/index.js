@@ -121,7 +121,7 @@ Page({
     this.setData({ activeId: id, activeGuide: guide })
   },
 
-  openPicker() {
-    wx.navigateTo({ url: '/pages/flower-picker/index' })
+  openFlowers() {
+    wx.switchTab({ url: '/pages/category/index' })
   }
 })

@@ -89,7 +89,7 @@
 
   <view class="care-fixed-bar">
     <view class="care-fixed-bar__inner">
-      <view class="care-action" bindtap="openPicker" role="button">帮我选花</view>
+      <view class="care-action" bindtap="openFlowers" role="button">查看花束</view>
     </view>
   </view>
 </view>

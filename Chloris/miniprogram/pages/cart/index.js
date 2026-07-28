@@ -16,11 +16,9 @@ const {
   getCachedAddresses
 } = require('../../services/user-service')
 const {
+  saveCheckoutDraft,
   getCheckoutOptions,
-  previewOrder,
-  createOrder,
-  clearCheckoutDraft,
-  removeOrderedItems
+  previewOrder
 } = require('../../services/order-service')
 
 const DELIVERY_KEY =
@@ -415,34 +413,16 @@ Page({
   },
 
   onLoad() {
-    try { wx.removeStorageSync('huayu_cart_packaging_v1') } catch (error) {}
     this._pageActive = true
     this.updateLayout()
-    this.setData({
-      cardMessage: String(readStorage(CARD_MESSAGE_KEY, '') || ''),
-      buyerMessage: String(readStorage(BUYER_MESSAGE_KEY, '') || '')
-    })
-    this.initializeOptions()
-    this.hydrateCachedAddress()
+    this.refreshFromStorage(false)
   },
 
   onShow() {
     this._pageActive = true
-    const addressChanged = this.consumeSelectedAddress()
     this.refreshFromStorage(false)
-
-    const runDeferred = () => {
-      if (!this._pageActive) return
-      this.scheduleCheckoutRefresh(addressChanged ? 30 : 120, addressChanged)
-      this.scheduleBackendSync(this._hasShown ? 420 : 260)
-      this._hasShown = true
-    }
-
-    if (typeof wx.nextTick === 'function') {
-      wx.nextTick(runDeferred)
-    } else {
-      setTimeout(runDeferred, 0)
-    }
+    this.scheduleBackendSync(this._hasShown ? 420 : 180)
+    this._hasShown = true
   },
 
   onHide() {
@@ -468,7 +448,6 @@ Page({
 
     try {
       await this.syncWithBackend(true)
-      await this.loadCheckoutContext(true)
     } catch (error) {
       console.error('购物车刷新失败：', error)
       wx.showToast({ title: '刷新失败，请稍后重试', icon: 'none' })
@@ -595,7 +574,7 @@ Page({
     })
   },
 
-  refreshFromStorage(scheduleCheckout = true) {
+  refreshFromStorage(scheduleCheckout = false) {
     const cart = this.prepareCart(
       getCart()
     )
@@ -623,23 +602,6 @@ Page({
       )
     const selectedItemCount =
       selectedItems.length
-    const preview = this.data.preview
-    const previewTotalText = preview && preview.amounts
-      ? String(preview.amounts.totalAmountText || '')
-      : ''
-    const deliveryFeeFen = preview && preview.amounts
-      ? Number(preview.amounts.deliveryFeeFen || 0)
-      : 0
-    const deliveryFeeText = this.data.selectedDeliveryId === 'pickup'
-      ? '无需配送费'
-      : preview
-        ? deliveryFeeFen > 0
-          ? `¥${preview.amounts.deliveryFeeText}`
-          : '按地址核算'
-        : this.data.address
-          ? '正在核算'
-          : '选择地址后计算'
-
     this.setData({
       cart,
       cartTitle:
@@ -652,14 +614,11 @@ Page({
           (item) => item.selected
         ),
       goodsTotalFen,
-      totalFen: preview && preview.amounts
-        ? Number(preview.amounts.totalAmountFen || goodsTotalFen)
-        : goodsTotalFen,
+      totalFen: goodsTotalFen,
       goodsTotalText:
         formatFen(goodsTotalFen),
-      deliveryFeeText,
-      totalText:
-        previewTotalText || formatFen(goodsTotalFen),
+      deliveryFeeText: '结算页确认',
+      totalText: formatFen(goodsTotalFen),
       checkoutButtonText:
         this.data.submitting
           ? '处理中…'
@@ -668,12 +627,7 @@ Page({
               ? `删除 ${selectedItemCount} 件`
               : '删除'
             : '结算',
-      checkoutHint:
-        this.data.editing
-          ? '选择需要删除的商品'
-          : this.data.selectedDeliveryDate && this.data.selectedDeliverySlot
-            ? `${this.data.selectedDeliveryDateText} ${this.data.selectedDeliverySlot}`
-            : '请选择预期送达时间',
+      checkoutHint: this.data.editing ? '选择需要删除的商品' : `已选 ${selectedCount} 件`,
       selectedDelivery:
         findOption(
           this.data.deliveryOptions,
@@ -682,9 +636,6 @@ Page({
         )
     })
 
-    if (scheduleCheckout) {
-      this.scheduleCheckoutRefresh()
-    }
   },
 
   async syncWithBackend(
@@ -1573,83 +1524,39 @@ Page({
     })
   },
 
-  async checkout() {
+  checkout() {
     if (this.data.editing) {
       this.removeSelected()
       return
     }
 
-    if (this.data.submitting) return
-
     const items = this.getSelectedOrderItems()
-
     if (!items.length) {
-      wx.showToast({
-        title: '请选择商品',
-        icon: 'none'
-      })
+      wx.showToast({ title: '请选择商品', icon: 'none' })
       return
     }
 
-    if (this.data.selectedDeliveryId === 'delivery' && !this.data.address) {
-      wx.showToast({
-        title: '请先选择收货地址',
-        icon: 'none'
-      })
-      this.chooseAddress()
-      return
-    }
+    const displayItems = (this.data.cart || [])
+      .filter((item) => item.selected && !item.invalid)
+      .map((item) => ({
+        productId: String(item.id || item._id || ''),
+        name: item.name,
+        imageUrl: item.image,
+        unit: item.unit,
+        quantity: Number(item.quantity || 1),
+        unitPriceText: item.priceText,
+        subtotalText: item.subtotalText
+      }))
 
-    if (this.data.selectedDeliveryId === 'pickup' && !this.data.pickupLocationId) {
-      wx.showToast({
-        title: '请选择自提门店',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (!this.data.selectedDeliveryDate || !this.data.selectedDeliverySlot) {
-      wx.showToast({
-        title: this.data.selectedDeliveryId === 'pickup'
-          ? '请选择预约自提时间'
-          : '请选择预期送达时间',
-        icon: 'none'
-      })
-      return
-    }
-
-    this.setData({
-      submitting: true,
-      checkoutButtonText: '处理中…'
+    saveCheckoutDraft({
+      items,
+      displayItems,
+      goodsTotalText: this.data.goodsTotalText,
+      deliveryMethodId: 'delivery',
+      cardMessage: '',
+      buyerMessage: ''
     })
 
-    try {
-      const order = await createOrder(this.buildOrderPayload())
-      const productIds = items.map((item) => item.productId)
-
-      removeOrderedItems(productIds)
-      clearCheckoutDraft()
-      saveStorage(CARD_MESSAGE_KEY, '')
-      saveStorage(BUYER_MESSAGE_KEY, '')
-
-      this.setData({
-        cardMessage: '',
-        buyerMessage: ''
-      })
-
-      wx.redirectTo({
-        url: `/pages/order-detail/index?id=${encodeURIComponent(order._id)}&autoPay=1`
-      })
-    } catch (error) {
-      wx.showToast({
-        title: error.message || '创建订单失败，请稍后重试',
-        icon: 'none'
-      })
-    } finally {
-      this.setData({
-        submitting: false,
-        checkoutButtonText: '结算'
-      })
-    }
+    wx.navigateTo({ url: '/pages/order-confirm/index' })
   }
 })

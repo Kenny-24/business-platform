@@ -19,7 +19,7 @@ const categories = ['推荐花束', '鲜花花束', '给自己', '生日祝福',
 const colors = ['粉色', '白色', '红色', '紫色', '黄色', '绿色', '香槟色', '混色']
 
 const banners = [
-  { id: 'fallback-picker', image: '', scene: 'CHLORIS SELECTION', title: '不确定送什么花？', subtitle: '告诉我们场景、预算与偏好', cta: '帮我选花', action: 'builder' },
+  { id: 'fallback-picker', image: '', scene: 'CHLORIS SELECTION', title: '挑一束合适的花', subtitle: '从当前可售花束中选择', cta: '查看花束', action: 'flowers' },
   { id: 'fallback-self', image: '', scene: 'FOR YOURSELF', title: '给自己，一束日常', subtitle: '不为节日，只为此刻喜欢', cta: '为自己选花', action: 'flowers' },
   { id: 'fallback-moment', image: '', scene: 'BIG DAY', title: '记住每一个值得庆祝的时刻', subtitle: '生日、纪念日与节日提醒', cta: '查看日历', action: 'calendar' }
 ]

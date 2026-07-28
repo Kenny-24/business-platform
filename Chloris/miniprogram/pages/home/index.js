@@ -415,7 +415,7 @@ Page({
   onHeroAction(event) {
     const { action, categoryIntent } = event.currentTarget.dataset
 
-    if (action === 'builder') return this.openBuilder()
+    if (action === 'builder') return this.openCategory('花束')
     if (action === 'calendar') return this.openCalendar()
     if (action === 'flowers') return this.openCategory('花束')
     if (action === 'homeDecor') return this.openCategory('家居插花')
@@ -475,11 +475,6 @@ Page({
 
     wx.setStorageSync(CALENDAR_INTENT_KEY, event.dateKey)
     return wx.switchTab({ url: '/pages/calendar/index' })
-  },
-
-
-  openBuilder() {
-    wx.navigateTo({ url: '/pages/flower-picker/index' })
   },
 
   openQuoteStudio() {

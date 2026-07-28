@@ -109,25 +109,6 @@
     ></flower-loader>
 
     <block wx:else>
-      <view class="home-section picker-section" bindtap="openBuilder" role="button">
-        <view class="picker-copy">
-          <text class="section-kicker">PERSONAL FLOWER FINDER</text>
-          <view class="picker-headline">
-            <text class="picker-title">帮我选花</text>
-            <text class="picker-tag">3步快速筛选</text>
-          </view>
-          <text class="picker-sub">
-            根据送花对象、预算、颜色偏好，为你快速匹配合适花束。
-          </text>
-          <view class="picker-tags">
-            <text>送给谁</text>
-            <text>预算</text>
-            <text>颜色</text>
-            
-          </view>
-          <view class="picker-button">开始选择</view>
-        </view>
-      </view>
 
       <view class="home-section quote-section" bindtap="openQuoteStudio" role="button">
         <view class="quote-section__copy">
