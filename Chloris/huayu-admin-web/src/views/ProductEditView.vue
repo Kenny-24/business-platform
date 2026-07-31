@@ -355,7 +355,8 @@ const typeOptions = [
   { label: '多肉植物', value: 'succulent' },
   { label: '绿植', value: 'greenPlant' },
   { label: '花器', value: 'vase' },
-  { label: '礼品', value: 'gift' }
+  { label: '礼品', value: 'gift' },
+  { label: '花艺工具', value: 'tool' }
 ]
 
 const sceneOptions = [

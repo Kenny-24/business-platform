@@ -12,21 +12,49 @@ const CATEGORY_SEARCH_KEY = 'huayuCategorySearch'
 
 const CATEGORY_DEFINITIONS = [
   { label: '限时推出', match: (item) => item.limitedTimeEnabled === true },
-  { label: '情人节预定', match: (item) => item.salesMode === 'preorder' && (item._campaignType === 'valentine' || item._searchText.includes('情人节')) },
-  { label: '花束', match: (item) => item.type === 'bouquet' },
-  { label: '鲜切花材', match: (item) => item.type === 'flower' },
-  { label: '绿植多肉', match: (item) => ['succulent', 'greenPlant'].includes(item.type) },
   {
-    label: '家居插花',
-    keywords: ['居家', '空间', '桌花', '瓶插'],
-    fallbackTypes: ['flower', 'bouquet', 'greenPlant']
+    label: '情人节限定',
+    match: (item) =>
+      item._campaignType === 'valentine' ||
+      String(item.campaignName || '').includes('情人节') ||
+      item._searchText.includes('情人节')
   },
+  { label: '花礼', match: (item) => ['bouquet', 'gift'].includes(item.type) },
+  { label: '鲜切花材', match: (item) => item.type === 'flower', supportsColorFilter: true },
+  { label: '多肉绿植', match: (item) => ['succulent', 'greenPlant'].includes(item.type) },
   {
-    label: '礼赠花礼',
-    keywords: ['礼盒', '生日', '纪念', '感谢', '恋人'],
-    fallbackTypes: ['bouquet', 'gift']
-  },
-  { label: '花器礼品', match: (item) => ['vase', 'gift'].includes(item.type) }
+    label: '工具',
+    match: (item) =>
+      ['vase', 'tool', 'floralTool', 'accessory'].includes(item.type) ||
+      ['花器', '花瓶', '花剪', '剪刀', '花泥', '营养液', '胶带', '工具'].some((keyword) =>
+        item._searchText.includes(keyword.toLowerCase())
+      )
+  }
+]
+
+const CATEGORY_ALIASES = {
+  情人节预定: '情人节限定',
+  花束: '花礼',
+  推荐花束: '花礼',
+  鲜花花束: '花礼',
+  礼赠花礼: '花礼',
+  家居插花: '花礼',
+  绿植多肉: '多肉绿植',
+  花器礼品: '工具'
+}
+
+const COLOR_FILTERS = [
+  { id: 'all', label: '全部', aliases: [] },
+  { id: 'pink', label: '粉色', aliases: ['粉色', '粉', '裸粉', '玫粉', '橘粉'] },
+  { id: 'white', label: '白色', aliases: ['白色', '白', '白绿', '米白'] },
+  { id: 'red', label: '红色', aliases: ['红色', '红', '酒红', '正红'] },
+  { id: 'champagne', label: '香槟色', aliases: ['香槟色', '香槟'] },
+  { id: 'cream', label: '奶油色', aliases: ['奶油色', '奶油', '米色'] },
+  { id: 'yellow', label: '黄色', aliases: ['黄色', '黄', '橙黄', '橘色', '橙色'] },
+  { id: 'purple', label: '紫色', aliases: ['紫色', '紫', '蓝紫'] },
+  { id: 'blue', label: '蓝色', aliases: ['蓝色', '蓝'] },
+  { id: 'green', label: '绿色', aliases: ['绿色', '绿'] },
+  { id: 'mixed', label: '混色', aliases: ['混色', '多色', '彩色', '复色'] }
 ]
 
 function normalizeText(value) {
@@ -47,7 +75,7 @@ function prepareProduct(item) {
     id: item.id || item._id,
     type:
       item.type ||
-      ({ 鲜花: 'flower', 花束: 'bouquet', 多肉植物: 'succulent' }[item.category] || ''),
+      ({ 鲜花: 'flower', 花束: 'bouquet', 多肉植物: 'succulent', 绿植: 'greenPlant', 花器: 'vase', 礼品: 'gift', 工具: 'tool' }[item.category] || ''),
     onSale: item.onSale !== false,
     stock: Number(item.stock || 0),
     price: Number(item.price || 0),
@@ -73,6 +101,7 @@ function prepareProduct(item) {
     product.subtitle,
     product.unit,
     product.type,
+    product.category,
     ...product.searchKeywords,
     ...product.sceneTags,
     ...product.colorTags
@@ -100,6 +129,25 @@ function matchesCategory(item, definition) {
   return Array.isArray(definition.fallbackTypes)
     ? definition.fallbackTypes.includes(item.type)
     : true
+}
+
+function matchesColorFilter(item, colorId) {
+  if (!colorId || colorId === 'all') return true
+  const definition = COLOR_FILTERS.find((filter) => filter.id === colorId)
+  if (!definition) return true
+
+  const source = [
+    ...(Array.isArray(item.colorTags) ? item.colorTags : []),
+    item.color,
+    item.name,
+    item.subtitle
+  ]
+    .map(normalizeText)
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return definition.aliases.some((alias) => source.includes(String(alias).toLowerCase()))
 }
 
 function buildResponsiveLayout(metrics) {
@@ -153,6 +201,9 @@ Page({
   data: {
     categories: CATEGORY_DEFINITIONS.map((item) => item.label),
     activeCategory: 0,
+    colorFilters: COLOR_FILTERS.map(({ id, label }) => ({ id, label })),
+    activeColor: 'all',
+    isFreshFlowerCategory: false,
     searchQuery: '',
     sortMode: 'comprehensive',
     allProducts: [],
@@ -195,7 +246,8 @@ Page({
   },
 
   initializeIntent() {
-    const intent = normalizeText(wx.getStorageSync(CATEGORY_INTENT_KEY))
+    const rawIntent = normalizeText(wx.getStorageSync(CATEGORY_INTENT_KEY))
+    const intent = CATEGORY_ALIASES[rawIntent] || rawIntent
     const searchQuery = normalizeText(wx.getStorageSync(CATEGORY_SEARCH_KEY))
     const categoryIndex = CATEGORY_DEFINITIONS.findIndex((item) => item.label === intent)
 
@@ -243,6 +295,8 @@ Page({
   applyProducts(cartSnapshot) {
     const definition = CATEGORY_DEFINITIONS[this.data.activeCategory] || CATEGORY_DEFINITIONS[0]
     const searchQuery = String(this.data.searchQuery || '').trim().toLowerCase()
+    const isFreshFlowerCategory = definition.supportsColorFilter === true
+    const activeColor = isFreshFlowerCategory ? this.data.activeColor : 'all'
     const cart = Array.isArray(cartSnapshot) ? cartSnapshot : getCart()
     const cartQuantityMap = cart.reduce((map, item) => {
       const id = String(item && item.id || '')
@@ -254,6 +308,7 @@ Page({
       this.data.allProducts
         .filter((item) => item.onSale !== false && item.stock > 0)
         .filter((item) => matchesCategory(item, definition))
+        .filter((item) => !isFreshFlowerCategory || matchesColorFilter(item, activeColor))
         .filter((item) => !searchQuery || item._searchText.includes(searchQuery))
         .map((item) => ({
           ...item,
@@ -266,6 +321,7 @@ Page({
 
     this.setData({
       products,
+      isFreshFlowerCategory,
       resultTitle: definition.label,
       resultCount: products.length
     })
@@ -273,7 +329,14 @@ Page({
 
   selectCategory(event) {
     const index = Number(event.currentTarget.dataset.index || 0)
-    this.setData({ activeCategory: index })
+    this.setData({ activeCategory: index, activeColor: 'all' })
+    this.applyProducts()
+  },
+
+  selectColor(event) {
+    const colorId = String(event.currentTarget.dataset.colorId || 'all')
+    if (colorId === this.data.activeColor) return
+    this.setData({ activeColor: colorId })
     this.applyProducts()
   },
 

@@ -45,7 +45,8 @@ const PRODUCT_TYPES = new Set([
   'succulent',
   'greenPlant',
   'vase',
-  'gift'
+  'gift',
+  'tool'
 ])
 const BANNER_PLACEMENTS = new Set(['home', 'categoryHero'])
 const BANNER_ACTION_TYPES = new Set(['category', 'calendar', 'builder'])

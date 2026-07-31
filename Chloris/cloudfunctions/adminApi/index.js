@@ -27,7 +27,8 @@ const TYPE_LABELS = {
   succulent: '多肉植物',
   greenPlant: '绿植',
   vase: '花器',
-  gift: '礼品'
+  gift: '礼品',
+  tool: '花艺工具'
 }
 
 

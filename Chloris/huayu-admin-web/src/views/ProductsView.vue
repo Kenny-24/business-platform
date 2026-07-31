@@ -288,6 +288,10 @@ const typeOptions = [
   {
     label: '礼品',
     value: 'gift'
+  },
+  {
+    label: '花艺工具',
+    value: 'tool'
   }
 ]
 

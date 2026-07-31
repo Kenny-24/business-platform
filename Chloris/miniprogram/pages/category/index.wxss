@@ -521,3 +521,68 @@
 .category-product__add,.category-product__quantity-button { border:1rpx solid #111; background:#111; color:#fff; }
 .category-product__cart-state,.category-product__badge { border-radius:6rpx; background:#fff; color:#292929; box-shadow:none; }
 .category-empty__button { border:2rpx solid #111; border-radius:999rpx; background:#111; color:#fff; }
+
+
+/* V6.18.7 鲜切花材颜色筛选 */
+.color-filter {
+  width: 100%;
+  margin-top: 12rpx;
+  white-space: nowrap;
+}
+
+.color-filter__inner {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 0 6rpx;
+}
+
+.color-filter__item {
+  display: inline-flex;
+  height: 48rpx;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #e8e5df;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #6f6a62;
+  font-size: 21rpx;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.color-filter__item--active {
+  border-color: #111111;
+  color: #111111;
+  font-weight: 600;
+}
+
+.color-filter__swatch {
+  width: 18rpx;
+  height: 18rpx;
+  flex: 0 0 18rpx;
+  margin-right: 8rpx;
+  border: 1rpx solid rgba(17, 17, 17, 0.12);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.color-filter__swatch--pink { background: #efb8c5; }
+.color-filter__swatch--white { background: #ffffff; }
+.color-filter__swatch--red { background: #b82f3c; }
+.color-filter__swatch--champagne { background: #d9b38c; }
+.color-filter__swatch--cream { background: #f2e6cd; }
+.color-filter__swatch--yellow { background: #e7c75a; }
+.color-filter__swatch--purple { background: #9b7bb4; }
+.color-filter__swatch--blue { background: #7fa2c8; }
+.color-filter__swatch--green { background: #8ca482; }
+.color-filter__swatch--mixed {
+  background: linear-gradient(135deg, #efb8c5 0 33%, #f2e6cd 33% 66%, #8ca482 66% 100%);
+}
+
+.category-layout--compact .color-filter__item {
+  height: 44rpx;
+  padding: 0 14rpx;
+  font-size: 19rpx;
+}

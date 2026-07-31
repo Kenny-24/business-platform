@@ -288,25 +288,22 @@ const items = ref([])
 const dialogVisible = ref(false)
 
 const categoryOptions = [
-  '推荐花束',
-  '鲜花花束',
-  '给自己',
-  '生日祝福',
-  '爱与纪念',
-  '感谢心意',
-  '探望慰问',
-  '居家布置',
-  '绿植多肉',
-  '花器礼品'
+  '限时推出',
+  '情人节限定',
+  '花礼',
+  '鲜切花材',
+  '多肉绿植',
+  '工具'
 ]
 
 const legacyCategoryMap = {
-  flower: '居家布置',
-  bouquet: '鲜花花束',
-  succulent: '绿植多肉',
-  greenPlant: '绿植多肉',
-  vase: '花器礼品',
-  gift: '花器礼品'
+  flower: '鲜切花材',
+  bouquet: '花礼',
+  succulent: '多肉绿植',
+  greenPlant: '多肉绿植',
+  vase: '工具',
+  gift: '花礼',
+  tool: '工具'
 }
 
 const emptyForm = () => ({
@@ -319,7 +316,7 @@ const emptyForm = () => ({
   imageFileId: '',
   imageUrl: '',
   actionType: 'category',
-  actionValue: '推荐花束',
+  actionValue: '花礼',
   placement: 'home',
   enabled: true,
   sort: 100

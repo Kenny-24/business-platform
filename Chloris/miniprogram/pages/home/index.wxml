@@ -199,12 +199,6 @@
         <section-more target="care" bind:more="openSectionMore"></section-more>
       </view>
 
-      <view class="service-note">
-        <text class="service-note__title">配送与售后提示</text>
-        <text class="service-note__body">
-          鲜花会受季节与到货状态影响。缺货或需要同色系替换时，我们会先与你确认；如收货状态或配送存在异常，请保留照片并及时联系客服。
-        </text>
-      </view>
     </block>
   </view>
 </view>

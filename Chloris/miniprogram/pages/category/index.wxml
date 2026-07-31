@@ -77,6 +77,28 @@
           >新品</view>
         </view>
 
+        <scroll-view
+          wx:if="{{isFreshFlowerCategory}}"
+          class="color-filter"
+          scroll-x
+          enhanced
+          show-scrollbar="{{false}}"
+        >
+          <view class="color-filter__inner">
+            <view
+              wx:for="{{colorFilters}}"
+              wx:key="id"
+              class="color-filter__item {{activeColor === item.id ? 'color-filter__item--active' : ''}}"
+              data-color-id="{{item.id}}"
+              bindtap="selectColor"
+              role="button"
+            >
+              <view wx:if="{{item.id !== 'all'}}" class="color-filter__swatch color-filter__swatch--{{item.id}}"></view>
+              <text class="color-filter__label">{{item.label}}</text>
+            </view>
+          </view>
+        </scroll-view>
+
         <view class="result-head">
           <text class="result-title">{{resultTitle}}</text>
           <text class="result-count">{{resultCount}} 款可售</text>

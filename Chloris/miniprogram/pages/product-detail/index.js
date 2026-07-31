@@ -23,7 +23,10 @@ function defaultDetail(product) {
     succulent: '多肉植物',
     greenPlant: '绿植',
     vase: '花器',
-    gift: '礼品'
+    gift: '礼品',
+    tool: '花艺工具',
+    floralTool: '花艺工具',
+    accessory: '花艺工具'
   }
 
   const galleryUrls = Array.isArray(product.galleryUrls) && product.galleryUrls.length

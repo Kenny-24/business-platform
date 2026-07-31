@@ -564,32 +564,6 @@
 }
 
 
-.service-note {
-  margin-top: 22rpx;
-  padding: 25rpx;
-  border: 1rpx solid var(--line);
-  border-radius: 0;
-  background: var(--surface-soft);
-}
-
-.service-note__title,
-.service-note__body {
-  display: block;
-}
-
-.service-note__title {
-  color: #46423e;
-  font-size: 26rpx;
-  font-weight: 600;
-}
-
-.service-note__body {
-  margin-top: 9rpx;
-  color: #817c74;
-  font-size: 24rpx;
-  line-height: 1.72;
-}
-
 @media (max-width: 360px) {
   .hero-copy {
     right: 38rpx;
@@ -759,7 +733,7 @@
 .care-card { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; box-shadow:none; }
 .care-card__number { color:#777772; }
 .care-card__link,.festival-link { color:#171717; }
-.section-empty,.cloud-notice,.service-note { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; color:#5b5b56; box-shadow:none; }
+.section-empty,.cloud-notice { border:1rpx solid #eeeeeb; border-radius:0; background:#fff; color:#5b5b56; box-shadow:none; }
 .startup-splash { background:#fff; }
 .startup-splash__logo { filter:grayscale(1) contrast(1.08); }
 

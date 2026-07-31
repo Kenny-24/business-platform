@@ -46,10 +46,6 @@
           </view>
         </view>
 
-        <view class="cart-note">
-          <text class="cart-note__title">结算说明</text>
-          <text class="cart-note__body">配送方式、收货地址、预约时间、贺卡和买家留言将在下一步填写。</text>
-        </view>
         <view class="cart-bottom-space"></view>
       </block>
 
