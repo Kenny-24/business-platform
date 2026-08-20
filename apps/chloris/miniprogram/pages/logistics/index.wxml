@@ -1,0 +1,36 @@
+<view class="logistics-page">
+  <app-nav title="物流信息" showBack solid></app-nav>
+  <scroll-view class="logistics-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="logistics-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <flower-loader wx:if="{{loading}}" compact text="正在同步物流…"></flower-loader>
+      <block wx:elif="{{order}}">
+        <view class="status-card">
+          <text class="status-card__eyebrow">SF EXPRESS</text>
+          <text class="status-card__title">{{(logistics && logistics.logisticsStateLabel) || order.logisticsStateLabel || (hasTracking ? '等待物流更新' : '等待商家录入运单')}}</text>
+          <text class="status-card__desc">{{(logistics && logistics.arrivalTime) ? '预计 ' + logistics.arrivalTime + ' 送达' : (hasTracking ? '物流状态会随顺丰更新' : '录入运单后可在这里查看实时进度')}}</text>
+        </view>
+        <view class="summary-card">
+          <view class="summary-row"><text>承运公司</text><strong>顺丰速运</strong></view>
+          <view class="summary-row" bindtap="copyNo"><text>运单号码</text><strong>{{(logistics && logistics.trackingNo) || order.trackingNo || '待录入'}}<text wx:if="{{hasTracking}}" class="summary-copy">复制</text></strong></view>
+          <view class="summary-row"><text>订单编号</text><strong>{{order.orderNo}}</strong></view>
+        </view>
+        <view class="timeline-card">
+          <view class="section-head"><text>物流进度</text><view wx:if="{{hasTracking}}" class="refresh" bindtap="refreshFromTap">{{refreshing ? '更新中…' : '刷新'}}</view></view>
+          <view wx:if="{{traces.length}}" class="timeline">
+            <view wx:for="{{traces}}" wx:key="index" class="timeline-item {{item.active ? 'timeline-item--active' : ''}}">
+              <view class="timeline-dot"></view>
+              <view class="timeline-copy"><strong>{{item.context || item.status || item.description || '物流更新'}}</strong><span>{{item.timeText}}</span></view>
+            </view>
+          </view>
+          <view wx:else class="timeline-empty">{{hasTracking ? '运单已录入，暂未查询到详细轨迹。' : '商家正在录入顺丰运单号，录入后物流轨迹会显示在这里。'}}</view>
+        </view>
+        <view wx:if="{{order.address}}" class="destination-card">
+          <text class="destination-card__title">收货信息</text>
+          <text class="destination-card__name">{{order.address.receiverName}} · {{order.address.phoneMasked || order.address.phone}}</text>
+          <text class="destination-card__address">{{order.address.fullAddress}}</text>
+        </view>
+        <view class="logistics-bottom-space"></view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

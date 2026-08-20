@@ -1,0 +1,4 @@
+<view class="layout">
+  <scroll-view class="side" scroll-y="true" show-scrollbar="false"><view wx:for="{{categories}}" wx:key="id" class="side-item {{activeId===item.id?'active':''}}" data-id="{{item.id}}" bindtap="select"><text class="emoji">{{item.icon}}</text><text>{{item.name}}</text></view></scroll-view>
+  <scroll-view class="content" scroll-y="true" enhanced="true" show-scrollbar="false" lower-threshold="240" bindscrolltolower="loadMore"><view class="content-inner"><view class="cat-title">{{activeName}}</view><view class="grid"><product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" /></view><view class="empty" wx:if="{{!loading && !products.length}}">该分类暂无商品</view><view class="more-tip" wx:if="{{products.length}}">{{loading?'加载中…':(hasMore?'继续下滑查看更多':'已经到底了')}}</view></view></scroll-view>
+</view>

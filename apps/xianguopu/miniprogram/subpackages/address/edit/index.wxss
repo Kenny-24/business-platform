@@ -1,0 +1,1 @@
+.form{padding:0 26rpx}.row{min-height:98rpx;display:flex;align-items:center;border-bottom:1rpx solid #f0f0ed;font-size:25rpx}.row>text{width:150rpx;color:#555}.row input,.row>view{flex:1;text-align:right;font-size:25rpx}.detail{align-items:flex-start;padding:26rpx 0}.detail textarea{flex:1;height:150rpx;font-size:24rpx}.save{margin-top:36rpx}

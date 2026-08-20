@@ -1,0 +1,21 @@
+<view class="section-title {{compact ? 'section-title--compact' : ''}}">
+  <view class="section-title__copy">
+    <text class="section-title__main">{{title}}</text>
+    <text
+      wx:if="{{subtitle}}"
+      class="section-title__sub"
+    >
+      {{subtitle}}
+    </text>
+  </view>
+
+  <button
+    wx:if="{{showMore}}"
+    class="section-title__more"
+    bindtap="onMore"
+    hover-class="none"
+  >
+    <text>{{moreText}}</text>
+    <view class="section-title__more-arrow"></view>
+  </button>
+</view>

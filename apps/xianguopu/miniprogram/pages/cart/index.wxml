@@ -1,0 +1,12 @@
+<view class="container cart-page">
+  <view class="head"><view class="title">购物车</view><view class="sub">{{items.length}} 件商品</view></view>
+  <view wx:if="{{items.length}}">
+    <view class="item card" wx:for="{{items}}" wx:key="skuId">
+      <view class="check {{item.checked?'on':''}}" data-id="{{item.skuId}}" data-checked="{{item.checked}}" bindtap="toggle">{{item.checked?'✓':''}}</view>
+      <image class="pic" src="{{item.img}}" mode="aspectFill" />
+      <view class="info"><view class="name">{{item.name}}</view><view class="spec">{{item.specText}}</view><view class="row"><view class="price">¥{{item.price}}<text>/{{item.unitName}}</text></view><view class="step"><button data-id="{{item.skuId}}" bindtap="minus">−</button><text>{{item.quantity}}{{item.unitName}}</text><button data-id="{{item.skuId}}" bindtap="plus">＋</button></view></view><view class="remove" data-id="{{item.skuId}}" bindtap="remove">删除</view></view>
+    </view>
+  </view>
+  <view class="empty" wx:else><view class="empty-icon">🧺</view><view>购物车还是空的</view><view class="muted">去挑一些新鲜水果吧</view></view>
+</view>
+<view class="bottom" wx:if="{{items.length}}"><view class="all" bindtap="all"><view class="check {{allChecked?'on':''}}">{{allChecked?'✓':''}}</view><text>全选</text></view><view class="sum"><text>合计</text><text class="price">¥{{total}}</text></view><button class="checkout" bindtap="checkout">结算</button></view>

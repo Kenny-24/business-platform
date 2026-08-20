@@ -1,0 +1,245 @@
+.coupon-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f7f6f3;
+}
+
+.coupon-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 88rpx;
+  border-bottom: 1rpx solid #ebe7e0;
+  background: #fff;
+}
+
+.coupon-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7rpx;
+  color: #8d877f;
+  font-size: 24rpx;
+}
+
+.coupon-tab--active {
+  color: #171512;
+  font-weight: 650;
+}
+
+.coupon-tab--active::after {
+  position: absolute;
+  bottom: 0;
+  width: 42rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: #171512;
+  content: "";
+}
+
+
+.coupon-content {
+  padding-top: 32rpx;
+  padding-bottom: calc(70rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.coupon-heading {
+  margin-bottom: 28rpx;
+}
+
+.coupon-heading__eyebrow,
+.coupon-heading__title,
+.coupon-heading__desc {
+  display: block;
+}
+
+.coupon-heading__eyebrow {
+  color: #927b67;
+  font-family: Georgia, serif;
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.coupon-heading__title {
+  margin-top: 7rpx;
+  color: #171512;
+  font-size: 32rpx;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.coupon-heading__desc {
+  max-width: 620rpx;
+  margin-top: 9rpx;
+  color: #918a81;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+.coupon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.coupon-card {
+  display: flex;
+  min-height: 174rpx;
+  align-items: stretch;
+  padding: 23rpx 24rpx;
+  border: 1rpx solid #e4ded5;
+  border-radius: 18rpx;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.coupon-card__value {
+  display: flex;
+  width: 154rpx;
+  flex: 0 0 154rpx;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.coupon-card__amount-row {
+  display: flex;
+  align-items: flex-start;
+  color: #171512;
+}
+
+.coupon-card__currency {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
+.coupon-card__amount {
+  font-size: 52rpx;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.coupon-card__threshold {
+  margin-top: 11rpx;
+  color: #6f6961;
+  font-size: 19rpx;
+}
+
+.coupon-card__divider {
+  width: 1rpx;
+  margin: 6rpx 22rpx 6rpx 2rpx;
+  background: #e6e0d8;
+}
+
+.coupon-card__body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.coupon-card__topline {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.coupon-card__name {
+  overflow: hidden;
+  min-width: 0;
+  color: #1b1916;
+  font-size: 25rpx;
+  font-weight: 700;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coupon-card__status {
+  flex: 0 0 auto;
+  padding: 5rpx 11rpx;
+  border: 1rpx solid #ded8cf;
+  border-radius: 999rpx;
+  color: #716a61;
+  font-size: 17rpx;
+  line-height: 1.2;
+}
+
+.coupon-card__scope,
+.coupon-card__date {
+  display: block;
+  margin-top: 10rpx;
+  color: #8d867d;
+  font-size: 19rpx;
+  line-height: 1.45;
+}
+
+.coupon-card--used,
+.coupon-card--expired,
+.coupon-card--void {
+  background: #f4f2ee;
+  opacity: 0.72;
+}
+
+.coupon-card--used .coupon-card__amount-row,
+.coupon-card--expired .coupon-card__amount-row,
+.coupon-card--void .coupon-card__amount-row {
+  color: #8d877f;
+}
+
+.coupon-empty {
+  display: flex;
+  min-height: 430rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 50rpx 28rpx;
+  text-align: center;
+}
+
+.coupon-empty__title,
+.coupon-empty__desc {
+  display: block;
+}
+
+.coupon-empty__title {
+  color: #22201d;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.coupon-empty__desc {
+  max-width: 520rpx;
+  margin-top: 14rpx;
+  color: #9a938a;
+  font-size: 20rpx;
+  line-height: 1.65;
+}
+
+@media (max-width: 350px) {
+  .coupon-card {
+    min-height: 160rpx;
+    padding: 20rpx;
+  }
+
+  .coupon-card__value {
+    width: 132rpx;
+    flex-basis: 132rpx;
+  }
+
+  .coupon-card__amount {
+    font-size: 46rpx;
+  }
+
+  .coupon-card__divider {
+    margin-right: 16rpx;
+  }
+
+  .coupon-card__name {
+    font-size: 23rpx;
+  }
+}

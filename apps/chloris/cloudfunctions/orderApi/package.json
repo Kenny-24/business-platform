@@ -1,0 +1,9 @@
+{
+  "name": "orderApi",
+  "version": "6.19.4",
+  "description": "Chloris 订单、优惠券与顺丰官方物流查询 API",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,0 +1,18 @@
+<view class="select-page">
+  <app-nav title="选择优惠券" showBack solid></app-nav>
+  <scroll-view class="select-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="select-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <view class="no-coupon {{!selectedCouponId ? 'no-coupon--active' : ''}}" bindtap="clear">
+        <text>不使用优惠券</text><text wx:if="{{!selectedCouponId}}">✓</text>
+      </view>
+      <flower-loader wx:if="{{loading}}" compact text="正在计算可用优惠…"></flower-loader>
+      <view wx:else class="select-list">
+        <view wx:for="{{items}}" wx:key="_id" class="select-card {{item.canUse ? '' : 'select-card--disabled'}} {{selectedCouponId === item._id ? 'select-card--active' : ''}}" data-id="{{item._id}}" bindtap="choose">
+          <view class="select-card__value"><text>¥</text><strong>{{item.discountText}}</strong><span>{{item.thresholdText}}</span></view>
+          <view class="select-card__copy"><strong>{{item.name}}</strong><span>有效期至 {{item.expiryText}}</span><span wx:if="{{!item.canUse}}" class="select-card__reason">{{item.unusableReason}}</span></view>
+          <view class="select-card__check">{{selectedCouponId === item._id ? '✓' : ''}}</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

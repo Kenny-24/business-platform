@@ -1,0 +1,144 @@
+<view class="safe-page order-detail-page {{wideLayout ? 'order-detail-page--wide' : ''}} {{compactLayout ? 'order-detail-page--compact' : ''}}">
+  <app-nav title="订单详情" showBack solid></app-nav>
+
+  <scroll-view class="order-detail-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="order-detail-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <flower-loader wx:if="{{loading}}" compact text="正在同步订单详情…"></flower-loader>
+
+      <block wx:elif="{{order}}">
+        <view class="status-card status-card--{{order.status}}">
+          <view class="status-card__topline">
+            <view class="status-card__copy">
+              <text class="status-card__label">{{order.statusLabel}}</text>
+              <text class="status-card__description">{{order.statusDescription}}</text>
+            </view>
+            <view class="status-card__mark"></view>
+          </view>
+          <view class="status-card__meta">
+            <text>订单号</text>
+            <text>{{order.orderNo}}</text>
+          </view>
+        </view>
+
+        <view class="order-detail-layout">
+          <view class="order-detail-main">
+            <view wx:if="{{order.showLogisticsEntry}}" class="detail-card logistics-card logistics-card--compact">
+              <view class="logistics-card__topline">
+                <view>
+                  <text class="detail-card__eyebrow">SF EXPRESS</text>
+                  <text class="detail-card__title">顺丰物流</text>
+                </view>
+                <view class="logistics-status-pill">
+                  <view class="logistics-status-pill__dot"></view>
+                  <text>{{order.logisticsStateLabel || '等待顺丰更新'}}</text>
+                </view>
+              </view>
+
+              <view class="logistics-latest" bindtap="openLogisticsPage" role="button">
+                <view class="logistics-latest__mark">SF</view>
+                <view class="logistics-latest__copy">
+                  <text class="logistics-latest__context">{{order.latestLogisticsContext}}</text>
+                  <text class="logistics-latest__time">{{order.latestLogisticsTime}}</text>
+                </view>
+                <view class="logistics-latest__arrow"></view>
+              </view>
+
+              <view class="logistics-card__footer">
+                <view class="logistics-waybill">
+                  <text>顺丰运单</text>
+                  <text>{{order.trackingNo || '待录入'}}</text>
+                </view>
+                <view class="logistics-card__actions">
+                  <view wx:if="{{order.trackingNo}}" class="logistics-link" catchtap="copyTrackingNo" role="button">复制</view>
+                  <view class="logistics-link logistics-link--primary" bindtap="openLogisticsPage" role="button">查看详情</view>
+                </view>
+              </view>
+            </view>
+
+            <view class="detail-card product-card">
+              <view class="detail-card__header">
+                <view>
+                  <text class="detail-card__eyebrow">ITEMS</text>
+                  <text class="detail-card__title">商品清单</text>
+                </view>
+                <text class="detail-card__count">共 {{order.items.length}} 件</text>
+              </view>
+
+              <view wx:for="{{order.items}}" wx:key="productId" class="detail-product">
+                <image wx:if="{{item.imageUrl}}" class="detail-product__image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load></image>
+                <view wx:else class="detail-product__image detail-product__placeholder">CHLORIS</view>
+                <view class="detail-product__copy">
+                  <text class="detail-product__name">{{item.name}}</text>
+                  <text class="detail-product__price">¥{{item.unitPriceText}} / {{item.unit}}</text>
+                </view>
+                <view class="detail-product__right">
+                  <text>× {{item.quantity}}</text>
+                  <text>¥{{item.subtotalText}}</text>
+                </view>
+              </view>
+            </view>
+
+            <view wx:if="{{order.cardMessage || order.buyerMessage || order.merchantNote}}" class="detail-card message-detail-card">
+              <view class="detail-card__header">
+                <view>
+                  <text class="detail-card__eyebrow">MESSAGE</text>
+                  <text class="detail-card__title">订单留言</text>
+                </view>
+              </view>
+              <view wx:if="{{order.cardMessage}}" class="message-detail"><text>贺卡内容</text><text>{{order.cardMessage}}</text></view>
+              <view wx:if="{{order.buyerMessage}}" class="message-detail"><text>买家留言</text><text>{{order.buyerMessage}}</text></view>
+              <view wx:if="{{order.merchantNote}}" class="message-detail"><text>商家备注</text><text>{{order.merchantNote}}</text></view>
+            </view>
+          </view>
+
+          <view class="order-detail-side">
+            <view class="detail-card amount-detail-card">
+              <view class="detail-card__header">
+                <view>
+                  <text class="detail-card__eyebrow">AMOUNT</text>
+                  <text class="detail-card__title">费用明细</text>
+                </view>
+              </view>
+              <view class="detail-row"><text>商品金额</text><text>¥{{order.amounts.goodsAmountText}}</text></view>
+              <view class="detail-row"><text>{{order.isPickup ? '自提费用' : '配送费用'}}</text><text>{{order.isPickup ? '无需配送费' : (order.amounts.deliveryFeeFen > 0 ? '¥' + order.amounts.deliveryFeeText : '按订单结算')}}</text></view>
+              <view wx:if="{{order.coupon}}" class="detail-row"><text>优惠券</text><text>{{order.coupon.name}}</text></view>
+              <view wx:if="{{order.amounts.discountFen > 0}}" class="detail-row"><text>优惠金额</text><text>− ¥{{order.amounts.discountText}}</text></view>
+              <view class="detail-line"></view>
+              <view class="detail-row detail-row--total"><text>应付金额</text><text>¥{{order.amounts.totalAmountText}}</text></view>
+            </view>
+
+            <view class="detail-card timeline-card">
+              <view class="detail-card__header">
+                <view>
+                  <text class="detail-card__eyebrow">PROGRESS</text>
+                  <text class="detail-card__title">订单进度</text>
+                </view>
+              </view>
+              <view wx:for="{{order.logs}}" wx:key="_id" class="timeline-item">
+                <view class="timeline-item__dot"></view>
+                <view class="timeline-item__copy">
+                  <text class="timeline-item__title">{{item.title}}</text>
+                  <text wx:if="{{item.note}}" class="timeline-item__note">{{item.note}}</text>
+                  <text class="timeline-item__time">{{item.createdAtText}}</text>
+                </view>
+              </view>
+            </view>
+
+          </view>
+        </view>
+
+        <view class="order-detail-bottom-space"></view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{order && order.canRespondDeliverySchedule}}" class="order-detail-fixed-bar">
+    <view class="detail-secondary-button" bindtap="rejectDeliverySchedule" role="button">{{scheduleSubmitting ? '处理中…' : '暂不接受'}}</view>
+    <view class="detail-primary-button" bindtap="acceptDeliverySchedule" role="button">{{scheduleSubmitting ? '处理中…' : '确认时间'}}</view>
+  </view>
+
+  <view wx:elif="{{order && (order.canCancel || order.canPay)}}" class="order-detail-fixed-bar">
+    <view wx:if="{{order.canCancel}}" class="detail-secondary-button" bindtap="cancelOrder" role="button">{{cancelling ? '取消中…' : '取消订单'}}</view>
+    <view wx:if="{{order.canPay}}" class="detail-primary-button" bindtap="payOrder" role="button">去付款</view>
+  </view>
+</view>

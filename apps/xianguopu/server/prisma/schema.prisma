@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  DRAFT
+  ON_SALE
+  OFF_SALE
+}
+
+enum PricingMode {
+  FIXED
+  WEIGHT
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  SHIPPED
+  COMPLETED
+  CANCELLED
+  REFUNDING
+  REFUNDED
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  name         String   @default("管理员")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  icon      String?
+  sort      Int       @default(0)
+  enabled   Boolean   @default(true)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String
+  subtitle    String?
+  origin      String?
+  variety     String?
+  description String?       @db.Text
+  imageUrl    String?
+  gallery     Json?
+  tags        Json?
+  status      ProductStatus @default(DRAFT)
+  featured    Boolean       @default(false)
+  sort        Int           @default(0)
+  sales       Int           @default(0)
+  categoryId  Int
+  category    Category      @relation(fields: [categoryId], references: [id])
+  skus        Sku[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status, sort])
+  @@index([categoryId])
+}
+
+model Sku {
+  id          Int         @id @default(autoincrement())
+  productId   Int
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name        String
+  specText    String
+  unitName    String
+  pricingMode PricingMode @default(FIXED)
+  price       Decimal     @db.Decimal(10, 2)
+  marketPrice Decimal?    @db.Decimal(10, 2)
+  stock       Decimal     @default(0) @db.Decimal(12, 3)
+  minPurchase Decimal     @default(1) @db.Decimal(10, 3)
+  step        Decimal     @default(1) @db.Decimal(10, 3)
+  enabled     Boolean     @default(true)
+  sort        Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([productId, enabled])
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  openid    String    @unique
+  nickname  String?
+  avatarUrl String?
+  phone     String?
+  addresses Address[]
+  orders    Order[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Address {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  receiver      String
+  phone         String
+  province      String
+  city          String
+  district      String
+  detail        String
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Order {
+  id             Int         @id @default(autoincrement())
+  orderNo        String      @unique
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id])
+  status         OrderStatus @default(PENDING_PAYMENT)
+  receiver       String
+  phone          String
+  fullAddress    String
+  remark         String?
+  subtotal       Decimal     @db.Decimal(10,2)
+  freight        Decimal     @default(0) @db.Decimal(10,2)
+  discount       Decimal     @default(0) @db.Decimal(10,2)
+  totalAmount    Decimal     @db.Decimal(10,2)
+  paidAt         DateTime?
+  shippedAt      DateTime?
+  completedAt    DateTime?
+  trackingNo     String?
+  logisticsName  String?
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  skuId     Int
+  name      String
+  imageUrl  String?
+  specText  String
+  unitName  String
+  price     Decimal @db.Decimal(10,2)
+  quantity  Decimal @db.Decimal(10,3)
+  amount    Decimal @db.Decimal(10,2)
+
+  @@index([orderId])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

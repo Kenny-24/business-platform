@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="nav" style="padding-top:{{top}}px">
+    <view class="brand">鲜果铺</view>
+    <view class="tagline">把新鲜送到家</view>
+  </view>
+  <view class="container">
+    <view class="search" bindtap="openSearch"><text class="search-icon">⌕</text><text>搜索水果、品种、产地</text></view>
+    <view class="hero">
+      <view class="hero-kicker">FRESH · EVERY DAY</view>
+      <view class="hero-title">{{bannerText}}</view>
+      <view class="hero-desc">精选常见果品与特色鲜果，全国商品体系可扩展</view>
+      <view class="hero-bubbles"><text>🍊</text><text>🍐</text><text>🍇</text></view>
+    </view>
+    <scroll-view class="cats" scroll-x="true" show-scrollbar="false" enhanced="true">
+      <view class="cat-row">
+        <view class="cat" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="goCategory"><view class="cat-icon">{{item.icon || '🍏'}}</view><text>{{item.name}}</text></view>
+      </view>
+    </scroll-view>
+    <view class="section-head"><view><view class="section-title">精选鲜果</view><view class="section-sub">按真实购买规格售卖</view></view><view class="more" bindtap="goCategory">全部 ></view></view>
+    <view class="grid" wx:if="{{products.length}}">
+      <product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" />
+    </view>
+    <view class="loading" wx:if="{{loading}}">正在挑选新鲜水果…</view>
+  </view>
+</view>

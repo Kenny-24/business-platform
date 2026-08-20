@@ -1,0 +1,105 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/category/index",
+    "pages/cart/index",
+    "pages/profile/index"
+  ],
+  "subpackages": [
+    {
+      "root": "subpackages/product",
+      "pages": [
+        "detail/index"
+      ]
+    },
+    {
+      "root": "subpackages/search",
+      "pages": [
+        "index/index"
+      ]
+    },
+    {
+      "root": "subpackages/order",
+      "pages": [
+        "checkout/index",
+        "list/index",
+        "detail/index"
+      ]
+    },
+    {
+      "root": "subpackages/address",
+      "pages": [
+        "list/index",
+        "edit/index"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/home/index": {
+      "network": "wifi",
+      "packages": [
+        "subpackages/product"
+      ]
+    },
+    "pages/cart/index": {
+      "network": "all",
+      "packages": [
+        "subpackages/order"
+      ]
+    }
+  },
+  "window": {
+    "navigationBarTitleText": "鲜果铺",
+    "navigationBarBackgroundColor": "#F8F7F2",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8F7F2",
+    "backgroundTextStyle": "dark",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#8B8B86",
+    "selectedColor": "#167A4A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "assets/tab/home.png",
+        "selectedIconPath": "assets/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/category/index",
+        "text": "分类",
+        "iconPath": "assets/tab/category.png",
+        "selectedIconPath": "assets/tab/category-active.png"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "text": "购物车",
+        "iconPath": "assets/tab/cart.png",
+        "selectedIconPath": "assets/tab/cart-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/tab/user.png",
+        "selectedIconPath": "assets/tab/user-active.png"
+      }
+    ]
+  },
+  "renderer": "skyline",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "disableABTest": true,
+      "tagNameStyleIsolation": "legacy",
+      "enableScrollViewAutoSize": true,
+      "keyframeStyleIsolation": "legacy"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

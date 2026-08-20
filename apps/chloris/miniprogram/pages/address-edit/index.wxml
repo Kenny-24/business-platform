@@ -1,0 +1,85 @@
+<view class="safe-page edit-page {{wideLayout ? 'edit-page--wide' : ''}} {{compactLayout ? 'edit-page--compact' : ''}}">
+  <app-nav title="{{id ? '编辑地址' : '新增地址'}}" showBack solid></app-nav>
+
+  <scroll-view class="edit-scroll" style="height: {{contentHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="edit-content" style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;">
+      <flower-loader wx:if="{{loading}}" compact text="正在准备地址信息…"></flower-loader>
+
+      <view wx:else>
+        <view class="edit-section">
+          <view class="section-title">收货信息</view>
+
+          <view class="field-block">
+            <text class="field-block__label">收货人</text>
+            <input class="field-block__input" value="{{form.receiverName}}" placeholder="请填写收货人姓名" maxlength="20" data-field="receiverName" bindinput="updateField" />
+          </view>
+
+          <view class="field-block field-block--split-gap"></view>
+
+          <view class="field-block">
+            <text class="field-block__label">手机号</text>
+            <input class="field-block__input" type="number" value="{{form.phone}}" placeholder="请填写11位手机号" maxlength="11" data-field="phone" bindinput="updateField" />
+          </view>
+        </view>
+
+        <view class="edit-section">
+          <view class="section-title">地址信息</view>
+
+          <picker mode="region" value="{{[form.province, form.city, form.district]}}" bindchange="chooseRegion">
+            <view class="field-block field-block--interactive" role="button">
+              <text class="field-block__label">所在地区</text>
+              <view class="field-block__inline">
+                <text class="field-block__value {{form.province ? '' : 'is-placeholder'}}">{{regionText}}</text>
+                <view class="field-block__chevron"></view>
+              </view>
+            </view>
+          </picker>
+
+          <view class="field-block field-block--split-gap"></view>
+
+          <view class="field-block field-block--interactive" bindtap="chooseMapLocation" role="button">
+            <text class="field-block__label">地图定位</text>
+            <text class="field-block__hint">选择小区、写字楼或门店位置</text>
+            <view class="field-block__inline field-block__inline--location">
+              <text class="field-block__value {{form.locationName || form.locationAddress ? '' : 'is-placeholder'}}">{{locationText}}</text>
+              <view class="field-block__chevron"></view>
+            </view>
+          </view>
+
+          <view class="field-block field-block--split-gap"></view>
+
+          <view class="field-block field-block--textarea">
+            <text class="field-block__label">详细地址</text>
+            <textarea class="field-block__textarea" value="{{form.detail}}" placeholder="请填写街道、门牌号、小区、楼栋等详细信息" maxlength="100" auto-height data-field="detail" bindinput="updateField"></textarea>
+          </view>
+        </view>
+
+        <view class="edit-section">
+          <view class="section-title">其他设置</view>
+          <view class="field-block field-block--no-padding-bottom">
+            <text class="field-block__label">地址标签</text>
+            <view class="label-options">
+              <view wx:for="{{['家', '公司', '学校', '其他']}}" wx:key="*this" class="label-option {{form.label === item ? 'label-option--active' : ''}}" data-label="{{item}}" bindtap="chooseLabel" role="button">{{item}}</view>
+            </view>
+          </view>
+
+          <view class="field-block field-block--split-gap"></view>
+
+          <view class="field-block field-block--switch">
+            <view>
+              <text class="field-block__label">设为默认地址</text>
+              <text class="field-block__hint">下单时优先使用这个地址</text>
+            </view>
+            <switch checked="{{form.isDefault}}" color="#7b8f57" bindchange="toggleDefault" />
+          </view>
+        </view>
+      </view>
+
+      <view class="edit-bottom-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="edit-fixed-bar">
+    <view class="edit-submit {{saving ? 'edit-submit--disabled' : ''}}" bindtap="submit" role="button">{{saving ? '保存中…' : '保存地址'}}</view>
+  </view>
+</view>

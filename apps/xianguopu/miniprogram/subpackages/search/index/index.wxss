@@ -1,0 +1,2 @@
+.search{display:flex;gap:14rpx}.search input{flex:1;height:78rpx;background:#fff;border-radius:39rpx;padding:0 26rpx;font-size:25rpx}.search button{width:120rpx;height:78rpx;border-radius:39rpx;background:#167a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:25rpx}.result-title{font-size:22rpx;color:#8e9590;margin:30rpx 0 18rpx}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18rpx}.empty{text-align:center;color:#999;padding:160rpx 0}
+.more-tip{text-align:center;color:#9ba29d;font-size:21rpx;padding:34rpx 0}

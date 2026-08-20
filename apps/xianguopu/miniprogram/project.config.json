@@ -1,0 +1,38 @@
+{
+  "description": "鲜果铺微信小程序",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "showShadowRootInWxmlPanel": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "appid": "wx83fe9b1e15026229",
+  "projectname": "xianguopu",
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

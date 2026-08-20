@@ -1,0 +1,21 @@
+<view class="safe-page result-page">
+  <app-nav title="订单已创建" solid></app-nav>
+
+  <view class="result-content" style="min-height: {{contentHeight}}px;">
+    <view class="result-mark">✓</view>
+    <text class="result-title">订单已创建</text>
+    <text class="result-description">订单已创建，现在即可付款</text>
+    <text class="result-number">订单号 {{orderNo}}</text>
+
+    <view class="result-notice">订单已进入“待付款”。付款完成后，商家将按订单中的商品、收货方式和预约时间安排履约。</view>
+
+    <view class="result-bottom-space"></view>
+  </view>
+
+  <view class="result-fixed-bar">
+    <view class="result-fixed-bar__inner">
+      <view class="result-button result-button--primary" bindtap="payNow" role="button">立即付款</view>
+      <view class="result-button" bindtap="viewOrder" role="button">查看订单</view>
+    </view>
+  </view>
+</view>

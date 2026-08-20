@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: xianguopu
+      POSTGRES_USER: xianguopu
+      POSTGRES_PASSWORD: xianguopu_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - xianguopu_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xianguopu -d xianguopu"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  xianguopu_pg:

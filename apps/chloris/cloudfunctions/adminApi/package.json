@@ -1,0 +1,9 @@
+{
+  "name": "adminApi",
+  "version": "6.19.4",
+  "description": "Chloris 商品、优惠券、订单、物流与运营管理 API",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "3.18.1"
+  }
+}

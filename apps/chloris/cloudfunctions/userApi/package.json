@@ -1,0 +1,9 @@
+{
+  "name": "userApi",
+  "version": "6.19.0",
+  "description": "Chloris 顾客身份、资料、收货地址与优惠券 API",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

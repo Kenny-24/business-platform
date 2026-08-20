@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "app-nav": "/components/app-nav/index",
+    "flower-loader": "/components/flower-loader/index"
+  }
+}

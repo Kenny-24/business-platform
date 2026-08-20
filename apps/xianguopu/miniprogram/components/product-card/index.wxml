@@ -1,0 +1,12 @@
+<view class="product" bindtap="open">
+  <image class="cover" src="{{img}}" mode="aspectFill" lazy-load="true" />
+  <view class="body">
+    <view class="name line1">{{product.name}}</view>
+    <view class="meta line1">{{product.origin}}{{product.variety ? ' · ' + product.variety : ''}}</view>
+    <view class="spec line1">{{product.skus[0].specText}}</view>
+    <view class="footer">
+      <view><text class="yen">¥</text><text class="amount">{{product.skus[0].price}}</text><text class="unit"> / {{product.skus[0].unitName}}</text></view>
+      <button class="add" catchtap="add">＋</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,95 @@
+<view class="safe-page care-page">
+  <app-nav title="鲜花护理" showBack solid></app-nav>
+
+  <view class="care-hero">
+    <view class="care-hero__copy">
+      <text class="care-hero__eyebrow">CHLORIS CARE GUIDE</text>
+      <text class="care-hero__title">让鲜花陪你更久一点</text>
+      <text class="care-hero__sub">按花材查看护理方式，重点更清楚，日常更好照顾。</text>
+    </view>
+    <view class="care-hero__visual">
+      <image class="care-hero__icon" src="/images/icons/profile/flowerCare.png" mode="aspectFit"></image>
+      <view class="care-hero__petal care-hero__petal--one"></view>
+      <view class="care-hero__petal care-hero__petal--two"></view>
+      <view class="care-hero__petal care-hero__petal--three"></view>
+    </view>
+  </view>
+
+  <scroll-view class="guide-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="guide-tabs__inner">
+      <view wx:for="{{guides}}" wx:key="id" class="guide-tab {{activeId === item.id ? 'guide-tab--active' : ''}}" data-id="{{item.id}}" bindtap="selectGuide" role="button">
+        {{item.title}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="guide-content">
+    <view class="guide-overview card card--{{activeGuide.theme}}">
+      <view class="guide-overview__head">
+        <view class="guide-overview__main">
+          <text class="guide-eyebrow">{{activeGuide.eyebrow}}</text>
+          <text class="guide-title">{{activeGuide.title}}</text>
+          <text class="guide-intro">{{activeGuide.intro}}</text>
+        </view>
+        <view class="guide-overview__thumb">
+          <image class="guide-overview__image" src="{{activeGuide.coverImage}}" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <view class="guide-highlights">
+        <view wx:for="{{activeGuide.highlights}}" wx:key="*this" class="guide-highlight">
+          <text class="guide-highlight__dot"></text>
+          <text class="guide-highlight__text">{{item}}</text>
+        </view>
+      </view>
+
+      <view class="guide-facts">
+        <view wx:for="{{activeGuide.quickFacts}}" wx:key="*this" class="guide-fact">
+          <text class="guide-fact__label">{{item[0]}}</text>
+          <text class="guide-fact__value">{{item[1]}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-head">
+      <text class="section-head__title">关键步骤</text>
+      <text class="section-head__sub">按顺序操作，效果更稳定</text>
+    </view>
+
+    <view class="steps-list">
+      <view class="guide-step" wx:for="{{activeGuide.steps}}" wx:key="*this">
+        <view class="guide-step__badge">
+          <text class="guide-step__number">{{item[0]}}</text>
+        </view>
+        <view class="guide-step__copy">
+          <text class="guide-step__title">{{item[1]}}</text>
+          <text class="guide-step__body">{{item[2]}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="tips-card">
+      <view class="section-head section-head--tight">
+        <text class="section-head__title">{{activeGuide.tipsTitle}}</text>
+        <text class="section-head__sub">这些细节最容易被忽略</text>
+      </view>
+      <view wx:for="{{activeGuide.tips}}" wx:key="*this" class="tip-row">
+        <view class="tip-row__icon">!</view>
+        <text class="tip-row__text">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="mini-note">
+      <text class="mini-note__title">小提醒</text>
+      <text class="mini-note__body">如果收到花束后状态一般，先修剪花茎并换上干净清水，再放到阴凉通风处观察 2–4 小时，通常会明显改善。</text>
+    </view>
+
+    <view class="care-bottom-space"></view>
+  </view>
+
+  <view class="care-fixed-bar">
+    <view class="care-fixed-bar__inner">
+      <view class="care-action" bindtap="openFlowers" role="button">查看花束</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,65 @@
+<view class="claim-page">
+  <app-nav title="领券中心" solid></app-nav>
+
+  <scroll-view
+    class="claim-scroll"
+    style="height: {{contentHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view
+      class="claim-content"
+      style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;"
+    >
+      <view class="claim-hero">
+        <text class="claim-hero__eyebrow">CHLORIS PRIVILEGE</text>
+        <text class="claim-hero__title">领取今日优惠</text>
+        <text class="claim-hero__desc">每人限领，活动数量与有效期以页面状态为准。</text>
+      </view>
+
+      <flower-loader wx:if="{{loading}}" compact text="正在准备优惠活动…"></flower-loader>
+
+      <view wx:elif="{{items.length}}" class="claim-list">
+        <view wx:for="{{items}}" wx:key="_id" class="claim-ticket {{item.canClaim ? '' : 'claim-ticket--disabled'}}">
+          <view class="claim-ticket__value">
+            <view class="claim-ticket__amount-row">
+              <text class="claim-ticket__currency">¥</text>
+              <text class="claim-ticket__amount">{{item.discountText}}</text>
+            </view>
+            <text class="claim-ticket__threshold">{{item.thresholdText}}</text>
+          </view>
+
+          <view class="claim-ticket__divider"></view>
+
+          <view class="claim-ticket__body">
+            <text class="claim-ticket__name">{{item.name}}</text>
+            <text class="claim-ticket__meta">{{item.scopeText}} · {{item.validityText}}</text>
+            <view class="claim-ticket__action-row">
+              <view
+                wx:if="{{item.canClaim}}"
+                class="claim-ticket__button {{claimingId !== '' ? 'claim-ticket__button--busy' : ''}}"
+                hover-class="claim-ticket__button--pressed"
+                aria-disabled="{{claimingId !== ''}}"
+                data-id="{{item._id}}"
+                bindtap="receiveCoupon"
+                role="button"
+              >{{claimingId === item._id ? '领取中…' : '立即领取'}}</view>
+              <view wx:else class="claim-ticket__state">{{item.claimLabel}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="claim-empty">
+        <text class="claim-empty__title">当前暂无可领取优惠</text>
+        <text class="claim-empty__desc">日常满减与不定期惊喜活动会在这里开放。</text>
+      </view>
+
+      <view class="claim-footer" bindtap="openMyCoupons" role="button">
+        <text>查看我的优惠券</text>
+        <view class="claim-footer__arrow"></view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

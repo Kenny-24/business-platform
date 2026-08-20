@@ -1,0 +1,257 @@
+.claim-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f7f6f3;
+}
+
+.claim-content {
+  padding-top: 34rpx;
+  padding-bottom: calc(72rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.claim-hero {
+  padding: 0 2rpx 28rpx;
+}
+
+.claim-hero__eyebrow,
+.claim-hero__title,
+.claim-hero__desc {
+  display: block;
+}
+
+.claim-hero__eyebrow {
+  color: #927b67;
+  font-family: Georgia, serif;
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.claim-hero__title {
+  margin-top: 7rpx;
+  color: #171512;
+  font-size: 34rpx;
+  font-weight: 730;
+  line-height: 1.35;
+}
+
+.claim-hero__desc {
+  margin-top: 10rpx;
+  color: #928b82;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+.claim-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.claim-ticket {
+  display: flex;
+  min-height: 186rpx;
+  align-items: stretch;
+  padding: 24rpx;
+  border: 1rpx solid #e2d8cc;
+  border-radius: 18rpx;
+  background: #fffaf5;
+  box-sizing: border-box;
+}
+
+.claim-ticket--disabled {
+  border-color: #e3dfd8;
+  background: #f2f0ec;
+  opacity: 0.7;
+}
+
+.claim-ticket__value {
+  display: flex;
+  width: 154rpx;
+  flex: 0 0 154rpx;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.claim-ticket__amount-row {
+  display: flex;
+  align-items: flex-start;
+  color: #171512;
+}
+
+.claim-ticket__currency {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
+.claim-ticket__amount {
+  font-size: 54rpx;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.claim-ticket__threshold {
+  margin-top: 12rpx;
+  color: #675f57;
+  font-size: 19rpx;
+}
+
+.claim-ticket__divider {
+  width: 1rpx;
+  margin: 5rpx 22rpx 5rpx 2rpx;
+  background: #dfd5ca;
+}
+
+.claim-ticket__body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.claim-ticket__name {
+  overflow: hidden;
+  color: #1a1815;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claim-ticket__meta {
+  display: block;
+  margin-top: 10rpx;
+  color: #8a8279;
+  font-size: 19rpx;
+  line-height: 1.5;
+}
+
+.claim-ticket__action-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+}
+
+.claim-ticket__button,
+.claim-ticket__state {
+  display: inline-flex;
+  min-width: 132rpx;
+  height: 52rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  box-sizing: border-box;
+  font-size: 19rpx;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.claim-ticket__button {
+  border: 1rpx solid #171512;
+  background: #171512;
+  color: #fff;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.claim-ticket__button--pressed {
+  opacity: 0.82;
+  transform: scale(0.98);
+}
+
+.claim-ticket__button--busy {
+  opacity: 0.5;
+}
+
+.claim-ticket__state {
+  border: 1rpx solid #d3cdc5;
+  background: rgba(255, 255, 255, 0.32);
+  color: #817a72;
+}
+
+.claim-empty {
+  display: flex;
+  min-height: 420rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 50rpx 28rpx;
+  text-align: center;
+}
+
+.claim-empty__title,
+.claim-empty__desc {
+  display: block;
+}
+
+.claim-empty__title {
+  color: #22201d;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.claim-empty__desc {
+  margin-top: 14rpx;
+  color: #9a938a;
+  font-size: 20rpx;
+  line-height: 1.65;
+}
+
+.claim-footer {
+  display: flex;
+  height: 88rpx;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 28rpx;
+  border: 1rpx solid #dcd6ce;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #25221e;
+  font-size: 22rpx;
+  font-weight: 650;
+}
+
+.claim-footer__arrow {
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  transform: rotate(45deg);
+}
+
+@media (max-width: 350px) {
+  .claim-ticket {
+    min-height: 172rpx;
+    padding: 20rpx;
+  }
+
+  .claim-ticket__value {
+    width: 132rpx;
+    flex-basis: 132rpx;
+  }
+
+  .claim-ticket__amount {
+    font-size: 47rpx;
+  }
+
+  .claim-ticket__divider {
+    margin-right: 16rpx;
+  }
+
+  .claim-ticket__name {
+    font-size: 23rpx;
+  }
+
+  .claim-ticket__button,
+  .claim-ticket__state {
+    min-width: 116rpx;
+    height: 48rpx;
+    padding: 0 18rpx;
+    font-size: 18rpx;
+  }
+}

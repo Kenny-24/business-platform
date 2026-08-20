@@ -1,0 +1,65 @@
+<view class="coupon-page">
+  <app-nav title="优惠券" solid></app-nav>
+
+  <view class="coupon-tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="coupon-tab {{activeTab === item.key ? 'coupon-tab--active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="selectTab"
+      role="button"
+    >
+      <text>{{item.label}}</text>
+    </view>
+  </view>
+
+  <scroll-view
+    class="coupon-scroll"
+    style="height: {{scrollHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view
+      class="coupon-content"
+      style="padding-left: {{horizontalPadding}}px; padding-right: {{horizontalPadding}}px;"
+    >
+      <view class="coupon-heading">
+        <text class="coupon-heading__eyebrow">CHLORIS PRIVILEGE</text>
+        <text class="coupon-heading__title">我的优惠券</text>
+        <text class="coupon-heading__desc">优惠券将在订单结算时供你选择，每笔订单限用一张。</text>
+      </view>
+
+      <flower-loader wx:if="{{loading}}" compact text="正在整理优惠券…"></flower-loader>
+
+      <view wx:elif="{{items.length}}" class="coupon-list">
+        <view wx:for="{{items}}" wx:key="_id" class="coupon-card coupon-card--{{item.status}}">
+          <view class="coupon-card__value">
+            <view class="coupon-card__amount-row">
+              <text class="coupon-card__currency">¥</text>
+              <text class="coupon-card__amount">{{item.discountText}}</text>
+            </view>
+            <text class="coupon-card__threshold">{{item.thresholdText}}</text>
+          </view>
+
+          <view class="coupon-card__divider"></view>
+
+          <view class="coupon-card__body">
+            <view class="coupon-card__topline">
+              <text class="coupon-card__name">{{item.name}}</text>
+              <text class="coupon-card__status">{{item.statusLabel}}</text>
+            </view>
+            <text class="coupon-card__scope">{{item.categoryText}} · 不抵配送费</text>
+            <text class="coupon-card__date">有效期至 {{item.expiryText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="coupon-empty">
+        <text class="coupon-empty__title">暂无优惠券</text>
+        <text class="coupon-empty__desc">领取成功的新客券、日常券和惊喜券会在这里展示。</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

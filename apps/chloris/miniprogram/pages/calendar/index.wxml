@@ -1,0 +1,248 @@
+<view class="safe-page calendar-page">
+  <app-nav title="日历" solid></app-nav>
+  <flower-loader wx:if="{{loading}}" overlay text="正在整理节日与 BIG DAY…"></flower-loader>
+
+  <view class="page-content">
+    <view class="calendar-panel">
+      <view class="month-header">
+        <view class="month-arrow" bindtap="previousMonth" role="button" aria-label="上个月"><view class="month-arrow__shape month-arrow__shape--left"></view></view>
+        <view class="month-center">
+          <text class="month-title">{{year}}年{{month + 1}}月</text>
+          <view class="today-link" bindtap="goToday" role="button">回到今天</view>
+        </view>
+        <view class="month-arrow" bindtap="nextMonth" role="button" aria-label="下个月"><view class="month-arrow__shape month-arrow__shape--right"></view></view>
+      </view>
+
+      <view class="legend-row">
+        <view class="legend-item"><view class="legend-dot legend-dot--domestic"></view><text>国内节日</text></view>
+        <view class="legend-item"><view class="legend-dot legend-dot--international"></view><text>国际节日</text></view>
+        <view class="legend-item"><view class="legend-dot legend-dot--personal"></view><text>BIG DAY</text></view>
+      </view>
+
+
+      <view class="week-row">
+        <view class="week-cell" wx:for="{{week}}" wx:key="*this">{{item}}</view>
+      </view>
+
+      <view class="days-grid">
+        <view
+          class="day-cell {{item.current ? '' : 'day-cell--muted'}}"
+          wx:for="{{days}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="selectDay"
+          role="button"
+        >
+          <view class="day-number {{item.isToday ? 'day-number--today' : ''}} {{item.isSelected ? 'day-number--selected' : ''}}">
+            {{item.day}}
+          </view>
+
+          <view wx:if="{{item.markerTypes.length}}" class="day-markers">
+            <view
+              wx:for="{{item.markerTypes}}"
+              wx:for-item="marker"
+              wx:key="*this"
+              class="day-marker day-marker--{{marker}}"
+            ></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="selected-head">
+      <view>
+        <text class="selected-date">{{selectedDateLabel}}</text>
+        <text class="selected-summary">{{selectedSummary}}</text>
+      </view>
+      <view class="add-small" bindtap="openAddDate" role="button">＋ BIG DAY</view>
+    </view>
+
+    <view wx:if="{{selectedEvents.length}}" class="event-list">
+      <view
+        wx:for="{{selectedEvents}}"
+        wx:key="eventKey"
+        class="event-card event-card--{{item.region}}"
+      >
+        <view class="event-card__top">
+          <view class="event-tag event-tag--{{item.region}}">{{item.regionLabel}}</view>
+          <text class="event-name">{{item.name}}</text>
+        </view>
+        <text class="event-title">{{item.title || item.name}}</text>
+        <text wx:if="{{item.description}}" class="event-description">{{item.description}}</text>
+        <view
+          wx:if="{{item.canRecommend}}"
+          class="event-action"
+          data-event-key="{{item.eventKey}}"
+          bindtap="viewRecommendations"
+          role="button"
+        >
+          <text>查看相关鲜花</text>
+          <view class="event-action__arrow"></view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="ordinary-card">
+      <text class="ordinary-title">今天没有预设节日</text>
+      <text class="ordinary-sub">也可以把一个普通日子，变成送花和表达心意的理由。</text>
+    </view>
+
+    <view wx:if="{{recommendedProducts.length}}" class="section-block">
+      <view class="section-head">
+        <text class="section-title">节日推荐</text>
+        
+      </view>
+
+      <scroll-view class="recommend-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="recommend-list">
+          <view class="recommend-card" wx:for="{{recommendedProducts}}" wx:key="id" data-product-id="{{item.id}}" bindtap="openProductDetail" role="button">
+            <image wx:if="{{item.image}}" class="recommend-image" src="{{item.image}}" mode="aspectFill" lazy-load></image>
+            <view wx:else class="recommend-image recommend-placeholder">CHLORIS</view>
+            <text class="recommend-name">{{item.name}}</text>
+            <view class="recommend-bottom">
+              <text class="recommend-price">¥{{item.priceText}}/{{item.unit}}</text>
+              <view class="recommend-add" data-product-id="{{item.id}}" catchtap="addProduct" role="button">＋</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="section-block section-block--month-festivals">
+      <view class="section-head section-head--stack month-festival-head">
+        <view>
+          <text class="section-title">本月节日</text>
+          <text class="section-note section-note--block">真实节日与自定义节日</text>
+        </view>
+      </view>
+
+      <scroll-view class="filter-scroll filter-scroll--festival" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="filter-list filter-list--festival">
+          <view
+            wx:for="{{filterOptions}}"
+            wx:key="value"
+            class="filter-chip filter-chip--festival filter-chip--{{item.value}} {{activeFilter === item.value ? 'filter-chip--active' : ''}}"
+            data-value="{{item.value}}"
+            bindtap="selectMonthFilter"
+            role="button"
+          >{{item.label}}</view>
+        </view>
+      </scroll-view>
+
+      <view wx:if="{{filteredMonthEventRows.length}}" class="month-event-board">
+        <view class="month-event-list month-event-list--carded">
+          <view
+            wx:for="{{filteredMonthEventRows}}"
+            wx:key="id"
+            class="month-event-row month-event-row--refined"
+            data-key="{{item.dateKey}}"
+            bindtap="selectMonthEvent"
+            role="button"
+          >
+            <view class="month-event-date month-event-date--card">
+              <text class="month-event-date__day">{{item.dayLabel}}</text>
+            </view>
+            <view class="month-event-main month-event-main--refined">
+              <text class="month-event-name">{{item.name}}</text>
+              <text wx:if="{{item.title}}" class="month-event-title">{{item.title}}</text>
+            </view>
+            <view class="month-event-region month-event-region--{{item.region}} month-event-region--badge">{{item.regionLabel}}</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="section-empty section-empty--festival">本月没有此分类的节日</view>
+    </view>
+
+    <view class="section-block section-block--big-day">
+      <view class="section-head big-day-head">
+        <view class="big-day-heading">
+          <view class="big-day-title">
+            <text class="big-day-title__cn">我的</text>
+            <text class="big-day-title__en">BIG DAY</text>
+          </view>
+          <text class="big-day-title__sub">记录值得提前准备与表达心意的日子</text>
+        </view>
+        <view class="big-day-add" bindtap="openAddDate" role="button">
+          <text class="big-day-add__plus">＋</text>
+          <text>添加</text>
+        </view>
+      </view>
+
+      <view wx:if="{{upcomingPersonalDates.length}}" class="personal-cards">
+        <view class="personal-card" wx:for="{{upcomingPersonalDates}}" wx:key="id">
+          <view class="personal-card__main" data-id="{{item.id}}" bindtap="editPersonalDate" role="button">
+            <view class="personal-date-card">
+              <text class="personal-date-card__date">{{item.dateLabel}}</text>
+              <text class="personal-date-card__countdown">{{item.countdownLabel}}</text>
+            </view>
+
+            <view class="personal-content">
+              <text class="personal-name">{{item.title}}</text>
+              <text wx:if="{{item.note}}" class="personal-message">{{item.note}}</text>
+              <text wx:else class="personal-message personal-message--muted">为这一天提前准备一束花</text>
+              <view class="personal-reminder">
+                <view class="personal-reminder__dot"></view>
+                <text>{{item.reminderLabel}}</text>
+              </view>
+            </view>
+
+            <view class="personal-edit-arrow"></view>
+          </view>
+
+          <view class="personal-card__footer">
+            <text class="personal-repeat">{{item.repeatYearly === false ? '单次提醒' : '每年重复'}}</text>
+            <view class="personal-delete" data-id="{{item.id}}" bindtap="deletePersonalDate" role="button">删除</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="add-date-card add-date-card--refined" bindtap="openAddDate" role="button">
+        <view class="add-date-icon">＋</view>
+        <view class="add-date-copy">
+          <text class="add-date-title">添加我的 BIG DAY</text>
+          <text class="add-date-sub">生日、纪念日和每一个值得送花的日子</text>
+        </view>
+        <view class="add-date-arrow"></view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showEditor}}" class="sheet-mask" bindtap="closeEditor">
+    <view class="sheet" catchtap="preventClose">
+      <view class="sheet-handle"></view>
+      <view class="sheet-head">
+        <text class="sheet-title">{{form.id ? '编辑 BIG DAY' : '添加 BIG DAY'}}</text>
+        <view class="sheet-close" bindtap="closeEditor" role="button">×</view>
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">名称</text>
+        <input class="form-input" value="{{form.title}}" placeholder="例如：妈妈生日" bindinput="onFormTitle" />
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">日期</text>
+        <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
+          <view class="picker-value"><text>{{form.date}}</text><view class="picker-value__arrow"></view></view>
+        </picker>
+      </view>
+
+      <view class="form-grid form-grid--single">
+        <view class="form-group">
+          <text class="form-label">提前提醒</text>
+          <picker range="{{reminderOptions}}" range-key="label" value="{{form.reminderIndex}}" bindchange="onFormReminder">
+            <view class="picker-value"><text>{{reminderOptions[form.reminderIndex].label}}</text><view class="picker-value__arrow"></view></view>
+          </picker>
+        </view>
+
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">备注</text>
+        <textarea class="form-textarea" value="{{form.note}}" placeholder="例如：喜欢粉色、不要百合" maxlength="120" bindinput="onFormNote"></textarea>
+      </view>
+
+      <view class="sheet-save" bindtap="saveForm" role="button">保存 BIG DAY</view>
+    </view>
+  </view>
+</view>

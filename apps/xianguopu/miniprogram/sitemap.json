@@ -1,0 +1,9 @@
+{
+  "desc": "鲜果铺 sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

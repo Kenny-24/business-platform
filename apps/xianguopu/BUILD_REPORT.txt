@@ -1,0 +1,30 @@
+鲜果铺 V1 源码构建检查
+========================
+
+范围：
+- 原生微信小程序（Skyline / glass-easel）
+- Vue 3 管理后台
+- Fastify + Prisma + PostgreSQL API
+- 36 个水果示例商品及购买单位
+
+已执行静态检查：
+[PASS] 所有 JSON 可解析
+[PASS] app.json 主包/分包页面文件引用完整
+[PASS] TabBar 图标资源完整
+[PASS] WXML 未出现未注册 HTML 标签
+[PASS] 所有小程序 JavaScript 通过 node --check
+[PASS] 服务端 TypeScript 通过 TypeScript transpile 语法检查
+[PASS] 管理后台 Vue <script setup lang="ts"> 通过 TypeScript transpile 语法检查
+[PASS] 小程序源码总体约 50 KiB，示例商品图片不进入小程序包
+
+未在当前执行环境完成：
+- npm install（当前容器依赖下载超时），因此未执行完整 npm build
+- 微信开发者工具真机编译/预览（当前环境无微信开发者工具）
+- 正式微信支付（默认 PAYMENT_MODE=mock；真实商户支付需要你的 AppID/商户号/密钥/证书）
+
+上线前：
+1. 替换 miniprogram/project.config.json 的 touristappid。
+2. 配置 HTTPS API / CDN 合法域名。
+3. 修改管理员默认密码与 JWT_SECRET。
+4. 将 server/public/uploads 替换为对象存储更适合全国部署。
+5. 用真实微信商户配置接入 JSAPI 支付与支付回调验签。
