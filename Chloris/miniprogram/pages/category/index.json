@@ -1,7 +1,0 @@
-{
-  "disableScroll": true,
-  "usingComponents": {
-    "app-nav": "/components/app-nav/index"
-  },
-  "backgroundTextStyle": "dark"
-}

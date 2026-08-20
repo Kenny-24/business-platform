@@ -1,2 +1,0 @@
-.section-more { display:flex; width:286rpx; height:70rpx; min-width:0; align-items:center; justify-content:center; margin:30rpx auto 2rpx; padding:0 28rpx; border:2rpx solid #111; border-radius:999rpx; background:#fff; color:#111; font-size: 26rpx; font-weight:600; letter-spacing:2rpx; line-height:1; transition:opacity 140ms ease,transform 140ms ease,background 140ms ease; }
-.section-more--pressed { background:#f3f3f1; opacity:.82; transform:scale(.98); }

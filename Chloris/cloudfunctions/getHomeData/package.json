@@ -1,9 +1,0 @@
-{
-  "name": "getHomeData",
-  "version": "6.13.0",
-  "description": "Chloris 顾客端公开数据与内置节日目录",
-  "main": "index.js",
-  "dependencies": {
-    "@cloudbase/node-sdk": "3.18.1"
-  }
-}

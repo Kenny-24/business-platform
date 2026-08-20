@@ -1,7 +1,0 @@
-<button
-  class="section-more"
-  hover-class="section-more--pressed"
-  bindtap="onTap"
->
-  {{text}}
-</button>

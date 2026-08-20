@@ -1,7 +1,0 @@
-{
-  "disableScroll": true,
-  "backgroundColor": "#f5f6f3",
-  "usingComponents": {
-    "app-nav": "/components/app-nav/index"
-  }
-}

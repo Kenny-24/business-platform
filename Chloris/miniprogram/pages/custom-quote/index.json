@@ -1,8 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "backgroundColor": "#fbfaf7",
-  "backgroundTextStyle": "dark",
-  "usingComponents": {
-    "app-nav": "/components/app-nav/index"
-  }
-}

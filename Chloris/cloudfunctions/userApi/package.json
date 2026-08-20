@@ -1,9 +1,0 @@
-{
-  "name": "userApi",
-  "version": "6.13.0",
-  "description": "Chloris 顾客身份、资料与收货地址 API",
-  "main": "index.js",
-  "dependencies": {
-    "wx-server-sdk": "latest"
-  }
-}
