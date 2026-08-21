@@ -11,9 +11,16 @@ import { publicRoutes } from './routes/public.js';
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/user.js';
 import { adminRoutes } from './routes/admin.js';
+import { isAllowedOrigin, parseAllowedOrigins } from './domain/cors-origin.js';
 
 const app = Fastify({ logger: true, bodyLimit: 2 * 1024 * 1024 });
-await app.register(cors, { origin: true });
+const allowedOrigins = parseAllowedOrigins(config.CORS_ALLOWED_ORIGINS);
+
+await app.register(cors, {
+  origin(origin, callback) {
+    callback(null, isAllowedOrigin(origin, allowedOrigins));
+  }
+});
 await app.register(jwt, { secret: config.JWT_SECRET });
 await app.register(multipart, { limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
 await app.register(staticPlugin, { root: path.join(process.cwd(), 'public'), prefix: '/static/' });

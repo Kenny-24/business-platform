@@ -12,7 +12,7 @@
       <el-button type="primary" @click="edit()">新增商品</el-button>
     </div>
 
-    <el-table :data="items">
+    <el-table v-loading="loading" :data="items">
       <el-table-column label="商品" min-width="240">
         <template #default="s">
           <div class="product-cell">
@@ -28,7 +28,7 @@
       <el-table-column label="规格" width="170"><template #default="s">{{ s.row.skus[0]?.specText }}</template></el-table-column>
       <el-table-column label="SKU" width="70"><template #default="s">{{ s.row.skus.length }}</template></el-table-column>
       <el-table-column label="状态" width="90"><template #default="s"><el-tag :type="s.row.status === 'ON_SALE' ? 'success' : 'info'">{{ statusText[s.row.status] }}</el-tag></template></el-table-column>
-      <el-table-column label="操作" width="150"><template #default="s"><el-button link type="primary" @click="edit(s.row)">编辑</el-button><el-button link type="danger" @click="del(s.row)">删除</el-button></template></el-table-column>
+      <el-table-column label="操作" width="150"><template #default="s"><el-button link type="primary" @click="edit(s.row)">编辑</el-button><el-button v-if="s.row.status==='ON_SALE'" link type="danger" @click="archive(s.row)">下架</el-button></template></el-table-column>
     </el-table>
 
     <div class="pager"><el-pagination background layout="prev,pager,next,total" :total="total" :page-size="query.pageSize" v-model:current-page="query.page" @current-change="load" /></div>
@@ -76,7 +76,7 @@
         </div>
       </div>
     </el-form>
-    <template #footer><el-button @click="visible = false">取消</el-button><el-button type="primary" @click="save">保存商品</el-button></template>
+    <template #footer><el-button @click="visible = false">取消</el-button><el-button type="primary" :loading="saving" @click="save">保存商品</el-button></template>
   </el-dialog>
 </template>
 
@@ -87,14 +87,14 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 
 const units = ['斤','公斤','克','个','盒','袋','箱','提','板','筐','把'];
 const statusText: Record<string,string> = { ON_SALE:'在售', OFF_SALE:'下架', DRAFT:'草稿' };
-const items = ref<any[]>([]); const categories = ref<any[]>([]); const total = ref(0); const visible = ref(false);
+const items = ref<any[]>([]); const categories = ref<any[]>([]); const total = ref(0); const visible = ref(false); const loading=ref(false); const saving=ref(false);
 const query = reactive({ keyword:'', status:'', page:1, pageSize:20 });
 const newSku = () => ({ name:'标准装', specText:'500g/盒', unitName:'盒', pricingMode:'FIXED', price:19.9, marketPrice:22.9, stock:100, minPurchase:1, step:1, enabled:true, sort:0 });
 const blank = () => ({ id:0, name:'', subtitle:'', origin:'', variety:'', description:'', imageUrl:'', categoryId:0, status:'ON_SALE', featured:false, sort:0, skus:[newSku()] });
 const form = reactive<any>(blank());
 
-async function load(){ const d:any = await api.get('/admin/products',{params:query}); items.value=d.items; total.value=d.total; }
-async function loadCats(){ categories.value = await api.get('/admin/categories'); }
+async function load(){ loading.value=true; try{ const d:any = await api.get('/admin/products',{params:query}); items.value=d.items; total.value=d.total; }catch(e:any){ ElMessage.error(e.response?.data?.message||'商品加载失败'); }finally{ loading.value=false; } }
+async function loadCats(){ try{ categories.value = await api.get('/admin/categories'); }catch(e:any){ ElMessage.error(e.response?.data?.message||'分类加载失败'); } }
 function edit(row?:any){ Object.assign(form,row?JSON.parse(JSON.stringify(row)):blank()); if(!form.categoryId&&categories.value[0]) form.categoryId=categories.value[0].id; visible.value=true; }
 function addSku(){ form.skus.push(newSku()); }
 async function uploadImage(o:any){ try{ const fd=new FormData(); fd.append('file',o.file); const d:any=await api.post('/admin/upload',fd); form.imageUrl=d.url; ElMessage.success('图片已上传'); }catch(e:any){ ElMessage.error(e.response?.data?.message||'上传失败'); } }
@@ -102,10 +102,12 @@ async function save(){
   if(!form.name || !form.categoryId || !form.skus.length) return ElMessage.warning('请填写商品名称、分类和至少一个规格');
   const payload=JSON.parse(JSON.stringify(form)); delete payload.id; delete payload.category; delete payload.createdAt; delete payload.updatedAt;
   payload.skus=payload.skus.map((s:any)=>{ const {productId,createdAt,updatedAt,...x}=s; return x; });
-  form.id ? await api.put(`/admin/products/${form.id}`,payload) : await api.post('/admin/products',payload);
-  visible.value=false; ElMessage.success('商品已保存'); load();
+  saving.value=true;
+  try{ form.id ? await api.put(`/admin/products/${form.id}`,payload) : await api.post('/admin/products',payload); visible.value=false; ElMessage.success('商品已保存'); load(); }
+  catch(e:any){ ElMessage.error(e.response?.data?.message||'商品保存失败'); }
+  finally{ saving.value=false; }
 }
-async function del(row:any){ await ElMessageBox.confirm(`删除“${row.name}”？`,'确认'); await api.delete(`/admin/products/${row.id}`); load(); }
+async function archive(row:any){ try{ await ElMessageBox.confirm(`下架“${row.name}”？商品与规格会停用，历史订单仍会保留。`,'确认下架'); await api.delete(`/admin/products/${row.id}`); ElMessage.success('商品已下架'); load(); }catch(e:any){ if(e!=='cancel'&&e!=='close') ElMessage.error(e.response?.data?.message||'下架失败'); } }
 onMounted(()=>{ load(); loadCats(); });
 </script>
 

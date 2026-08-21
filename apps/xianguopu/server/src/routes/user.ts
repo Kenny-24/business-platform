@@ -1,7 +1,15 @@
 import type { FastifyInstance } from 'fastify';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { pipeline } from 'node:stream/promises';
 import { prisma } from '../lib/prisma.js';
 import { createOrderNo } from '../lib/order.js';
 import { config } from '../config.js';
+
+function validAvatarUrl(value: string) {
+  return /^https?:\/\//i.test(value) || /^\/static\/uploads\/avatars\//.test(value);
+}
 
 export async function userRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (req, reply) => {
@@ -10,6 +18,36 @@ export async function userRoutes(app: FastifyInstance) {
   });
 
   app.get('/me', async (req) => prisma.user.findUnique({ where: { id: req.user.userId! } }));
+
+  app.put('/me', async (req, reply) => {
+    const body = req.body as { nickname?: string; avatarUrl?: string };
+    const data: { nickname?: string; avatarUrl?: string } = {};
+    if (body.nickname !== undefined) {
+      const nickname = String(body.nickname || '').trim();
+      if (!nickname || nickname.length > 20) return reply.code(400).send({ message: '昵称请输入 1–20 个字符' });
+      data.nickname = nickname;
+    }
+    if (body.avatarUrl !== undefined) {
+      const avatarUrl = String(body.avatarUrl || '').trim();
+      if (!avatarUrl || avatarUrl.length > 800 || !validAvatarUrl(avatarUrl)) return reply.code(400).send({ message: '头像地址无效，请重新选择' });
+      data.avatarUrl = avatarUrl;
+    }
+    if (!Object.keys(data).length) return reply.code(400).send({ message: '没有可保存的资料' });
+    return prisma.user.update({ where: { id: req.user.userId! }, data });
+  });
+
+  app.post('/me/avatar', async (req, reply) => {
+    const part = await req.file();
+    if (!part) return reply.code(400).send({ message: '请选择头像图片' });
+    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (!allowed.has(part.mimetype)) return reply.code(400).send({ message: '头像仅支持 JPG、PNG 或 WebP' });
+    const ext = part.mimetype === 'image/png' ? '.png' : part.mimetype === 'image/webp' ? '.webp' : '.jpg';
+    const directory = path.join(process.cwd(), 'public', 'uploads', 'avatars');
+    await fs.promises.mkdir(directory, { recursive: true });
+    const filename = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+    await pipeline(part.file, fs.createWriteStream(path.join(directory, filename)));
+    return { url: `/static/uploads/avatars/${filename}` };
+  });
 
   app.get('/addresses', async (req) => prisma.address.findMany({ where: { userId: req.user.userId! }, orderBy: [{ isDefault: 'desc' }, { id: 'desc' }] }));
 
@@ -35,24 +73,38 @@ export async function userRoutes(app: FastifyInstance) {
   });
 
   app.post('/orders', async (req, reply) => {
-    const b = req.body as { addressId: number; items: Array<{ skuId: number; quantity: number }>; remark?: string };
+    const b = req.body as {
+      addressId: number;
+      items: Array<{ skuId: number; quantity: number }>;
+      remark?: string;
+      isGift?: boolean;
+      deliverySlot?: string | null;
+    };
     if (!b.items?.length) return reply.code(400).send({ message: '购物车为空' });
+    if (b.isGift !== undefined && typeof b.isGift !== 'boolean') {
+      return reply.code(400).send({ message: '礼赠服务信息无效' });
+    }
+
+    const remark = String(b.remark || '').trim();
+    const deliverySlot = String(b.deliverySlot || '').trim();
+    if (remark.length > 80) return reply.code(400).send({ message: '订单备注最多填写 80 个字符' });
+    if (deliverySlot && !/^\d{2}:\d{2}[–-]\d{2}:\d{2}$/.test(deliverySlot)) {
+      return reply.code(400).send({ message: '配送时段格式无效，请重新选择' });
+    }
+
     const address = await prisma.address.findFirst({ where: { id: b.addressId, userId: req.user.userId! } });
     if (!address) return reply.code(400).send({ message: '收货地址无效' });
 
-    // 同一 SKU 由服务端合并，避免恶意重复行绕过数量校验。
     const merged = new Map<number, number>();
     for (const raw of b.items) {
       const skuId = Number(raw.skuId), quantity = Number(raw.quantity);
-      if (!Number.isInteger(skuId) || skuId <= 0 || !Number.isFinite(quantity) || quantity <= 0) {
-        return reply.code(400).send({ message: '商品数量无效' });
-      }
+      if (!Number.isInteger(skuId) || skuId <= 0 || !Number.isFinite(quantity) || quantity <= 0) return reply.code(400).send({ message: '商品数量无效' });
       merged.set(skuId, (merged.get(skuId) || 0) + quantity);
     }
     const normalizedItems = [...merged.entries()].map(([skuId, quantity]) => ({ skuId, quantity }));
-    const skuIds = normalizedItems.map(i => i.skuId);
+    const skuIds = normalizedItems.map(item => item.skuId);
     const skus = await prisma.sku.findMany({ where: { id: { in: skuIds }, enabled: true }, include: { product: true } });
-    const skuMap = new Map(skus.map(s => [s.id, s]));
+    const skuMap = new Map(skus.map(sku => [sku.id, sku]));
     if (skuMap.size !== skuIds.length) return reply.code(400).send({ message: '存在无效或已停用规格' });
 
     let subtotalCents = 0;
@@ -69,7 +121,17 @@ export async function userRoutes(app: FastifyInstance) {
       const priceCents = Math.round(Number(sku.price) * 100);
       const amountCents = Math.round(priceCents * quantity);
       subtotalCents += amountCents;
-      rows.push({ productId: sku.productId, skuId: sku.id, name: sku.product.name, imageUrl: sku.product.imageUrl, specText: sku.specText, unitName: sku.unitName, price: priceCents / 100, quantity, amount: amountCents / 100 });
+      rows.push({
+        productId: sku.productId,
+        skuId: sku.id,
+        name: sku.product.name,
+        imageUrl: sku.product.imageUrl,
+        specText: sku.specText,
+        unitName: sku.unitName,
+        price: priceCents / 100,
+        quantity,
+        amount: amountCents / 100
+      });
     }
 
     const settingRow = await prisma.setting.findUnique({ where: { key: 'store' } });
@@ -87,14 +149,23 @@ export async function userRoutes(app: FastifyInstance) {
       }
       return tx.order.create({
         data: {
-          orderNo: createOrderNo(), userId: req.user.userId!, status: config.PAYMENT_MODE === 'mock' ? 'PAID' : 'PENDING_PAYMENT',
-          receiver: address.receiver, phone: address.phone,
+          orderNo: createOrderNo(),
+          userId: req.user.userId!,
+          status: config.PAYMENT_MODE === 'mock' ? 'PAID' : 'PENDING_PAYMENT',
+          receiver: address.receiver,
+          phone: address.phone,
           fullAddress: `${address.province}${address.city}${address.district}${address.detail}`,
-          remark: b.remark || '', subtotal, freight, discount: 0, totalAmount,
+          remark: remark || null,
+          isGift: Boolean(b.isGift),
+          deliverySlot: deliverySlot || null,
+          subtotal,
+          freight,
+          discount: 0,
+          totalAmount,
           paidAt: config.PAYMENT_MODE === 'mock' ? new Date() : null,
-          items: { create: rows },
+          items: { create: rows }
         },
-        include: { items: true },
+        include: { items: true }
       });
     });
     return { order, payment: config.PAYMENT_MODE === 'mock' ? { mode: 'mock', paid: true } : { mode: 'wechat', paid: false, message: '请接入商户微信支付 JSAPI 参数生成器' } };

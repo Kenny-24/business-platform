@@ -1,0 +1,8 @@
+{
+  "name": "xianguopu-workspace",
+  "version": "2.2.0",
+  "private": true,
+  "scripts": {
+    "verify": "node scripts/verify.mjs"
+  }
+}

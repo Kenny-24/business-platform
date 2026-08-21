@@ -5,6 +5,8 @@
       <div class="two">
         <el-form-item label="店铺名称"><el-input v-model="form.storeName"/></el-form-item>
         <el-form-item label="品牌标语"><el-input v-model="form.slogan"/></el-form-item>
+        <el-form-item label="首页服务范围"><el-input v-model="form.serviceArea" placeholder="例如：全国、天津或京津冀"/></el-form-item>
+        <el-form-item label="首页履约说明"><el-input v-model="form.deliveryPromise" placeholder="例如：应季鲜达或产地直发"/></el-form-item>
         <el-form-item label="基础运费（元）"><el-input-number v-model="form.baseFreight" :min="0" :precision="2" style="width:100%"/></el-form-item>
         <el-form-item label="满额包邮（元）"><el-input-number v-model="form.freeShippingThreshold" :min="0" :precision="2" style="width:100%"/></el-form-item>
       </div>
@@ -18,8 +20,37 @@
 import { onMounted, reactive, ref } from 'vue';
 import { api } from '../api';
 import { ElMessage } from 'element-plus';
-const saving=ref(false);const form=reactive<any>({storeName:'鲜果铺',slogan:'把新鲜送到家',baseFreight:8,freeShippingThreshold:99,nationwideEnabled:true,afterSaleText:''});
-onMounted(async()=>Object.assign(form,await api.get('/admin/settings/store')));
-async function save(){saving.value=true;try{await api.put('/admin/settings/store',form);ElMessage.success('设置已保存')}finally{saving.value=false}}
+
+const saving = ref(false);
+const form = reactive<any>({
+  storeName: '鲜果铺',
+  slogan: '把新鲜送到家',
+  serviceArea: '全国',
+  deliveryPromise: '应季鲜达',
+  baseFreight: 8,
+  freeShippingThreshold: 99,
+  nationwideEnabled: true,
+  afterSaleText: ''
+});
+
+onMounted(async () => {
+  try {
+    Object.assign(form, await api.get('/admin/settings/store'));
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '店铺设置加载失败');
+  }
+});
+
+async function save() {
+  saving.value = true;
+  try {
+    await api.put('/admin/settings/store', form);
+    ElMessage.success('设置已保存，首页刷新后生效');
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '保存失败');
+  } finally {
+    saving.value = false;
+  }
+}
 </script>
 <style scoped>.two{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.settings-panel{min-height:520px}</style>

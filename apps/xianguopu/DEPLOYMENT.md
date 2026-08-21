@@ -5,7 +5,7 @@
 1. PostgreSQL：`docker compose up -d db`
 2. API：进入 `server`，复制 `.env.example` 为 `.env`，安装依赖，执行 Prisma migration 和 seed。
 3. 后台：进入 `admin` 执行 `npm install && npm run dev`。
-4. 小程序：微信开发者工具导入 `miniprogram`。
+4. 小程序：微信开发者工具导入 `apps/xianguopu`（`project.config.json` 已指向 `miniprogram/`）。
 
 ## 生产环境建议拓扑
 
@@ -30,6 +30,7 @@ admin.example.com ── 静态 Vue 管理后台
 - `WX_APPSECRET`
 - `JWT_SECRET`
 - `DATABASE_URL`
+- `CORS_ALLOWED_ORIGINS`：仅填写真实管理后台域名，多个来源使用英文逗号分隔
 - 小程序 `config/env.js` 的 HTTPS API 域名
 - 微信公众平台 request 合法域名
 - 图片 CDN 域名
@@ -40,3 +41,16 @@ admin.example.com ── 静态 Vue 管理后台
 项目默认 `PAYMENT_MODE=mock` 仅用于本地完整联调。生产支付应该在服务端创建微信支付 JSAPI 订单，并将 `timeStamp / nonceStr / package / signType / paySign` 返回小程序，再由小程序调用 `wx.requestPayment`。
 
 支付回调必须进行签名验证和幂等处理；不要仅依据前端“支付成功”回调更新订单。
+
+## 从旧版本升级
+
+进入 `server/` 后执行：
+
+```bash
+npm install
+npx prisma migrate deploy
+npx prisma generate
+npm run dev
+```
+
+新增迁移会为订单添加独立的礼赠包装和配送时段字段，并将旧版混在备注中的系统信息拆分出来，不会覆盖客户自行填写的备注。

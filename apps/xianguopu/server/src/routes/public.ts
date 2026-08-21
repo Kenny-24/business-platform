@@ -4,7 +4,17 @@ import { prisma } from '../lib/prisma.js';
 export async function publicRoutes(app: FastifyInstance) {
   app.get('/settings/store', async () => {
     const s = await prisma.setting.findUnique({ where: { key: 'store' } });
-    return s?.value || { storeName: '鲜果铺', slogan: '把新鲜送到家', baseFreight: 8, freeShippingThreshold: 99, nationwideEnabled: true };
+    const defaults = {
+      storeName: '鲜果铺',
+      slogan: '把新鲜送到家',
+      serviceArea: '全国',
+      deliveryPromise: '应季鲜达',
+      baseFreight: 8,
+      freeShippingThreshold: 99,
+      nationwideEnabled: true
+    };
+
+    return { ...defaults, ...(s?.value as Record<string, unknown> || {}) };
   });
 
   app.get('/categories', async () => {

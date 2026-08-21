@@ -8,6 +8,7 @@ const schema = z.object({
   WX_APPSECRET: z.string().optional().default(''),
   PAYMENT_MODE: z.enum(['mock', 'wechat']).default('mock'),
   PUBLIC_BASE_URL: z.string().default('http://127.0.0.1:8787'),
+  CORS_ALLOWED_ORIGINS: z.string().default('http://127.0.0.1:5173,http://localhost:5173'),
 });
 
 export const config = schema.parse(process.env);

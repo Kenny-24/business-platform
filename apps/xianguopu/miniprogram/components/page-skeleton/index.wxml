@@ -1,0 +1,25 @@
+<view class="skeleton-screen skeleton-{{type}}" aria-label="内容加载中">
+  <block wx:if="{{type==='home'}}">
+    <view class="sk-nav"><view class="sk-brand skeleton"></view><view class="sk-round skeleton"></view></view>
+    <view class="sk-search skeleton"></view>
+    <view class="sk-hero skeleton"></view>
+    <view class="sk-head"><view class="skeleton"></view><view class="skeleton"></view></view>
+    <view class="sk-grid"><view class="sk-product" wx:for="{{four}}" wx:key="*this"><view class="sk-photo skeleton"></view><view class="sk-line skeleton"></view><view class="sk-line short skeleton"></view></view></view>
+  </block>
+  <block wx:elif="{{type==='category'}}">
+    <view class="sk-title skeleton"></view><view class="sk-search skeleton"></view><view class="sk-chips"><view class="skeleton" wx:for="{{four}}" wx:key="*this"></view></view>
+    <view class="sk-catalog"><view class="sk-rail"><view class="skeleton" wx:for="{{four}}" wx:key="*this"></view></view><view class="sk-grid"><view class="sk-product" wx:for="{{four}}" wx:key="*this"><view class="sk-photo skeleton"></view><view class="sk-line skeleton"></view><view class="sk-line short skeleton"></view></view></view></view>
+  </block>
+  <block wx:elif="{{type==='detail'}}">
+    <view class="sk-detail-photo skeleton"></view><view class="sk-detail-sheet"><view class="sk-line tiny skeleton"></view><view class="sk-detail-title skeleton"></view><view class="sk-line skeleton"></view><view class="sk-detail-price skeleton"></view><view class="sk-divider"></view><view class="sk-line skeleton"></view><view class="sk-meter skeleton"></view><view class="sk-meter skeleton"></view></view>
+  </block>
+  <block wx:elif="{{type==='profile'}}">
+    <view class="sk-profile-hero skeleton"></view><view class="sk-list-card"><view class="sk-avatar skeleton"></view><view class="sk-copy"><view class="sk-line skeleton"></view><view class="sk-line short skeleton"></view></view></view><view class="sk-panel skeleton"></view><view class="sk-panel tall skeleton"></view>
+  </block>
+  <block wx:elif="{{type==='form'}}">
+    <view class="sk-form-card"><view class="sk-form-row" wx:for="{{four}}" wx:key="*this"><view class="skeleton"></view><view class="skeleton"></view></view></view><view class="sk-panel skeleton"></view><view class="sk-submit skeleton"></view>
+  </block>
+  <block wx:else>
+    <view class="sk-list-head skeleton"></view><view class="sk-chips"><view class="skeleton" wx:for="{{four}}" wx:key="*this"></view></view><view class="sk-list-card" wx:for="{{three}}" wx:key="*this"><view class="sk-thumb skeleton"></view><view class="sk-copy"><view class="sk-line skeleton"></view><view class="sk-line short skeleton"></view><view class="sk-line tiny skeleton"></view></view></view>
+  </block>
+</view>

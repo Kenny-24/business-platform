@@ -1,1 +1,14 @@
-<view class="container"><view class="order card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="open"><view class="head"><text>{{item.orderNo}}</text><text class="status-text">{{item.statusText}}</text></view><view class="goods"><image wx:for="{{item.items}}" wx:for-item="g" wx:key="id" src="{{g.img}}" mode="aspectFill"/></view><view class="foot"><text>共 {{item.items.length}} 种</text><text>实付 <text class="paid-price">¥{{item.totalAmount}}</text></text></view></view><view class="empty" wx:if="{{!items.length}}">暂无订单</view></view>
+<page-skeleton wx:if="{{loading&&!loaded}}" type="list" />
+<view class="orders-page" wx:else>
+  <scroll-view scroll-x="true" enhanced="true" show-scrollbar="{{false}}" class="order-tabs"><view class="tab-row"><text class="{{active===item.key?'active':''}}" wx:for="{{tabs}}" wx:key="key" data-key="{{item.key}}" bindtap="selectTab">{{item.name}}</text></view></scroll-view>
+  <view class="refresh-line" wx:if="{{refreshing}}"><view class="loading-dots"><text></text><text></text><text></text></view>正在同步订单</view>
+  <view class="inline-error" wx:if="{{error}}"><text>{{error}}</text><text bindtap="retry">重新加载</text></view>
+  <view class="order-list">
+    <view class="order-card card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="open" hover-class="card-pressed">
+      <view class="order-head"><view><text>{{item.dateText}}</text><text>订单 {{item.orderNo}}</text></view><text class="status {{item.status==='CANCELLED'?'quiet-status':''}}">{{item.statusText}}</text></view>
+      <view class="goods-row"><view class="goods-thumb" wx:for="{{item.items}}" wx:for-item="goods" wx:key="id"><safe-image src="{{goods.img}}" mode="aspectFill" /></view><view class="more" wx:if="{{item.items.length>4}}">+{{item.items.length-4}}</view></view>
+      <view class="order-foot"><text>共 {{item.quantityTotal}} 件</text><view><text>实付</text><text>¥{{item.totalText}}</text><text>查看 ›</text></view></view>
+    </view>
+  </view>
+  <view class="empty-state" wx:if="{{loaded&&!items.length&&!error&&!refreshing}}"><text class="empty-icon">单</text><text class="empty-title">这里还没有订单</text><text class="empty-desc">去挑选正当季的水果，第一份果单会出现在这里</text><button class="primary-btn empty-button" bindtap="browse">去逛水果图鉴</button></view>
+</view>

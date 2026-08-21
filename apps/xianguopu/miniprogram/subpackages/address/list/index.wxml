@@ -1,1 +1,9 @@
-<view class="container safe-bottom"><view class="addr card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="choose"><view class="main"><view><text class="receiver">{{item.receiver}}</text><text>{{item.phone}}</text><text class="default" wx:if="{{item.isDefault}}">默认</text></view><view class="detail">{{item.province}}{{item.city}}{{item.district}}{{item.detail}}</view></view><button class="edit" data-id="{{item.id}}" catchtap="edit">编辑</button></view><view class="empty" wx:if="{{!items.length}}">还没有收货地址</view><button class="primary-btn add" bindtap="add">新增收货地址</button></view>
+<page-skeleton wx:if="{{loading&&!loaded}}" type="list" />
+<view class="address-page" wx:else>
+  <view class="select-tip" wx:if="{{selectMode}}"><text>✓</text><text>请选择本次订单的收货地址</text></view>
+  <view class="refresh-line" wx:if="{{refreshing}}"><view class="loading-dots"><text></text><text></text><text></text></view>正在同步地址</view>
+  <view class="inline-error" wx:if="{{error}}"><text>{{error}}</text><text bindtap="retry">重试</text></view>
+  <view class="address-list"><view class="address-card card {{item.isDefault?'default-card':''}}" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="choose" hover-class="address-pressed"><view class="address-mark">{{item.mark}}</view><view class="address-main"><view><text class="receiver">{{item.receiver}}</text><text class="phone">{{item.phone}}</text><text class="default" wx:if="{{item.isDefault}}">默认</text></view><text class="detail">{{item.province}}{{item.city}}{{item.district}}{{item.detail}}</text><text class="choose-note" wx:if="{{selectMode}}">轻触选择此地址</text></view><button class="edit" data-id="{{item.id}}" catchtap="edit">编辑</button></view></view>
+  <view class="empty-state" wx:if="{{loaded&&!items.length&&!error}}"><text class="empty-icon">址</text><text class="empty-title">还没有收货地址</text><text class="empty-desc">添加常用地址，下单时会更方便</text></view>
+  <button class="primary-btn add-button" bindtap="add" hover-class="button-pressed">＋ 新增收货地址</button>
+</view>

@@ -45,7 +45,23 @@ const products = [
 const icons: Record<string,string> = {'苹果梨类':'🍎','热带水果':'🥭','葡萄提子':'🍇','浆果莓类':'🫐','进口精品':'🌍','桃李杏类':'🍑','柑橘橙柚':'🍊','瓜类':'🍉','特色水果':'✨'};
 
 async function main(){
-  await prisma.setting.upsert({where:{key:'store'},update:{},create:{key:'store',value:{storeName:'鲜果铺',slogan:'把新鲜送到家',baseFreight:8,freeShippingThreshold:99,nationwideEnabled:true,afterSaleText:'签收后如发现运输导致的明显坏果，请及时联系客服处理'}}});
+  await prisma.setting.upsert({
+    where: { key: 'store' },
+    update: {},
+    create: {
+      key: 'store',
+      value: {
+        storeName: '鲜果铺',
+        slogan: '把新鲜送到家',
+        serviceArea: '全国',
+        deliveryPromise: '应季鲜达',
+        baseFreight: 8,
+        freeShippingThreshold: 99,
+        nationwideEnabled: true,
+        afterSaleText: '签收后如发现运输导致的明显坏果，请及时联系客服处理'
+      }
+    }
+  });
     const hash=await bcrypt.hash(process.env.ADMIN_SEED_PASSWORD || 'FreshFruit@2026', 12);
   await prisma.admin.upsert({where:{username:'admin'},update:{passwordHash:hash},create:{username:'admin',passwordHash:hash,name:'鲜果铺管理员'}});
   const categoryMap=new Map<string,number>();
@@ -56,7 +72,7 @@ async function main(){
   for (let i=0;i<products.length;i++) {
     const [name,variety,origin,category,specText,unitName,price,stock,subtitle]=products[i] as any[];
     const existing=await prisma.product.findFirst({where:{name,variety}});
-    const imageUrl=`/static/products/${String(i+1).padStart(2,'0')}.png`;
+    const imageUrl=`/static/products/${String(i+1).padStart(2,'0')}.jpg`;
     const data:any={name,variety,origin,subtitle,description:`${name} · ${variety}。产地：${origin}。${subtitle}。`,imageUrl,tags:[origin,variety],status:'ON_SALE',featured:i<12,sort:200-i,categoryId:categoryMap.get(category)!};
     if(existing){
       await prisma.sku.deleteMany({where:{productId:existing.id}});

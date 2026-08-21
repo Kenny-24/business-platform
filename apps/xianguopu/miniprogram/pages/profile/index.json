@@ -1,1 +1,7 @@
-{}
+{
+  "navigationStyle": "custom",
+  "renderer": "webview",
+  "usingComponents": {
+    "safe-image": "../../components/safe-image/index"
+  }
+}

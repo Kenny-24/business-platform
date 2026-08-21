@@ -1,3 +1,11 @@
 {
-  "navigationBarTitleText": "订单详情"
+  "navigationBarTitleText": "订单详情",
+  "renderer": "webview",
+  "navigationStyle": "default",
+  "navigationBarBackgroundColor": "#F7F3EA",
+  "backgroundColor": "#F7F3EA",
+  "usingComponents": {
+    "page-skeleton": "../../../components/page-skeleton/index",
+    "safe-image": "../../../components/safe-image/index"
+  }
 }

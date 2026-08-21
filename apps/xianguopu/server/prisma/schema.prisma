@@ -133,6 +133,8 @@ model Order {
   phone          String
   fullAddress    String
   remark         String?
+  isGift         Boolean     @default(false)
+  deliverySlot   String?
   subtotal       Decimal     @db.Decimal(10,2)
   freight        Decimal     @default(0) @db.Decimal(10,2)
   discount       Decimal     @default(0) @db.Decimal(10,2)

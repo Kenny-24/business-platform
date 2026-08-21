@@ -1,12 +1,18 @@
-<view class="product" bindtap="open">
-  <image class="cover" src="{{img}}" mode="aspectFill" lazy-load="true" />
+<view class="product-card" wx:if="{{view}}" bindtap="open" hover-class="product-card-hover">
+  <view class="image-wrap">
+    <view class="cover"><safe-image src="{{view.displayImage}}" mode="aspectFill" lazy="{{true}}" /></view>
+    <button class="bookmark {{favorite?'active':''}}" catchtap="toggleFavorite" hover-class="bookmark-pressed" aria-label="{{favorite?'取消收藏':'收藏稍后购买'}}"><view class="bookmark-glyph"></view></button>
+    <view class="freshness"><text class="fresh-dot"></text>{{view.freshnessLabel}}</view>
+  </view>
   <view class="body">
-    <view class="name line1">{{product.name}}</view>
-    <view class="meta line1">{{product.origin}}{{product.variety ? ' · ' + product.variety : ''}}</view>
-    <view class="spec line1">{{product.skus[0].specText}}</view>
+    <view class="name line1">{{view.name}}</view>
+    <view class="description line1">产地：{{view.originText}} · 时令：{{view.seasonText}}</view>
+    <view class="spec line1">{{view.primarySku.specText}}</view>
     <view class="footer">
-      <view><text class="yen">¥</text><text class="amount">{{product.skus[0].price}}</text><text class="unit"> / {{product.skus[0].unitName}}</text></view>
-      <button class="add" catchtap="add">＋</button>
+      <view class="price-wrap">
+        <view class="price-line"><text class="yen">¥</text><text class="amount">{{view.priceText}}</text><text class="unit">/{{view.primarySku.unitName}}</text><text class="market" wx:if="{{view.marketPriceText}}">¥{{view.marketPriceText}}</text></view>
+      </view>
+      <button class="add {{adding?'adding':''}}" disabled="{{soldOut}}" catchtap="add" hover-class="add-pressed" aria-label="加入果篮">{{soldOut?'售罄':(adding?'✓':'＋')}}</button>
     </view>
   </view>
 </view>

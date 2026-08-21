@@ -1,6 +1,11 @@
 {
   "navigationBarTitleText": "搜索",
+  "renderer": "webview",
+  "navigationStyle": "default",
+  "navigationBarBackgroundColor": "#F7F3EA",
+  "backgroundColor": "#F7F3EA",
   "usingComponents": {
-    "product-card": "../../../components/product-card/index"
+    "product-card": "../../../components/product-card/index",
+    "safe-image": "../../../components/safe-image/index"
   }
 }

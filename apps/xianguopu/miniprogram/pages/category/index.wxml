@@ -1,4 +1,34 @@
-<view class="layout">
-  <scroll-view class="side" scroll-y="true" show-scrollbar="false"><view wx:for="{{categories}}" wx:key="id" class="side-item {{activeId===item.id?'active':''}}" data-id="{{item.id}}" bindtap="select"><text class="emoji">{{item.icon}}</text><text>{{item.name}}</text></view></scroll-view>
-  <scroll-view class="content" scroll-y="true" enhanced="true" show-scrollbar="false" lower-threshold="240" bindscrolltolower="loadMore"><view class="content-inner"><view class="cat-title">{{activeName}}</view><view class="grid"><product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" /></view><view class="empty" wx:if="{{!loading && !products.length}}">该分类暂无商品</view><view class="more-tip" wx:if="{{products.length}}">{{loading?'加载中…':(hasMore?'继续下滑查看更多':'已经到底了')}}</view></view></scroll-view>
+<page-skeleton wx:if="{{loading&&!ready}}" type="category" />
+<view class="state-panel" wx:elif="{{error&&!ready}}"><view class="state-mark">选</view><text class="state-title">分类果单没有加载好</text><text class="state-desc">{{error}}</text><button class="state-action" bindtap="retry">重新加载</button></view>
+<view class="page-shell category-page" wx:else>
+  <view class="custom-nav" style="padding-top:{{top}}px;padding-right:{{menuRight}}px"><view class="nav-row"><view><text class="nav-kicker">CURATED FRUIT</text><text class="nav-title">选果</text></view><text class="nav-guide" bindtap="openSearch">按口感找</text></view></view>
+  <view class="search-box" bindtap="openSearch" hover-class="search-pressed"><text>⌕</text><text>搜索水果、产区或品种</text><text>搜索</text></view>
+
+  <view class="filter-toolbar">
+    <view class="sort-chip" bindtap="openFilter" hover-class="filter-pressed"><text>排序</text><text>{{sortLabel}}</text><text>⌄</text></view>
+    <view class="filter-trigger" bindtap="openFilter" hover-class="filter-pressed"><view class="filter-lines"><text></text><text></text><text></text></view><text>筛选</text><text class="filter-badge" wx:if="{{activeFilterCount}}">{{activeFilterCount}}</text></view>
+  </view>
+
+  <view class="catalog-layout" style="height:calc(100vh - {{top}}px - 292rpx)">
+    <scroll-view scroll-y="true" enhanced="true" show-scrollbar="{{false}}" class="category-rail"><view class="category-tab {{activeId===item.id?'active':''}}" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="selectCategory"><text>{{item.icon||'果'}}</text><text>{{item.name}}</text></view></scroll-view>
+    <scroll-view scroll-y="true" enhanced="true" show-scrollbar="{{false}}" class="product-scroll">
+      <view class="catalog-head"><view><text>{{activeName}}</text><text>{{visibleProducts.length}} 款结果</text></view><text>{{sortLabel}}</text></view>
+      <view class="inline-error" wx:if="{{error}}"><text>{{error}}</text><text bindtap="retry">重试</text></view>
+      <view class="mini-grid" wx:if="{{switching}}"><view class="mini-card" wx:for="{{[0,1,2,3]}}" wx:key="*this"><view class="mini-photo skeleton"></view><view class="mini-line skeleton"></view><view class="mini-line short skeleton"></view></view></view>
+      <view class="product-grid" wx:else><product-card wx:for="{{visibleProducts}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" /></view>
+      <view class="empty-state" wx:if="{{!switching&&!visibleProducts.length&&!error}}"><text class="empty-title">暂时没有匹配商品</text><text class="empty-desc">可以重置筛选，或切换其他水果分类</text><button class="empty-reset" bindtap="openFilter">调整筛选</button></view>
+      <view class="scroll-spacer"></view>
+    </scroll-view>
+  </view>
+
+  <view class="filter-modal" wx:if="{{filterPanelVisible}}" catchtouchmove="noop">
+    <view class="filter-mask" bindtap="closeFilter"></view>
+    <view class="filter-sheet" catchtap="noop">
+      <view class="filter-grabber"></view>
+      <view class="filter-head"><view><text>排序与筛选</text><text>只根据真实商品字段筛选</text></view><text bindtap="closeFilter">×</text></view>
+      <view class="filter-group"><text class="filter-title">排序方式</text><view class="option-grid"><view class="option-chip {{draftSort===item.key?'active':''}}" wx:for="{{sortOptions}}" wx:key="key" data-key="{{item.key}}" bindtap="selectDraftSort">{{item.name}}</view></view></view>
+      <view class="filter-group"><text class="filter-title">商品条件</text><view class="condition-list"><view class="condition-row {{item.active?'active':''}}" wx:for="{{draftFilterOptions}}" wx:key="key" data-key="{{item.key}}" bindtap="toggleDraftFilter"><view><text>{{item.name}}</text><text>{{item.desc}}</text></view><view class="condition-check">{{item.active?'✓':''}}</view></view></view></view>
+      <view class="filter-actions"><button bindtap="resetDraft">重置</button><button class="filter-confirm" bindtap="confirmFilter">查看结果</button></view>
+    </view>
+  </view>
 </view>

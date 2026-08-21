@@ -1,0 +1,149 @@
+/* Improve frequently repeated supporting text without enlarging main headings. */
+.home-page .brand-place {
+  max-width: 330rpx;
+  overflow: hidden;
+  font-size: 20rpx;
+  color: #626d65;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-page .hero-kicker,
+.home-page .category-note {
+  font-size: 20rpx;
+}
+
+.home-page .category-note {
+  color: #626d65;
+}
+
+.profile-page .member-desc,
+.profile-page .profile-section-title text + text,
+.profile-page .menu-copy text + text {
+  font-size: 20rpx;
+}
+
+.profile-page .profile-section-title text + text,
+.profile-page .menu-copy text + text {
+  color: #626d65;
+}
+
+.cart-page .basket-label > view text + text,
+.cart-page .basket-label > text,
+.cart-page .basket-service > view > view:last-child text + text,
+.cart-page .basket-row > text,
+.cart-page .item-spec,
+.cart-page .total-wrap > text {
+  font-size: 20rpx;
+  color: #626d65;
+}
+
+/* Keep add-to-cart and a genuinely independent direct-purchase action visible. */
+.detail-page .action-bar {
+  padding-right: 18rpx;
+  padding-left: 18rpx;
+}
+
+.detail-page .cart-shortcut {
+  width: 66rpx;
+  font-size: 19rpx;
+}
+
+.detail-page .action-total {
+  min-width: 111rpx;
+  margin-left: 10rpx;
+}
+
+.detail-page .action-total text:first-child {
+  font-size: 18rpx;
+  color: #626d65;
+}
+
+.detail-page .action-buttons {
+  display: flex;
+  flex: 1;
+  gap: 10rpx;
+  justify-content: flex-end;
+  margin-left: 12rpx;
+}
+
+.detail-page .add-button,
+.detail-page .buy-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 78rpx;
+  min-width: 0;
+  margin-left: 0;
+  border-radius: 22rpx;
+  font-size: 21rpx;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.detail-page .add-button {
+  max-width: 170rpx;
+  background: #e7efe9;
+  color: #2f5f47;
+}
+
+.detail-page .add-button.adding {
+  background: #dce9df;
+}
+
+.detail-page .buy-button {
+  max-width: 186rpx;
+  background: #2f5f47;
+  color: #fff;
+}
+
+.detail-page .buy-button[disabled] {
+  opacity: .72;
+}
+
+.detail-page .visual-tags text,
+.detail-page .origin-label,
+.detail-page .stock {
+  font-size: 20rpx;
+}
+
+/* Refresh failures must stay visible even when existing checkout content is kept. */
+.checkout-page .checkout-error {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 16rpx;
+  padding: 17rpx 19rpx;
+  border-radius: 18rpx;
+  background: #f5e5dd;
+  color: #914b31;
+  font-size: 20rpx;
+  line-height: 1.55;
+}
+
+.checkout-page .checkout-error text + text {
+  flex: none;
+  font-weight: 700;
+}
+
+.checkout-page .slot text + text,
+.checkout-page .section-label text + text,
+.checkout-page .goods-spec,
+.checkout-page .option-row > view > view text + text,
+.checkout-page .fee-tip text,
+.checkout-page .submit-bar > view > text {
+  font-size: 19rpx;
+  color: #626d65;
+}
+
+.checkout-page .slot text + text {
+  font-size: 20rpx;
+}
+
+.order-page .card-kicker,
+.order-page .info-card > view {
+  font-size: 20rpx;
+  color: #626d65;
+}

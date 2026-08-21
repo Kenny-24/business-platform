@@ -1,1 +1,23 @@
-<view class="container"><view class="search"><input auto-focus="true" placeholder="水果、品种、产地" value="{{keyword}}" bindinput="input" bindconfirm="search" confirm-type="search"/><button bindtap="search">搜索</button></view><view class="result-title" wx:if="{{searched}}">找到 {{products.length}} 个商品</view><view class="grid"><product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" /></view><view class="empty" wx:if="{{searched&&!products.length}}">没有找到相关水果</view><view class="more-tip" wx:if="{{products.length}}">{{loading?'加载中…':(hasMore?'继续下滑查看更多':'已经到底了')}}</view></view>
+<view class="search-page">
+  <view class="search-bar"><text class="search-icon">⌕</text><input auto-focus="true" placeholder="水果、品种、产区" value="{{keyword}}" bindinput="input" bindconfirm="submit" confirm-type="search" /><text class="clear" wx:if="{{keyword}}" bindtap="clearInput">×</text><button bindtap="submit" disabled="{{loading}}" hover-class="button-pressed"><view class="search-spinner" wx:if="{{loading&&searched}}"></view>{{loading&&searched?'':'搜索'}}</button></view>
+
+  <block wx:if="{{!searched}}">
+    <view class="keyword-section hot-section"><view class="keyword-head"><view><text class="eyebrow">QUICK SEARCH</text><text>快速搜索</text></view><text>常用关键词</text></view><view class="chips hot"><text wx:for="{{hot}}" wx:key="*this" data-keyword="{{item}}" bindtap="useKeyword">{{item}}</text></view></view>
+    <view class="keyword-section"><view class="keyword-head"><view><text class="eyebrow">TASTE FIRST</text><text>按口感找</text></view><text>快速选果</text></view><view class="taste-grid"><view class="taste-card taste-{{index}}" wx:for="{{tastes}}" wx:key="name" data-keyword="{{item.keyword}}" bindtap="useKeyword"><text>{{item.name}}</text><text>{{item.note}}</text><text>→</text></view></view></view>
+    <view class="keyword-section" wx:if="{{history.length}}"><view class="keyword-head"><view><text class="eyebrow">RECENT</text><text>最近搜索</text></view><text bindtap="clearHistory">清除</text></view><view class="chips"><text wx:for="{{history}}" wx:key="*this" data-keyword="{{item}}" bindtap="useKeyword">{{item}}</text></view></view>
+    <view class="keyword-section trend-section"><view class="keyword-head"><view><text class="eyebrow">CURATED PICKS</text><text>精选推荐</text></view><text>当前在售</text></view>
+      <view class="trend-skeleton" wx:if="{{initialLoading}}"><view wx:for="{{[0,1,2]}}" wx:key="*this"><view class="skeleton"></view><view><view class="skeleton"></view><view class="skeleton short"></view></view></view></view>
+      <view class="inline-error" wx:elif="{{error}}"><text>{{error}}</text><text bindtap="retry">重试</text></view>
+      <view class="trend-list" wx:else><view class="trend-item card" wx:for="{{recommended}}" wx:key="id" data-id="{{item.id}}" bindtap="openById"><view class="trend-image"><safe-image src="{{item.displayImage}}" mode="aspectFill" /></view><view class="trend-copy"><text class="line1">{{item.name}}</text><text class="line1">{{item.originText}} · {{item.seasonText}}</text><view class="trend-price"><text>¥{{item.priceText}}/{{item.primarySku.unitName}}</text><text wx:if="{{item.marketPriceText}}">¥{{item.marketPriceText}}</text></view></view><text>›</text></view></view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="result-head"><view><text>“{{keyword}}”</text><text>{{products.length}} 款结果</text></view><text>综合推荐</text></view>
+    <view class="result-skeleton" wx:if="{{loading&&!products.length}}"><view wx:for="{{[0,1,2,3]}}" wx:key="*this"><view class="skeleton"></view><view class="skeleton"></view><view class="skeleton short"></view></view></view>
+    <view class="inline-error" wx:elif="{{error&&!products.length}}"><text>{{error}}</text><text bindtap="retry">重试</text></view>
+    <view class="product-grid" wx:else><product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" /></view>
+    <view class="empty-state" wx:if="{{!products.length&&!loading&&!error}}"><text class="empty-icon">⌕</text><text class="empty-title">暂时没找到相关水果</text><text class="empty-desc">换个水果名、品种或产区试试看</text></view>
+    <view class="loading-line" wx:if="{{loading&&products.length}}"><view class="loading-dots"><text></text><text></text><text></text></view>继续找好果</view><view class="loading-line" wx:elif="{{products.length&&!hasMore}}">已经看完全部结果</view>
+  </block>
+</view>

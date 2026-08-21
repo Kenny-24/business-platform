@@ -1,12 +1,34 @@
-<view class="container cart-page">
-  <view class="head"><view class="title">购物车</view><view class="sub">{{items.length}} 件商品</view></view>
-  <view wx:if="{{items.length}}">
-    <view class="item card" wx:for="{{items}}" wx:key="skuId">
-      <view class="check {{item.checked?'on':''}}" data-id="{{item.skuId}}" data-checked="{{item.checked}}" bindtap="toggle">{{item.checked?'✓':''}}</view>
-      <image class="pic" src="{{item.img}}" mode="aspectFill" />
-      <view class="info"><view class="name">{{item.name}}</view><view class="spec">{{item.specText}}</view><view class="row"><view class="price">¥{{item.price}}<text>/{{item.unitName}}</text></view><view class="step"><button data-id="{{item.skuId}}" bindtap="minus">−</button><text>{{item.quantity}}{{item.unitName}}</text><button data-id="{{item.skuId}}" bindtap="plus">＋</button></view></view><view class="remove" data-id="{{item.skuId}}" bindtap="remove">删除</view></view>
+<view class="page-shell cart-page">
+  <view class="custom-nav" style="padding-top:{{top}}px;padding-right:{{menuRight}}px"><view class="nav-row"><view><text class="nav-kicker">FRESH BASKET</text><text class="nav-title">果篮</text></view><text class="cart-count">{{items.length}} 种好果</text></view></view>
+
+  <block wx:if="{{items.length}}">
+    <view class="basket-label"><view><text>今日果篮</text><text>仅按已勾选商品计算合计</text></view><text>轻触圆点选择</text></view>
+    <view class="cart-list">
+      <view class="cart-item card" wx:for="{{items}}" wx:key="skuId">
+        <view class="check {{item.checked?'checked':''}}" data-id="{{item.skuId}}" data-checked="{{item.checked}}" bindtap="toggle">{{item.checked?'✓':''}}</view>
+        <view class="item-image"><safe-image src="{{item.img}}" mode="aspectFill" /></view>
+        <view class="item-body">
+          <view><text class="item-name line1">{{item.name}}</text><text class="item-spec line1">{{item.specText}}</text></view>
+          <view class="item-footer"><text class="item-price">¥{{item.priceText}}/{{item.unitName}}</text><view class="item-controls"><view class="stepper"><text data-id="{{item.skuId}}" bindtap="minus" hover-class="step-pressed">−</text><text class="quantity">{{item.quantityText}}</text><text data-id="{{item.skuId}}" bindtap="plus" hover-class="step-pressed">＋</text></view><button class="trash-button" data-id="{{item.skuId}}" catchtap="remove" hover-class="trash-pressed" aria-label="删除商品"><view class="trash-glyph"><view class="trash-lid"></view><view class="trash-bin"></view></view></button></view></view>
+        </view>
+      </view>
     </view>
+
+    <view class="basket-service card"><view><view class="service-icon">礼</view><view><text>作为礼物精心包装</text><text>下单可填写祝福语，客服确认包装方案</text></view></view><switch checked="{{giftEnabled}}" color="#2F5F47" bindchange="toggleGift" /></view>
+    <view class="basket-row card"><view><text class="row-icon">券</text><text>优惠服务</text></view><text>会员活动即将上线 ›</text></view>
+    <view class="fresh-note"><text>成熟度说明</text><text>天然水果会随运输继续熟化；我们按到货状态筛选，并根据品种特性安排包装。</text></view>
+  </block>
+
+  <view class="empty-state cart-empty" wx:else><view class="empty-basket">篮</view><text class="empty-title">果篮还空着</text><text class="empty-desc">当季水果已经到店，去挑几样喜欢的吧</text><button class="primary-btn empty-button" bindtap="browse" hover-class="button-pressed">去逛水果图鉴</button></view>
+
+  <view class="recommend-section">
+    <view class="recommend-head"><view><text class="eyebrow">PAIRING PICKS</text><text>为你推荐</text></view><text>搭配选果更省心</text></view>
+    <view class="recommend-error" wx:if="{{recommendationError}}"><text>{{recommendationError}}</text><text bindtap="retryRecommendations">重试</text></view>
+    <scroll-view scroll-x="true" enhanced="true" show-scrollbar="{{false}}" class="recommend-scroll" wx:if="{{recommendationLoading||recommendations.length}}"><view class="recommend-row">
+      <view class="recommend-card skeleton-card" wx:for="{{recommendationLoading?[0,1,2]:[]}}" wx:key="*this"><view class="recommend-image skeleton"></view><view class="recommend-line skeleton"></view><view class="recommend-line short skeleton"></view></view>
+      <view class="recommend-card" wx:for="{{recommendations}}" wx:key="id" data-id="{{item.id}}" bindtap="openRecommendation" hover-class="recommend-pressed"><view class="recommend-image"><safe-image src="{{item.displayImage}}" mode="aspectFill" /></view><text class="recommend-name line1">{{item.name}}</text><text class="recommend-spec line1">{{item.primarySku.specText}}</text><view class="recommend-price"><view><text>¥{{item.priceText}}/{{item.primarySku.unitName}}</text><text wx:if="{{item.marketPriceText}}">¥{{item.marketPriceText}}</text></view><button data-id="{{item.id}}" catchtap="addRecommendation" hover-class="recommend-add-pressed">＋</button></view></view>
+    </view></scroll-view>
   </view>
-  <view class="empty" wx:else><view class="empty-icon">🧺</view><view>购物车还是空的</view><view class="muted">去挑一些新鲜水果吧</view></view>
+
+  <view class="checkout-bar" wx:if="{{items.length}}"><view class="select-all" bindtap="toggleAll"><text class="check {{allChecked?'checked':''}}">{{allChecked?'✓':''}}</text><text>全选</text></view><view class="total-wrap"><text>已选 {{selectedCount}} 件 · 合计</text><view><text>¥</text><text class="total">{{total}}</text></view></view><button class="checkout-button" disabled="{{!selectedCount}}" bindtap="checkout" hover-class="button-pressed">结算</button></view>
 </view>
-<view class="bottom" wx:if="{{items.length}}"><view class="all" bindtap="all"><view class="check {{allChecked?'on':''}}">{{allChecked?'✓':''}}</view><text>全选</text></view><view class="sum"><text>合计</text><text class="price">¥{{total}}</text></view><button class="checkout" bindtap="checkout">结算</button></view>

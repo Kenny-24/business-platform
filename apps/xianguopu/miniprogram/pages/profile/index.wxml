@@ -1,9 +1,41 @@
-<view class="container">
-  <view class="profile card">
-    <view class="avatar">🍏</view>
-    <view wx:if="{{logged}}"><view class="name">鲜果铺用户</view><view class="muted uid">ID {{user.id}}</view></view>
-    <view wx:else bindtap="login"><view class="name">登录 / 注册</view><view class="muted uid">登录后查看订单与地址</view></view>
+<view class="page-shell profile-page">
+  <view class="profile-hero">
+    <view class="custom-nav profile-nav" style="padding-top:{{top}}px;padding-right:{{menuRight}}px"><view class="nav-row profile-nav-row"><view><text class="nav-kicker">MEMBERSHIP</text><text class="nav-title">我的</text></view></view></view>
+
+    <view class="member-card" bindtap="handleMemberTap" hover-class="member-pressed">
+      <view class="avatar" wx:if="{{user.avatarDisplay}}"><safe-image src="{{user.avatarDisplay}}" mode="aspectFill" lazy="{{false}}" /></view>
+      <view class="avatar avatar-fallback" wx:else>鲜</view>
+      <view class="member-copy"><text class="member-name">{{logged?(user.nickname||user.nickName||'鲜果会员'):(loginLoading?'正在安全登录…':'微信登录')}}</text><text class="member-desc">{{logged?'应季而食，知味而选':'获取微信头像与名称，管理订单和地址'}}</text></view>
+      <view class="member-state"><text class="member-level">{{logged?'编辑资料':'立即登录'}}</text><view class="login-spinner" wx:if="{{loginLoading}}"></view><text class="member-arrow" wx:else>›</text></view>
+    </view>
+    <view class="brand-promise"><text>鲜果会员</text><text>每一份选择，都更简单清晰</text></view>
   </view>
-  <view class="section card"><view class="section-title">我的订单</view><view class="order-grid"><view data-status="PENDING_PAYMENT" bindtap="orders"><text>💳</text><view>待付款</view></view><view data-status="PAID" bindtap="orders"><text>📦</text><view>待发货</view></view><view data-status="SHIPPED" bindtap="orders"><text>🚚</text><view>配送中</view></view><view data-status="" bindtap="orders"><text>🧾</text><view>全部</view></view></view></view>
-  <view class="menu card"><view class="row" bindtap="addresses"><text>📍 收货地址</text><text>›</text></view><view class="row"><text>🛡️ 售后与保障</text><text>›</text></view><view class="row"><text>☎️ 联系客服</text><text>›</text></view><view class="row"><text>ℹ️ 关于鲜果铺</text><text>›</text></view></view>
+
+  <view class="profile-content">
+    <view class="profile-section-title"><view><text>账户与服务</text><text>常用功能集中管理</text></view></view>
+    <view class="profile-card menu-card card">
+      <view class="menu-item" bindtap="orders" hover-class="menu-pressed"><text class="menu-icon order-icon">单</text><view class="menu-copy"><text>我的订单</text><text>查看订单进度与历史记录</text></view><view class="menu-tail"><view class="tiny-loader" wx:if="{{ordersLoading}}"></view><text class="order-badge" wx:elif="{{orderCount}}">{{orderCount>99?'99+':orderCount}}</text><text class="menu-arrow">›</text></view></view>
+      <view class="menu-item" bindtap="addresses" hover-class="menu-pressed"><text class="menu-icon address-icon">址</text><view class="menu-copy"><text>收货地址</text><text>管理常用配送信息</text></view><text class="menu-arrow">›</text></view>
+      <button class="menu-item" open-type="contact" hover-class="menu-pressed"><text class="menu-icon advisor-icon">顾</text><view class="menu-copy"><text>联系水果顾问</text><text>选果、熟度与订单咨询</text></view><text class="menu-arrow">›</text></button>
+      <view class="menu-item" bindtap="about" hover-class="menu-pressed"><text class="menu-icon about-icon">关</text><view class="menu-copy"><text>关于鲜果铺</text><text>了解我们的挑果与服务标准</text></view><text class="menu-arrow">›</text></view>
+      <view class="menu-item" wx:if="{{logged}}" bindtap="logout" hover-class="menu-pressed"><text class="menu-icon logout-icon">退</text><view class="menu-copy"><text>退出登录</text><text>清除本机登录状态</text></view><text class="menu-arrow">›</text></view>
+    </view>
+
+    <view class="profile-footer"><text>XIANGUOPU · LIGHT FOREST</text><text>应季而食，知味而选</text></view>
+  </view>
+
+  <view class="profile-editor" wx:if="{{editorVisible}}" catchtouchmove="noop">
+    <view class="editor-mask" bindtap="closeProfileEditor"></view>
+    <view class="editor-sheet" catchtap="noop">
+      <view class="editor-grabber"></view>
+      <view class="editor-head"><view><text>编辑个人资料</text><text>头像与名称会同步保存到当前账号</text></view><text bindtap="closeProfileEditor">×</text></view>
+      <view class="avatar-editor">
+        <button class="avatar-picker" open-type="chooseAvatar" bindchooseavatar="chooseAvatar" disabled="{{profileSaving}}"><view class="avatar-editor-image" wx:if="{{draftAvatarDisplay}}"><safe-image src="{{draftAvatarDisplay}}" mode="aspectFill" lazy="{{false}}" /></view><view wx:else>鲜</view><text>更换</text></button>
+        <view><text>微信头像</text><text>点击头像，从微信头像或相册中选择</text></view>
+      </view>
+      <view class="nickname-field"><text>昵称</text><input type="nickname" maxlength="20" value="{{draftNickname}}" placeholder="请输入微信昵称" confirm-type="done" bindinput="nicknameInput" /></view>
+      <text class="editor-tip">昵称最多 20 个字符，可随时再次修改</text>
+      <view class="editor-actions"><button bindtap="closeProfileEditor" disabled="{{profileSaving}}">取消</button><button class="save-profile" bindtap="saveProfile" disabled="{{profileSaving}}"><view class="button-spinner" wx:if="{{profileSaving}}"></view>{{profileSaving?'保存中':'保存资料'}}</button></view>
+    </view>
+  </view>
 </view>

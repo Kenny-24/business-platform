@@ -1,0 +1,8 @@
+<view class="safe-image-root">
+  <view class="safe-image-placeholder {{ready?'hidden':''}}"></view>
+  <image wx:if="{{displaySrc}}" class="safe-image-media" src="{{displaySrc}}" mode="{{mode}}" lazy-load="{{lazy}}" bindload="handleLoad" binderror="handleError" />
+  <view class="safe-image-error" wx:if="{{failed}}" catchtap="retry" aria-role="button" aria-label="重新加载图片">
+    <text class="safe-image-retry">↻</text>
+    <text wx:if="{{retryable}}">重试</text>
+  </view>
+</view>

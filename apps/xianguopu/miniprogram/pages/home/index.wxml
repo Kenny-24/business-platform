@@ -1,25 +1,65 @@
-<view class="page">
-  <view class="nav" style="padding-top:{{top}}px">
-    <view class="brand">鲜果铺</view>
-    <view class="tagline">把新鲜送到家</view>
-  </view>
-  <view class="container">
-    <view class="search" bindtap="openSearch"><text class="search-icon">⌕</text><text>搜索水果、品种、产地</text></view>
-    <view class="hero">
-      <view class="hero-kicker">FRESH · EVERY DAY</view>
-      <view class="hero-title">{{bannerText}}</view>
-      <view class="hero-desc">精选常见果品与特色鲜果，全国商品体系可扩展</view>
-      <view class="hero-bubbles"><text>🍊</text><text>🍐</text><text>🍇</text></view>
-    </view>
-    <scroll-view class="cats" scroll-x="true" show-scrollbar="false" enhanced="true">
-      <view class="cat-row">
-        <view class="cat" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="goCategory"><view class="cat-icon">{{item.icon || '🍏'}}</view><text>{{item.name}}</text></view>
-      </view>
-    </scroll-view>
-    <view class="section-head"><view><view class="section-title">精选鲜果</view><view class="section-sub">按真实购买规格售卖</view></view><view class="more" bindtap="goCategory">全部 ></view></view>
-    <view class="grid" wx:if="{{products.length}}">
-      <product-card wx:for="{{products}}" wx:key="id" product="{{item}}" bind:open="openProduct" bind:add="addCart" />
-    </view>
-    <view class="loading" wx:if="{{loading}}">正在挑选新鲜水果…</view>
-  </view>
+<page-skeleton wx:if="{{loading&&!ready}}" type="home" />
+<view class="state-panel" wx:elif="{{error&&!ready}}">
+  <view class="state-mark">果</view>
+  <text class="state-title">果园信号走丢了</text>
+  <text class="state-desc">{{error}}，请检查服务或网络后再试一次。</text>
+  <button class="state-action" bindtap="retry" hover-class="button-pressed">重新加载</button>
 </view>
+<scroll-view class="home-scroll" style="height:100vh" scroll-y="true" enhanced="true" show-scrollbar="{{false}}" enable-back-to-top="true" refresher-enabled="true" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onPullDownRefresh" wx:else>
+  <view class="page-shell home-page">
+    <view class="custom-nav" style="padding-top:{{top}}px;padding-right:{{menuRight}}px">
+      <view class="nav-row">
+        <view class="brand-wrap">
+          <view class="brand-mark">鲜</view>
+          <view><text class="brand">{{store.storeName}}</text><text class="brand-place">{{store.serviceArea}} · {{store.deliveryPromise}}</text></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="search-row">
+      <view class="search-box" bindtap="openSearch" hover-class="search-pressed"><text class="search-icon">⌕</text><text class="search-copy">搜索水果、产区或品种</text><text class="search-action">搜索</text></view>
+      <view class="home-cart" bindtap="goCart" hover-class="cart-pressed">
+        <view class="home-cart-icon"><safe-image src="/assets/tab/cart-active.png" mode="aspectFit" lazy="{{false}}" /></view>
+        <text class="home-cart-badge" wx:if="{{cartCount}}">{{cartCount>99?'99+':cartCount}}</text>
+      </view>
+    </view>
+
+    <view class="delivery-strip" bindtap="showDelivery" hover-class="delivery-pressed">
+      <view class="delivery-mark">送</view>
+      <view><text>配送时段清晰可选</text><text>{{deliveryNotice}}</text></view>
+      <text class="delivery-arrow">›</text>
+    </view>
+
+    <view class="scene-row">
+      <block wx:for="{{scenes}}" wx:key="key">
+        <button class="scene-item" wx:if="{{item.key==='invite'}}" open-type="share" hover-class="scene-pressed">
+          <view class="scene-icon scene-{{item.key}}">{{item.icon}}</view><text class="scene-name">{{item.name}}</text><text class="scene-note">{{item.note}}</text>
+        </button>
+        <view class="scene-item" wx:else data-key="{{item.key}}" bindtap="selectScene" hover-class="scene-pressed">
+          <view class="scene-icon scene-{{item.key}}">{{item.icon}}</view><text class="scene-name">{{item.name}}</text><text class="scene-note">{{item.note}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="inline-error-home" wx:if="{{error}}"><text>今日果单更新失败，当前展示上次内容</text><text bindtap="retry">重试</text></view>
+
+    <view class="hero">
+      <view class="hero-image"><safe-image src="{{banner}}" mode="aspectFill" lazy="{{false}}" /></view>
+      <view class="hero-shade"></view>
+      <view class="hero-copy"><text class="hero-kicker">CURATED FRUIT · 分时配送</text><text class="hero-title">把好果，简单送到家</text><text class="hero-desc">按风味、熟度与到货状态认真筛选</text><button class="hero-button" bindtap="goAll" hover-class="button-pressed">浏览全部好果 <text>→</text></button></view>
+    </view>
+
+    <view class="section taste-section">
+      <view class="section-head"><view><text class="eyebrow">TASTE FIRST</text><text class="section-title">按风味选果</text></view><text class="section-link" bindtap="goAll">全部 →</text></view>
+      <scroll-view scroll-x="true" enhanced="true" show-scrollbar="{{false}}" class="category-scroll"><view class="category-row"><view class="category-card" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="goCategory" hover-class="category-pressed"><text class="category-icon">{{item.icon||'果'}}</text><text class="category-name">{{item.name}}</text><text class="category-note">进入选果</text></view></view></scroll-view>
+    </view>
+
+    <view class="section featured-section">
+      <view class="section-head"><view><text class="eyebrow">FRESH PICKS</text><text class="section-title">今日鲜选</text><text class="section-subtitle">真实价格、库存与折扣信息</text></view><text class="section-link" bindtap="goAll">更多 →</text></view>
+      <view class="product-grid"><product-card wx:for="{{featured}}" wx:key="id" product="{{item}}" bind:add="addCart" bind:open="openProduct" /></view>
+    </view>
+
+    <view class="refresh-note" wx:if="{{refreshing}}"><view class="loading-dots"><text></text><text></text><text></text></view>正在更新今日果单</view>
+    <view class="home-footer"><text>鲜果铺 · 应季而食，知味而选</text><text>MODERN ORCHARD · LIGHT FOREST</text></view>
+  </view>
+</scroll-view>

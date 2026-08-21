@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "product-card": "../../components/product-card/index"
+    "product-card": "../../components/product-card/index",
+    "page-skeleton": "../../components/page-skeleton/index"
   }
 }

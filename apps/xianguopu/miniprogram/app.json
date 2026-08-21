@@ -50,15 +50,15 @@
   },
   "window": {
     "navigationBarTitleText": "鲜果铺",
-    "navigationBarBackgroundColor": "#F8F7F2",
+    "navigationBarBackgroundColor": "#F7F3EA",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F8F7F2",
+    "backgroundColor": "#F7F3EA",
     "backgroundTextStyle": "dark",
     "navigationStyle": "custom"
   },
   "tabBar": {
-    "color": "#8B8B86",
-    "selectedColor": "#167A4A",
+    "color": "#8A8F88",
+    "selectedColor": "#2F5F47",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
@@ -76,7 +76,7 @@
       },
       {
         "pagePath": "pages/cart/index",
-        "text": "购物车",
+        "text": "果篮",
         "iconPath": "assets/tab/cart.png",
         "selectedIconPath": "assets/tab/cart-active.png"
       },

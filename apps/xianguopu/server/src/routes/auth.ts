@@ -3,6 +3,15 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma.js';
 import { config } from '../config.js';
 
+function profileData(body: { nickname?: string; avatarUrl?: string }) {
+  const nickname = String(body.nickname || '').trim().slice(0, 20);
+  const avatarUrl = String(body.avatarUrl || '').trim().slice(0, 800);
+  return {
+    ...(nickname ? { nickname } : {}),
+    ...(/^https?:\/\//i.test(avatarUrl) ? { avatarUrl } : {})
+  };
+}
+
 export async function authRoutes(app: FastifyInstance) {
   app.post('/admin/login', async (req, reply) => {
     const body = req.body as { username?: string; password?: string };
@@ -15,7 +24,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/wx/login', async (req, reply) => {
-    const body = req.body as { code?: string };
+    const body = req.body as { code?: string; nickname?: string; avatarUrl?: string };
     let openid = '';
     if (config.WX_APPID && config.WX_APPSECRET && body.code) {
       const url = new URL('https://api.weixin.qq.com/sns/jscode2session');
@@ -31,7 +40,8 @@ export async function authRoutes(app: FastifyInstance) {
       // 本地联调专用；生产环境必须配置 WX_APPID / WX_APPSECRET。
       openid = 'dev_guest';
     }
-    const user = await prisma.user.upsert({ where: { openid }, update: {}, create: { openid } });
+    const profile = profileData(body);
+    const user = await prisma.user.upsert({ where: { openid }, update: profile, create: { openid, ...profile } });
     const token = app.jwt.sign({ userId: user.id, role: 'user' }, { expiresIn: '30d' });
     return { token, user };
   });

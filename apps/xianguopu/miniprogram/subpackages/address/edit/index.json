@@ -1,3 +1,10 @@
 {
-  "navigationBarTitleText": "编辑地址"
+  "navigationBarTitleText": "编辑地址",
+  "renderer": "webview",
+  "navigationStyle": "default",
+  "navigationBarBackgroundColor": "#F7F3EA",
+  "backgroundColor": "#F7F3EA",
+  "usingComponents": {
+    "page-skeleton": "../../../components/page-skeleton/index"
+  }
 }
